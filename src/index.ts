@@ -15,3 +15,5 @@ export { Divider, type DividerProps } from './components/Divider';
 export { Stack, type StackProps } from './components/Stack';
 export { Avatar, type AvatarProps } from './components/Avatar';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
+export { Progress, type ProgressProps, type ProgressTone } from './components/Progress';
+export { SelectionBar, type SelectionBarProps } from './components/SelectionBar';
