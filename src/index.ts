@@ -5,7 +5,7 @@ export { Textarea, type TextareaProps } from './components/Textarea';
 export { Field, type FieldProps } from './components/Field';
 export { Select, type SelectProps, type SelectOption } from './components/Select';
 export { Card, type CardProps } from './components/Card';
-export { Table, type TableProps, type TableColumn } from './components/Table';
+export { Table, type TableProps, type TableColumn, type SortState, type SortDir } from './components/Table';
 export { Badge, type BadgeProps, type BadgeTone } from './components/Badge';
 export { PageShell, type PageShellProps } from './components/PageShell';
 export { Spinner, type SpinnerProps } from './components/Spinner';
