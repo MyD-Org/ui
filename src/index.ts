@@ -14,3 +14,4 @@ export { Skeleton, type SkeletonProps } from './components/Skeleton';
 export { Divider, type DividerProps } from './components/Divider';
 export { Stack, type StackProps } from './components/Stack';
 export { Avatar, type AvatarProps } from './components/Avatar';
+export { Checkbox, type CheckboxProps } from './components/Checkbox';
