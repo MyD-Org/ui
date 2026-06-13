@@ -8,9 +8,16 @@ const options = [
 ];
 
 describe('Select', () => {
-  it('renderiza las opciones provistas', () => {
+  it('muestra el placeholder cuando no hay valor', () => {
+    render(<Select options={options} placeholder="Elegí un modelo" aria-label="modelo" />);
+    expect(screen.getByLabelText('modelo')).toHaveTextContent('Elegí un modelo');
+  });
+  it('muestra el label del valor por defecto', () => {
     render(<Select options={options} defaultValue="claude-haiku-4-5" aria-label="modelo" />);
-    expect(screen.getByRole('option', { name: 'Sonnet' })).toBeInTheDocument();
-    expect((screen.getByLabelText('modelo') as HTMLSelectElement).value).toBe('claude-haiku-4-5');
+    expect(screen.getByLabelText('modelo')).toHaveTextContent('Haiku');
+  });
+  it('el trigger es un combobox accesible', () => {
+    render(<Select options={options} aria-label="modelo" />);
+    expect(screen.getByRole('combobox', { name: 'modelo' })).toBeInTheDocument();
   });
 });

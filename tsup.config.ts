@@ -5,6 +5,6 @@ export default defineConfig({
   format: ['esm', 'cjs'],
   dts: true,
   clean: true,
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', /^@radix-ui\//],
   publicDir: 'src/styles', // copia tokens.css + tailwind.css → dist/
 });

@@ -42,11 +42,18 @@
     "react-dom": ">=18"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-a11y": "^10.4.4",
+    "@storybook/addon-docs": "^10.4.4",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/addon-vitest": "^10.4.4",
+    "@storybook/react-vite": "^10.4.4",
     "@tailwindcss/vite": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -54,24 +61,18 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/browser": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.8",
     "jsdom": "^25.0.1",
+    "playwright": "^1.60.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "storybook": "^10.4.4",
     "tailwindcss": "^4",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vite": "^5.4.21",
-    "vitest": "^2.1.8",
-    "storybook": "^10.4.4",
-    "@storybook/react-vite": "^10.4.4",
-    "@chromatic-com/storybook": "^5.2.1",
-    "@storybook/addon-vitest": "^10.4.4",
-    "@storybook/addon-a11y": "^10.4.4",
-    "@storybook/addon-docs": "^10.4.4",
-    "@storybook/addon-mcp": "^0.6.0",
-    "playwright": "^1.60.0",
-    "@vitest/browser": "^2.1.8",
-    "@vitest/coverage-v8": "^2.1.8"
+    "vitest": "^2.1.8"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
