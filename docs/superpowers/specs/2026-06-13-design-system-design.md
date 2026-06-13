@@ -43,18 +43,23 @@ Objetivo del slice: vertical y de-riesgo. Despeja los dos riesgos reales — (1)
 ### Forma del paquete y exports
 
 ```
-@myd-org/ui             → componentes React (.tsx con clases Tailwind + CVA)
-@myd-org/ui/tokens.css  → contrato de roles + theme default + @theme inline (CSS plano)
+@myd-org/ui              → componentes React (.tsx con clases Tailwind + CVA)
+@myd-org/ui/tokens.css   → contrato de roles + theme default (CSS plano PURO; lo consume cualquiera, incl. el widget)
+@myd-org/ui/tailwind.css → @import "tokens.css" + @theme inline (entry para apps Tailwind v4)
 ```
+
+Los tokens van en **dos archivos** a propósito: `@theme inline` es una directiva de Tailwind, y el widget consume CSS plano (sin Tailwind). Meter `@theme` en el archivo que importa el widget le ensuciaría el bundle con un at-rule que su pipeline no procesa. Por eso `tokens.css` es CSS plano puro (lo importan el widget y, transitivamente, las apps) y `tailwind.css` agrega el mapeo a utilidades solo para los consumidores Tailwind.
 
 - Build **tsup** (ESM+CJS+dts), espejando el widget. React como peer dep.
 - Tests **vitest + Testing Library + jsdom** (misma stack que el widget).
 - **Playground Vite en `example/`** para ver los componentes en browser con HMR. No Storybook (sobre-ingeniería ahora; revisitar si crece).
 - `publishConfig` a GitHub Packages + `.npmrc` con `${GITHUB_TOKEN}`. Versión inicial `0.1.0`.
 
-### Contrato de tokens (`tokens.css`)
+### Contrato de tokens
 
 Solo los roles que definen marca (lo que cambia entre apps). El spacing se apoya en los defaults de Tailwind por ahora (YAGNI).
+
+`tokens.css` — CSS plano puro, el contrato + theme default:
 
 ```css
 :root {
@@ -68,6 +73,12 @@ Solo los roles que definen marca (lo que cambia entre apps). El spacing se apoya
   --font-sans;
   --shadow-1; --shadow-2;
 }
+```
+
+`tailwind.css` — entry para apps Tailwind v4:
+
+```css
+@import "@myd-org/ui/tokens.css";
 @theme inline {
   /* mapea cada rol a utilidad Tailwind: bg-primary, text-muted, etc. */
   --color-primary: var(--color-primary);
@@ -75,17 +86,28 @@ Solo los roles que definen marca (lo que cambia entre apps). El spacing se apoya
 }
 ```
 
-Que el `@theme inline` viva dentro de `tokens.css` (Tailwind v4 lo permite en CSS importado) hace que adoptarlo sea una sola línea: la app obtiene valores default (`:root`) + utilidades a la vez. Adopción en una app Tailwind:
+**Adopción en una app Tailwind (CRM / dashboard):**
 
 ```css
 @import "tailwindcss";
-@import "@myd-org/ui/tokens.css";
+@import "@myd-org/ui/tailwind.css";
 @source "../node_modules/@myd-org/ui/dist";   /* para que las utilidades de la lib compilen */
 /* override de roles para re-marcar: */
 :root { --color-primary: #0c3ed6; /* … */ }
 ```
 
-El widget importa `tokens.css` como CSS plano y re-mapea sus `--aichat-*` sobre los roles (ej. `--aichat-primary: var(--color-primary)`) — **rewire del widget = opcional / slice posterior**, no entra en la ejecución del slice 1 (el widget ya funciona).
+**Adopción en el widget (CSS plano, SIN Tailwind):** importa `tokens.css` (no `tailwind.css`) y re-mapea sus `--aichat-*` sobre los roles, manteniendo su paleta cálida vía override de roles. Visualmente no cambia; pasa a consumir el contrato compartido:
+
+```css
+@import "@myd-org/ui/tokens.css";
+.aichat-root {
+  /* theme cálido del widget = override de roles */
+  --color-primary: #1c1917; --color-bg: #faf9f7; /* … */
+  /* los --aichat-* ahora referencian los roles */
+  --aichat-primary: var(--color-primary);
+  --aichat-bg: var(--color-bg); /* … */
+}
+```
 
 ### Convenciones de API (SDUI-ready)
 
@@ -107,17 +129,16 @@ Elegidos por lo que el ai-dashboard usa hoy (login OTP, `/agents` list + new/edi
 
 Slice 1: override de roles a nivel app (`:root` en el `globals.css` de cada app). **Per-tenant theming = futuro** (probablemente scope `[data-theme]` o vars inline). No entra ahora.
 
-### Vertical de prueba
+### Vertical de prueba (dos consumidores, dos sustratos)
 
 1. Publicar `@myd-org/ui@0.1.0` a GitHub Packages.
-2. Instalar en **ai-dashboard** vía `.npmrc` (NO tarball en `/tmp`).
-3. Reemplazar la UI mínima actual del dashboard por estos componentes, con el dashboard definiendo su theme sobre los roles.
+2. **ai-dashboard (Tailwind):** instalar vía `.npmrc` (NO tarball en `/tmp`), importar `tailwind.css` + `@source`, y reemplazar la UI mínima actual por los componentes, con el dashboard definiendo su theme sobre los roles. Valida el camino Tailwind (tokens + componentes + utilidades).
+3. **ai-widget (CSS plano):** instalar `@myd-org/ui`, importar `tokens.css` y re-mapear los `--aichat-*` sobre los roles (su paleta cálida queda como override de roles, sin cambio visual). Valida el camino CSS-plano (tokens only) — confirma que el contrato cruza ambos sustratos. El widget sube de versión (`0.1.x`/`0.2.0`) al adoptar la dep.
 
 ## Fuera de alcance (slices siguientes)
 
 - Modal/Dialog, Toast, Tabs, formularios complejos.
 - Renderer SDUI / JSON-schema (iniciativa futura, brainstorm aparte).
-- Rewire del widget sobre `tokens.css` (cuando convenga).
 - Adopción en el CRM (es de Dalila — se coordina cuando el DS esté probado en el dashboard).
 - Spacing scale propio, per-tenant theming, dark mode.
 
@@ -125,5 +146,6 @@ Slice 1: override de roles a nivel app (`:root` en el `globals.css` de cada app)
 
 - `@myd-org/ui@0.1.0` publicado a GitHub Packages e instalable vía `.npmrc` desde otra carpeta (reproducible, sin `/tmp`).
 - Los ~9 componentes con tests (vitest + Testing Library) en verde y typecheck limpio.
-- `tokens.css` consumido por una app Tailwind v4 vía `@import` + `@source`, con override de roles funcionando (re-marca visible).
+- Los tokens consumidos por **ambos sustratos**: una app Tailwind v4 (`tailwind.css` vía `@import` + `@source`, override de roles funcionando) **y** el widget en CSS plano (`tokens.css`, `--aichat-*` re-mapeados, sin cambio visual). Confirma que el contrato cruza ambos.
 - ai-dashboard adopta los componentes y su UI deja de verse "mínima"; verificación visual en el playground/dashboard.
+- ai-widget sigue verde (sus 30+ tests) tras re-mapear sus tokens sobre los roles.
