@@ -18,4 +18,11 @@ describe('Table', () => {
     render(<Table<Row> columns={columns} rows={[]} rowKey={(r) => r.id} empty="Nada acá" />);
     expect(screen.getByText('Nada acá')).toBeInTheDocument();
   });
+  it('usa el render de la columna cuando se provee', () => {
+    const cols: TableColumn<Row>[] = [
+      { key: 'name', header: 'Nombre', render: (r) => <span data-testid="custom">{r.name.toUpperCase()}</span> },
+    ];
+    render(<Table<Row> columns={cols} rows={[{ id: '1', name: 'soporte' }]} rowKey={(r) => r.id} />);
+    expect(screen.getByTestId('custom')).toHaveTextContent('SOPORTE');
+  });
 });

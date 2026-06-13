@@ -41,7 +41,7 @@ export function Table<T>({ columns, rows, rowKey, empty, className }: TableProps
               <tr key={rowKey(row)} className="border-b border-border last:border-0">
                 {columns.map((c) => (
                   <td key={c.key} className={cn('px-4 py-3', c.className)}>
-                    {c.render ? c.render(row) : (row as Record<string, ReactNode>)[c.key]}
+                    {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '')}
                   </td>
                 ))}
               </tr>
