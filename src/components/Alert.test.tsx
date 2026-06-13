@@ -10,4 +10,8 @@ describe('Alert', () => {
     expect(el).toHaveTextContent('Algo falló');
     expect(el.className).toContain('bg-danger-soft');
   });
+  it('usa role status (polite) para tonos no críticos', () => {
+    render(<Alert tone="success" title="Listo">Guardado</Alert>);
+    expect(screen.getByRole('status')).toHaveTextContent('Guardado');
+  });
 });

@@ -22,9 +22,16 @@ export interface AlertProps
 
 export type AlertTone = NonNullable<VariantProps<typeof alert>['tone']>;
 
+const roleByTone: Record<AlertTone, 'alert' | 'status'> = {
+  danger: 'alert',
+  warning: 'alert',
+  success: 'status',
+  neutral: 'status',
+};
+
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(
   ({ className, tone, title, children, ...props }, ref) => (
-    <div ref={ref} role="alert" className={cn(alert({ tone }), className)} {...props}>
+    <div ref={ref} role={roleByTone[tone ?? 'neutral']} className={cn(alert({ tone }), className)} {...props}>
       {title && <p className="font-medium">{title}</p>}
       {children != null && <div className={cn(title && 'mt-1')}>{children}</div>}
     </div>

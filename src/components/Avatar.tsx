@@ -13,8 +13,9 @@ const avatar = cva(
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  const chars = (s: string) => Array.from(s);
+  if (parts.length === 1) return chars(parts[0]).slice(0, 2).join('').toUpperCase();
+  return (chars(parts[0])[0] + chars(parts[parts.length - 1])[0]).toUpperCase();
 }
 
 export interface AvatarProps
@@ -26,7 +27,7 @@ export interface AvatarProps
 
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
   ({ className, size, src, name, ...props }, ref) => (
-    <span ref={ref} className={cn(avatar({ size }), className)} {...props}>
+    <span ref={ref} aria-label={src ? undefined : name} className={cn(avatar({ size }), className)} {...props}>
       {src ? <img src={src} alt={name} className="h-full w-full object-cover" /> : initials(name)}
     </span>
   ),
