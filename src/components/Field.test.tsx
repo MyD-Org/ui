@@ -24,4 +24,21 @@ describe('Field', () => {
     expect(screen.getByText('Requerido')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
   });
+  it('respeta el id propio del child', () => {
+    render(
+      <Field label="Nombre">
+        <Input id="custom-id" placeholder="nombre" />
+      </Field>,
+    );
+    expect(screen.getByPlaceholderText('nombre')).toHaveAttribute('id', 'custom-id');
+    expect(screen.getByText('Nombre')).toHaveAttribute('for', 'custom-id');
+  });
+  it('muestra el hint cuando no hay error', () => {
+    render(
+      <Field label="Email" hint="Te mandamos un código">
+        <Input />
+      </Field>,
+    );
+    expect(screen.getByText('Te mandamos un código')).toBeInTheDocument();
+  });
 });

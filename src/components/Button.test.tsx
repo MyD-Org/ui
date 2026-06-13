@@ -22,4 +22,14 @@ describe('Button', () => {
     render(<Button loading>Ir</Button>);
     expect(screen.getByRole('button')).toBeDisabled();
   });
+  it('no dispara onClick cuando está disabled', async () => {
+    const onClick = vi.fn();
+    render(<Button disabled onClick={onClick}>Ir</Button>);
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+  it('queda disabled por loading aunque disabled sea false', () => {
+    render(<Button disabled={false} loading>Ir</Button>);
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
 });
