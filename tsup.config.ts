@@ -1,0 +1,10 @@
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  entry: { index: 'src/index.ts' },
+  format: ['esm', 'cjs'],
+  dts: true,
+  clean: true,
+  external: ['react', 'react-dom'],
+  publicDir: 'src/styles', // copia tokens.css + tailwind.css → dist/
+});
