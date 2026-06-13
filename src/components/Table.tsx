@@ -150,7 +150,7 @@ export function Table<T>({
         <thead>
           <tr className="border-b border-border">
             {selectable && (
-              <th className="w-10 px-2 py-2">
+              <th className="w-10 px-2 py-2 text-left">
                 <Checkbox
                   checked={allSelected}
                   indeterminate={someSelected}
