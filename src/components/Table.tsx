@@ -60,8 +60,8 @@ function getSortValue<T>(col: TableColumn<T>, row: T): string | number {
 function SortIndicator({ dir }: { dir: SortDir }) {
   return (
     <svg
-      width="12"
-      height="12"
+      width="10"
+      height="10"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -150,7 +150,7 @@ export function Table<T>({
         <thead>
           <tr className="border-b border-border">
             {selectable && (
-              <th className="w-10 px-3 py-2">
+              <th className="w-10 px-2 py-2">
                 <Checkbox
                   checked={allSelected}
                   indeterminate={someSelected}
@@ -216,13 +216,13 @@ export function Table<T>({
                   key={key}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cn(
-                    'border-b border-border transition-colors last:border-0',
+                    'border-b border-border transition-colors',
                     onRowClick && 'cursor-pointer',
                     isSelected ? 'bg-primary/10' : 'hover:bg-elevated',
                   )}
                 >
                   {selectable && (
-                    <td className="w-10 px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                    <td className="w-10 px-2 py-2.5" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleRow(key)}
