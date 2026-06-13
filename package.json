@@ -1,6 +1,6 @@
 {
   "name": "@myd-org/ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared design system for the MyD venture frontends",
   "license": "UNLICENSED",
   "type": "module",
