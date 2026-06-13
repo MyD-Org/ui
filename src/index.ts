@@ -1,10 +1,10 @@
 export { cn } from './lib/cn';
-export { Button, type ButtonProps } from './components/Button';
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './components/Button';
 export { Input, type InputProps } from './components/Input';
 export { Textarea, type TextareaProps } from './components/Textarea';
 export { Field, type FieldProps } from './components/Field';
 export { Select, type SelectProps, type SelectOption } from './components/Select';
 export { Card, type CardProps } from './components/Card';
 export { Table, type TableProps, type TableColumn } from './components/Table';
-export { Badge, type BadgeProps } from './components/Badge';
+export { Badge, type BadgeProps, type BadgeTone } from './components/Badge';
 export { PageShell, type PageShellProps } from './components/PageShell';

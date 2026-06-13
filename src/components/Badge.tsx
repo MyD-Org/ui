@@ -18,6 +18,8 @@ export interface BadgeProps
   extends HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badge> {}
 
+export type BadgeTone = NonNullable<VariantProps<typeof badge>['tone']>;
+
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, tone, ...props }, ref) => (
     <span ref={ref} className={cn(badge({ tone }), className)} {...props} />

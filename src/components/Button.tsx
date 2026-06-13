@@ -24,6 +24,9 @@ export interface ButtonProps
   loading?: boolean;
 }
 
+export type ButtonVariant = NonNullable<VariantProps<typeof button>['variant']>;
+export type ButtonSize = NonNullable<VariantProps<typeof button>['size']>;
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, loading, disabled, children, ...props }, ref) => (
     <button
