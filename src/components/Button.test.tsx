@@ -32,4 +32,8 @@ describe('Button', () => {
     render(<Button disabled={false} loading>Ir</Button>);
     expect(screen.getByRole('button')).toBeDisabled();
   });
+  it('tiene feedback de press en active', () => {
+    render(<Button>Ir</Button>);
+    expect(screen.getByRole('button').className).toContain('active:scale-');
+  });
 });
