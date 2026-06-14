@@ -8,8 +8,14 @@
   --color-ring: var(--color-ring);
   --color-text: var(--color-text);
   --color-muted: var(--color-muted);
+  --color-subtle: var(--color-subtle);
+  --color-border-strong: var(--color-border-strong);
   --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
   --color-on-primary: var(--color-on-primary);
+  --color-accent: var(--color-accent);
+  --color-accent-strong: var(--color-accent-strong);
   --color-success: var(--color-success);
   --color-success-soft: var(--color-success-soft);
   --color-danger: var(--color-danger);

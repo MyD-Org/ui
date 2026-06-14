@@ -8,8 +8,14 @@
   --color-ring: rgba(0, 0, 0, 0.14);
   --color-text: #18181b;
   --color-muted: #71717a;
+  --color-subtle: #a1a1aa;
   --color-primary: #18181b;
+  --color-primary-hover: #000000;
+  --color-primary-soft: #e8e8ea;
   --color-on-primary: #ffffff;
+  --color-border-strong: rgba(0, 0, 0, 0.18);
+  --color-accent: #1b7a45;
+  --color-accent-strong: #155e36;
   --color-success: #1b7a45;
   --color-success-soft: #e8f5ec;
   --color-danger: #d2150f;
