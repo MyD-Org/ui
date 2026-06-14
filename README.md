@@ -75,5 +75,5 @@ Convención de API (SDUI-ready): variantes por string enum (`variant`, `tone`), 
 
 ## Roles de token
 
-Color: `--color-bg` `--color-surface` `--color-elevated` `--color-border` `--color-ring` `--color-text` `--color-muted` `--color-primary` `--color-on-primary` `--color-{success,danger,warning}(-soft)`.
+Color: `--color-bg` `--color-surface` `--color-elevated` `--color-border` `--color-border-strong` `--color-ring` `--color-text` `--color-muted` `--color-subtle` `--color-primary` `--color-primary-hover` `--color-primary-soft` `--color-on-primary` `--color-accent` `--color-accent-strong` `--color-{success,danger,warning}(-soft)`.
 Forma/texto: `--radius-sm` `--radius` `--radius-lg` `--font-sans` `--shadow-1` `--shadow-2`.
