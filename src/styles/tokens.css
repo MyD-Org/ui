@@ -22,6 +22,11 @@
   --color-danger-soft: #fdecec;
   --color-warning: #9a6400;
   --color-warning-soft: #fbf0db;
+  --color-info: #2ea8ff;
+  --color-info-soft: #eef4fe;
+  --color-surface-dark: #07193a;
+  --color-surface-darker: #0a2550;
+  --color-on-surface-dark: #ffffff;
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 18px;

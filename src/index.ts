@@ -39,3 +39,9 @@ export {
 } from './components/Toast';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export { Menu, type MenuProps, type MenuItem } from './components/Menu';
+export { Chip, type ChipProps, type ChipVariant } from './components/Chip';
+export { QuantityStepper, type QuantityStepperProps } from './components/QuantityStepper';
+export { Rating, type RatingProps } from './components/Rating';
+export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier';
+export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
+export { ProductCard, type ProductCardProps, type ProductStock } from './components/ProductCard';

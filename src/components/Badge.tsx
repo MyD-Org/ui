@@ -9,6 +9,7 @@ const badge = cva('inline-flex items-center rounded-full px-2 py-0.5 text-xs fon
       success: 'bg-success-soft text-success',
       danger: 'bg-danger-soft text-danger',
       warning: 'bg-warning-soft text-warning',
+      info: 'bg-info-soft text-info',
     },
   },
   defaultVariants: { tone: 'neutral' },
