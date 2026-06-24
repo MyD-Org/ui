@@ -38,6 +38,7 @@ export {
   type ToastTone,
 } from './components/Toast';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
+export { SideNav, type SideNavProps, type SideNavItem, type SideNavUser } from './components/SideNav';
 export { Menu, type MenuProps, type MenuItem } from './components/Menu';
 export { Chip, type ChipProps, type ChipVariant } from './components/Chip';
 export { QuantityStepper, type QuantityStepperProps } from './components/QuantityStepper';
