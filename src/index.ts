@@ -36,6 +36,7 @@ export {
   type ToastProviderProps,
   type ToastInput,
   type ToastTone,
+  type ToastAction,
 } from './components/Toast';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export { SideNav, type SideNavProps, type SideNavItem, type SideNavUser } from './components/SideNav';
@@ -46,3 +47,4 @@ export { Rating, type RatingProps } from './components/Rating';
 export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier';
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
 export { ProductCard, type ProductCardProps, type ProductStock } from './components/ProductCard';
+export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';

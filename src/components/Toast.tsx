@@ -1,35 +1,50 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
-const toast = cva(
-  'pointer-events-auto flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 rounded-md border bg-surface px-3 py-2.5 text-sm shadow-[var(--shadow-2)]',
-  {
-    variants: {
-      tone: {
-        neutral: 'border-border text-text',
-        success: 'border-success/40 text-text',
-        danger: 'border-danger/40 text-text',
-        warning: 'border-warning/40 text-text',
-      },
-    },
-    defaultVariants: { tone: 'neutral' },
-  },
-);
-
-const dotTone: Record<NonNullable<ToastTone>, string> = {
-  neutral: 'bg-muted',
-  success: 'bg-success',
-  danger: 'bg-danger',
-  warning: 'bg-warning',
+const headerTone: Record<ToastTone, string> = {
+  neutral: 'text-muted border-border',
+  success: 'text-success border-border',
+  danger: 'text-danger border-border',
+  warning: 'text-warning border-border',
 };
 
-export type ToastTone = NonNullable<VariantProps<typeof toast>['tone']>;
+const toneIcon: Record<ToastTone, ReactNode> = {
+  neutral: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
+    </svg>
+  ),
+  success: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  ),
+  danger: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  ),
+  warning: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><path d="M12 9v4m0 4h.01" />
+    </svg>
+  ),
+};
+
+export type ToastTone = 'neutral' | 'success' | 'danger' | 'warning';
+
+export interface ToastAction {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}
 
 export interface ToastInput {
   title: ReactNode;
   description?: ReactNode;
   tone?: ToastTone;
+  icon?: ReactNode;
+  action?: ToastAction;
   durationMs?: number;
 }
 
@@ -60,6 +75,70 @@ function XIcon() {
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
+  );
+}
+
+function ToastCard({ it, dismiss }: { it: ToastInstance; dismiss: (id: string) => void }) {
+  const tone = it.tone ?? 'neutral';
+  const hasBody = it.description != null || it.icon != null;
+  const hasAction = it.action != null;
+
+  return (
+    <div
+      role="status"
+      className="pointer-events-auto w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-2)]"
+    >
+      {/* Header */}
+      <div className={cn('flex items-center gap-2 border-b px-4 py-2.5 text-sm font-semibold', headerTone[tone])}>
+        {toneIcon[tone]}
+        <span className="flex-1">{it.title}</span>
+        <button
+          type="button"
+          aria-label="Cerrar"
+          onClick={() => dismiss(it.id)}
+          className="-mr-1 shrink-0 rounded-full p-1 text-muted transition-colors hover:bg-elevated hover:text-text"
+        >
+          <XIcon />
+        </button>
+      </div>
+
+      {/* Body */}
+      {hasBody && (
+        <div className="flex items-center gap-3 px-4 py-3">
+          {it.icon != null && (
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-elevated text-muted">
+              {it.icon}
+            </div>
+          )}
+          {it.description != null && (
+            <p className="min-w-0 flex-1 text-sm text-muted">{it.description}</p>
+          )}
+        </div>
+      )}
+
+      {/* Action */}
+      {hasAction && (
+        <div className={cn('px-4', hasBody ? 'pb-4' : 'py-3')}>
+          {it.action!.href ? (
+            <a
+              href={it.action!.href}
+              onClick={it.action!.onClick}
+              className="block w-full rounded-lg bg-primary py-2 text-center text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+            >
+              {it.action!.label}
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={it.action!.onClick}
+              className="block w-full rounded-lg bg-primary py-2 text-center text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+            >
+              {it.action!.label}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -109,26 +188,9 @@ export function ToastProvider({ children, defaultDurationMs = 4000 }: ToastProvi
         aria-label="Notificaciones"
         className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2"
       >
-        {items.map((it) => {
-          const tone = it.tone ?? 'neutral';
-          return (
-            <div key={it.id} role="status" className={cn(toast({ tone }))}>
-              <span className={cn('mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full', dotTone[tone])} aria-hidden="true" />
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="font-medium text-text">{it.title}</span>
-                {it.description != null && <span className="text-xs text-muted">{it.description}</span>}
-              </div>
-              <button
-                type="button"
-                aria-label="Cerrar"
-                onClick={() => dismiss(it.id)}
-                className="-mr-1 shrink-0 self-start rounded-full p-1 text-muted transition-colors hover:bg-elevated hover:text-text"
-              >
-                <XIcon />
-              </button>
-            </div>
-          );
-        })}
+        {items.map((it) => (
+          <ToastCard key={it.id} it={it} dismiss={dismiss} />
+        ))}
       </div>
     </ToastContext.Provider>
   );

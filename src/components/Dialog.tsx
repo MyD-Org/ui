@@ -26,6 +26,7 @@ export interface DialogProps extends VariantProps<typeof content> {
   description?: ReactNode;
   footer?: ReactNode;
   children?: ReactNode;
+  headerBorder?: boolean;
   className?: string;
 }
 
@@ -37,13 +38,13 @@ function XIcon() {
   );
 }
 
-export function Dialog({ open, onOpenChange, title, description, footer, children, size, className }: DialogProps) {
+export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, size, className }: DialogProps) {
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
         <RDialog.Content className={cn(content({ size }), className)}>
-          <div className="flex items-start gap-4 border-b border-border px-5 py-4">
+          <div className={cn('flex items-start gap-4 px-5 py-4', headerBorder && 'border-b border-border')}>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <RDialog.Title className="text-base font-semibold text-text">{title}</RDialog.Title>
               {description != null && (

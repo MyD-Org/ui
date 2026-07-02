@@ -87,26 +87,26 @@ export function SideNav({
         {/* User footer */}
         {user && (
           <div className="px-3 py-3 border-t border-border">
-            <div className="flex items-center gap-2 px-3 py-2 mb-1">
+            <div className="flex items-center gap-2 px-3 py-2">
               <Avatar name={user.name} size="sm" className="shrink-0" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-text truncate">{user.name}</p>
                 {user.subtitle && (
                   <p className="text-[10px] text-subtle truncate">{user.subtitle}</p>
                 )}
               </div>
+              {user.onLogout && (
+                <button
+                  onClick={user.onLogout}
+                  title={user.logoutLabel ?? 'Salir'}
+                  className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                >
+                  {user.logoutIcon ?? (
+                    <span className="text-[10px]">{user.logoutLabel ?? 'Salir'}</span>
+                  )}
+                </button>
+              )}
             </div>
-            {user.onLogout && (
-              <button
-                onClick={user.onLogout}
-                className="flex w-full items-center gap-2.5 px-3 py-2 rounded-sm text-sm text-muted transition-colors hover:bg-elevated hover:text-text"
-              >
-                {user.logoutIcon && (
-                  <span className="shrink-0 [&>*]:block">{user.logoutIcon}</span>
-                )}
-                {user.logoutLabel ?? 'Salir'}
-              </button>
-            )}
           </div>
         )}
       </aside>
