@@ -14,3 +14,15 @@ describe('Stack', () => {
     expect(el.className).toContain('gap-6');
   });
 });
+
+it('grow reparte el espacio entre hijos (flex-1 + min-w-0)', () => {
+  const { container } = render(
+    <Stack direction="row" grow>
+      <div>a</div>
+      <div>b</div>
+    </Stack>,
+  );
+  const el = container.firstChild as HTMLElement;
+  expect(el.className).toContain('[&>*]:flex-1');
+  expect(el.className).toContain('[&>*]:min-w-0');
+});
