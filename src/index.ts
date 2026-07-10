@@ -48,3 +48,10 @@ export { PriceTier, type PriceTierProps, type PriceTierItem } from './components
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
 export { ProductCard, type ProductCardProps, type ProductStock } from './components/ProductCard';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';
+export { KpiCard, type KpiCardProps } from './components/KpiCard';
+export { LineChart, type LineChartProps } from './components/LineChart';
+export { AreaChart, type AreaChartProps } from './components/AreaChart';
+export { BarChart, type BarChartProps } from './components/BarChart';
+export { PieChart, type PieChartProps } from './components/PieChart';
+export { DonutChart, type DonutChartProps } from './components/DonutChart';
+export { type SeriesSpec, CHART_COLORS } from './components/chartTheme';
