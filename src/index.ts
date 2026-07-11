@@ -55,5 +55,11 @@ export { BarChart, type BarChartProps } from './components/BarChart';
 export { PieChart, type PieChartProps } from './components/PieChart';
 export { DonutChart, type DonutChartProps } from './components/DonutChart';
 export { type SeriesSpec, CHART_COLORS } from './components/chartTheme';
-export { DateRangeField, type DateRangeFieldProps, type DateRangeValue } from './components/DateRangeField';
+export {
+  DateRangeField,
+  defaultDateRangeFieldLabels,
+  type DateRangeFieldProps,
+  type DateRangeFieldLabels,
+  type DateRangeValue,
+} from './components/DateRangeField';
 export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps } from './components/WidgetSkeletons';

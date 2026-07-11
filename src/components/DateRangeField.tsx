@@ -10,12 +10,43 @@ export interface DateRangeValue {
   end?: string;
 }
 
+/** Textos del campo (i18n). Defaults en español; el consumidor puede pisarlos por locale. */
+export interface DateRangeFieldLabels {
+  placeholder: string;
+  clear: string;
+  /** Prefijos para rangos abiertos: "Desde X" / "Hasta X". */
+  from: string;
+  until: string;
+  presets: {
+    last30: string;
+    last90: string;
+    last12m: string;
+    thisYear: string;
+  };
+}
+
+export const defaultDateRangeFieldLabels: DateRangeFieldLabels = {
+  placeholder: 'Elegir período',
+  clear: 'Limpiar',
+  from: 'Desde',
+  until: 'Hasta',
+  presets: {
+    last30: 'Últimos 30 días',
+    last90: 'Últimos 90 días',
+    last12m: 'Últimos 12 meses',
+    thisYear: 'Este año',
+  },
+};
+
 export interface DateRangeFieldProps {
   value?: DateRangeValue;
   onChange?: (value: DateRangeValue) => void;
   /** aria-label del trigger. */
   label?: string;
+  /** @deprecated usar labels.placeholder. Se mantiene por retrocompat. */
   placeholder?: string;
+  /** Textos del campo (i18n). Merge superficial sobre los defaults en español. */
+  labels?: Partial<DateRangeFieldLabels>;
   /** Atajos rápidos (últimos 30/90 días, 12 meses, este año). Default: true. */
   presets?: boolean;
   disabled?: boolean;
@@ -40,23 +71,20 @@ function toIso(date?: Date): string {
 
 const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
 
-function formatRange(value?: DateRangeValue): string | null {
+function formatRange(value: DateRangeValue | undefined, labels: DateRangeFieldLabels): string | null {
   const start = parseIso(value?.start);
   const end = parseIso(value?.end);
   if (!start && !end) return null;
   if (start && end) return `${fmt.format(start)} – ${fmt.format(end)}`;
-  if (start) return `Desde ${fmt.format(start)}`;
-  return `Hasta ${fmt.format(end!)}`;
+  if (start) return `${labels.from} ${fmt.format(start)}`;
+  return `${labels.until} ${fmt.format(end!)}`;
 }
 
-const PRESETS: Array<{ label: string; range: () => DateRangeValue }> = [
-  { label: 'Últimos 30 días', range: () => lastDays(30) },
-  { label: 'Últimos 90 días', range: () => lastDays(90) },
-  { label: 'Últimos 12 meses', range: () => lastDays(365) },
-  {
-    label: 'Este año',
-    range: () => ({ start: `${new Date().getFullYear()}-01-01`, end: toIso(new Date()) }),
-  },
+const PRESETS: Array<{ key: keyof DateRangeFieldLabels['presets']; range: () => DateRangeValue }> = [
+  { key: 'last30', range: () => lastDays(30) },
+  { key: 'last90', range: () => lastDays(90) },
+  { key: 'last12m', range: () => lastDays(365) },
+  { key: 'thisYear', range: () => ({ start: `${new Date().getFullYear()}-01-01`, end: toIso(new Date()) }) },
 ];
 
 function lastDays(days: number): DateRangeValue {
@@ -80,13 +108,21 @@ export function DateRangeField({
   value,
   onChange,
   label,
-  placeholder = 'Elegir período',
+  placeholder,
+  labels,
   presets = true,
   disabled,
   className,
 }: DateRangeFieldProps) {
   const [open, setOpen] = useState(false);
-  const display = formatRange(value);
+  const t: DateRangeFieldLabels = {
+    ...defaultDateRangeFieldLabels,
+    ...labels,
+    // placeholder legacy: labels.placeholder > prop placeholder > default
+    placeholder: labels?.placeholder ?? placeholder ?? defaultDateRangeFieldLabels.placeholder,
+    presets: { ...defaultDateRangeFieldLabels.presets, ...labels?.presets },
+  };
+  const display = formatRange(value, t);
   const selected: DayPickerRange | undefined =
     value?.start || value?.end ? { from: parseIso(value?.start), to: parseIso(value?.end) } : undefined;
 
@@ -99,7 +135,7 @@ export function DateRangeField({
       <Popover.Trigger asChild>
         <button
           type="button"
-          aria-label={label ?? placeholder}
+          aria-label={label ?? t.placeholder}
           disabled={disabled}
           className={cn(
             'flex h-9 items-center gap-2 rounded-[var(--radius-sm)] border border-border-strong bg-surface px-3 text-sm text-text',
@@ -110,7 +146,7 @@ export function DateRangeField({
           )}
         >
           <span className="text-muted"><CalendarIcon /></span>
-          {display ?? placeholder}
+          {display ?? t.placeholder}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
@@ -124,7 +160,7 @@ export function DateRangeField({
               <div className="flex w-36 flex-col gap-0.5 border-r border-border pr-3">
                 {PRESETS.map((p) => (
                   <button
-                    key={p.label}
+                    key={p.key}
                     type="button"
                     className="rounded-[var(--radius-sm)] px-2 py-1.5 text-left text-sm text-text transition-colors hover:bg-elevated"
                     onClick={() => {
@@ -132,7 +168,7 @@ export function DateRangeField({
                       setOpen(false);
                     }}
                   >
-                    {p.label}
+                    {t.presets[p.key]}
                   </button>
                 ))}
                 <button
@@ -143,7 +179,7 @@ export function DateRangeField({
                     setOpen(false);
                   }}
                 >
-                  Limpiar
+                  {t.clear}
                 </button>
               </div>
             )}
@@ -171,10 +207,13 @@ export function DateRangeField({
                 day: 'p-0',
                 day_button:
                   'h-8 w-8 rounded-[var(--radius-sm)] text-sm text-text transition-colors hover:bg-elevated aria-selected:opacity-100',
-                selected: 'bg-primary text-on-primary hover:bg-primary [&>button]:hover:bg-primary',
+                // El número vive en day_button (que trae text-text). Forzamos el color del botón
+                // a on-primary en el día seleccionado, si no queda invisible (blanco/blanco en dark,
+                // oscuro/oscuro en light). Los días intermedios conservan text-text sobre el soft.
+                selected: 'bg-primary hover:bg-primary [&>button]:text-on-primary [&>button]:hover:bg-primary',
                 range_start: 'rounded-r-none',
                 range_end: 'rounded-l-none',
-                range_middle: 'rounded-none bg-primary-soft text-text [&>button]:hover:bg-primary-soft',
+                range_middle: 'rounded-none bg-primary-soft [&>button]:!text-text [&>button]:hover:bg-primary-soft',
                 today: 'font-semibold',
                 outside: 'text-subtle opacity-50',
                 disabled: 'text-subtle opacity-40',
