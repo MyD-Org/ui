@@ -82,3 +82,8 @@ describe('Table', () => {
     expect(onRowClick).toHaveBeenCalledWith(rows[0]);
   });
 });
+
+it('no crashea sin rows/columns/rowKey (data-driven: la query todavía no resolvió)', () => {
+  render(<Table columns={undefined as never} rows={undefined as never} rowKey={undefined as never} empty="Sin datos" />);
+  expect(screen.getByText('Sin datos')).toBeInTheDocument();
+});

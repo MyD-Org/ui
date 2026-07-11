@@ -77,9 +77,11 @@ function SortIndicator({ dir }: { dir: SortDir }) {
 }
 
 export function Table<T>({
-  columns,
-  rows,
-  rowKey,
+  // Defaults defensivos (regla SDUI: nunca crashear): en dashboards data-driven, rows
+  // llega undefined hasta que la query asociada resuelve.
+  columns = [],
+  rows = [],
+  rowKey = (row: T) => String((row as { id?: unknown })?.id ?? JSON.stringify(row)),
   empty,
   className,
   defaultSort,
