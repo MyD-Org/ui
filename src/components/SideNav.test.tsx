@@ -77,4 +77,33 @@ describe('SideNav', () => {
     render(<SideNav items={items} collapsible={false} />);
     expect(screen.queryByLabelText('Ocultar menú')).toBeNull();
   });
+
+  it('renders the mobile hamburger trigger by default', () => {
+    render(<SideNav items={items} />);
+    expect(screen.getByLabelText('Abrir menú')).toBeDefined();
+  });
+
+  it('opens the mobile drawer (backdrop) with the hamburger and closes it', async () => {
+    const { container } = render(<SideNav items={items} />);
+    // Cerrado: sin backdrop.
+    expect(container.querySelector('.bg-black\\/40')).toBeNull();
+    await userEvent.click(screen.getByLabelText('Abrir menú'));
+    // Abierto: aparece el backdrop y el botón de cerrar del drawer.
+    expect(container.querySelector('.bg-black\\/40')).not.toBeNull();
+    await userEvent.click(screen.getByLabelText('Cerrar menú'));
+    expect(container.querySelector('.bg-black\\/40')).toBeNull();
+  });
+
+  it('closes the mobile drawer when a nav item is clicked', async () => {
+    const { container } = render(<SideNav items={items} />);
+    await userEvent.click(screen.getByLabelText('Abrir menú'));
+    expect(container.querySelector('.bg-black\\/40')).not.toBeNull();
+    await userEvent.click(screen.getByText('Usuarios'));
+    expect(container.querySelector('.bg-black\\/40')).toBeNull();
+  });
+
+  it('does not render the mobile hamburger when collapsible is false', () => {
+    render(<SideNav items={items} collapsible={false} />);
+    expect(screen.queryByLabelText('Abrir menú')).toBeNull();
+  });
 });
