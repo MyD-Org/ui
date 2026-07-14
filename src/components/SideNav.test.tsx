@@ -55,4 +55,26 @@ describe('SideNav', () => {
     render(<SideNav items={items}><div>Contenido</div></SideNav>);
     expect(screen.getByText('Contenido')).toBeDefined();
   });
+
+  it('collapses and expands the sidebar via the toggle', async () => {
+    render(<SideNav items={items}><div>Contenido</div></SideNav>);
+    // Visible por default: los ítems del nav y el botón de ocultar.
+    expect(screen.getByText('Inbox')).toBeDefined();
+    await userEvent.click(screen.getByLabelText('Ocultar menú'));
+    // Oculto: el nav desaparece y aparece el botón para mostrarlo.
+    expect(screen.queryByText('Inbox')).toBeNull();
+    await userEvent.click(screen.getByLabelText('Mostrar menú'));
+    expect(screen.getByText('Inbox')).toBeDefined();
+  });
+
+  it('honors defaultCollapsed', () => {
+    render(<SideNav items={items} defaultCollapsed><div>Contenido</div></SideNav>);
+    expect(screen.queryByText('Inbox')).toBeNull();
+    expect(screen.getByLabelText('Mostrar menú')).toBeDefined();
+  });
+
+  it('hides the toggle when collapsible is false', () => {
+    render(<SideNav items={items} collapsible={false} />);
+    expect(screen.queryByLabelText('Ocultar menú')).toBeNull();
+  });
 });
