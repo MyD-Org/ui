@@ -22,6 +22,23 @@ function PanelLeftOpenIcon() {
     </svg>
   );
 }
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 6h16" />
+      <path d="M4 12h16" />
+      <path d="M4 18h16" />
+    </svg>
+  );
+}
+function XIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
 
 export interface SideNavItem {
   href: string;
@@ -53,10 +70,12 @@ export interface SideNavProps {
   className?: string;
   /**
    * Muestra el botón para ocultar/mostrar el sidebar. Default `true`.
-   * Con el sidebar oculto queda un botón flotante arriba a la izquierda para volver a mostrarlo.
+   * En desktop (`md+`): con el sidebar oculto queda un botón flotante arriba a la izquierda
+   * para volver a mostrarlo. En mobile (`< md`): el sidebar se comporta como un drawer
+   * off-canvas cerrado por default, con un botón hamburguesa para abrirlo sobre el contenido.
    */
   collapsible?: boolean;
-  /** Estado inicial colapsado (default `false`). No controlado: el toggle es interno. */
+  /** Estado inicial colapsado en desktop (default `false`). No controlado: el toggle es interno. */
   defaultCollapsed?: boolean;
 }
 
@@ -86,7 +105,11 @@ export function SideNav({
   collapsible = true,
   defaultCollapsed = false,
 }: SideNavProps) {
+  // Colapso en desktop (md+): oculta/muestra el sidebar inline (desmonta el aside).
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  // Drawer en mobile (< md): el sidebar se muestra como panel off-canvas sobre el contenido.
+  // Independiente de `collapsed` para que el default sea cerrado en mobile sin afectar desktop.
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function renderItem(item: SideNavItem) {
     const content = <NavItemContent item={item} />;
@@ -98,33 +121,66 @@ export function SideNav({
     );
   }
 
+  // El aside se monta si: no está colapsado en desktop, o el drawer mobile está abierto.
+  // (En mobile `collapsed` sigue false por default, así que el aside se monta pero queda
+  //  oculto por CSS hasta que `mobileOpen` lo muestra como drawer.)
+  const asideMounted = !(collapsible && collapsed) || mobileOpen;
+
   return (
-    <div className={cn('flex h-screen overflow-hidden bg-bg', className)}>
-      {/* Sidebar */}
-      {!(collapsible && collapsed) && (
-      <aside className="flex w-56 shrink-0 flex-col bg-surface border-r border-border">
-        {/* Header: logo + botón para ocultar */}
+    <div className={cn('flex h-dvh overflow-hidden bg-bg', className)}>
+      {/* Backdrop del drawer mobile: tap para cerrar. Solo < md. */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+        />
+      )}
+
+      {/* Sidebar. En mobile: drawer fixed off-canvas (oculto salvo que mobileOpen).
+          En desktop: columna inline estática de ancho fijo. */}
+      {asideMounted && (
+      <aside
+        className={cn(
+          'z-40 flex-col bg-surface border-r border-border',
+          'fixed inset-y-0 left-0 w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)]',
+          'md:static md:inset-auto md:z-auto md:w-56 md:shrink-0 md:shadow-none',
+          mobileOpen ? 'flex' : 'hidden md:flex',
+        )}
+      >
+        {/* Header: logo + botón para ocultar (desktop) / cerrar drawer (mobile) */}
         {(logo || collapsible) && (
           <div className="flex items-start justify-between gap-2 px-4 py-4 border-b border-border">
             <div className="min-w-0">{logo}</div>
             {collapsible && (
-              <button
-                type="button"
-                onClick={() => setCollapsed(true)}
-                title="Ocultar menú"
-                aria-label="Ocultar menú"
-                className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
-              >
-                <PanelLeftCloseIcon />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setCollapsed(true)}
+                  title="Ocultar menú"
+                  aria-label="Ocultar menú"
+                  className="hidden md:block shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                >
+                  <PanelLeftCloseIcon />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileOpen(false)}
+                  title="Cerrar menú"
+                  aria-label="Cerrar menú"
+                  className="md:hidden shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                >
+                  <XIcon />
+                </button>
+              </>
             )}
           </div>
         )}
 
-        {/* Nav */}
+        {/* Nav. Al tocar un ítem en mobile, cerramos el drawer. */}
         <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5" aria-label="Navegación principal">
           {items.map((item) => (
-            <div key={item.href}>{renderItem(item)}</div>
+            <div key={item.href} onClick={() => setMobileOpen(false)}>{renderItem(item)}</div>
           ))}
         </nav>
 
@@ -157,17 +213,29 @@ export function SideNav({
       )}
 
       {/* Contenido principal */}
-      <main className="relative flex-1 overflow-y-auto">
-        {/* Con el sidebar oculto, botón flotante para volver a mostrarlo. */}
+      <main className="relative flex-1 min-w-0 overflow-y-auto">
+        {/* Desktop, sidebar oculto: botón flotante para volver a mostrarlo. */}
         {collapsible && collapsed && (
           <button
             type="button"
             onClick={() => setCollapsed(false)}
             title="Mostrar menú"
             aria-label="Mostrar menú"
-            className="absolute left-3 top-3 z-20 rounded-sm border border-border bg-surface p-1.5 text-subtle shadow-sm transition-colors hover:bg-elevated hover:text-text"
+            className="hidden md:block absolute left-3 top-3 z-20 rounded-sm border border-border bg-surface p-1.5 text-subtle shadow-sm transition-colors hover:bg-elevated hover:text-text"
           >
             <PanelLeftOpenIcon />
+          </button>
+        )}
+        {/* Mobile: botón hamburguesa para abrir el drawer. */}
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            title="Abrir menú"
+            aria-label="Abrir menú"
+            className="md:hidden absolute left-3 top-3 z-20 rounded-sm border border-border bg-surface p-1.5 text-subtle shadow-sm transition-colors hover:bg-elevated hover:text-text"
+          >
+            <MenuIcon />
           </button>
         )}
         {children}
