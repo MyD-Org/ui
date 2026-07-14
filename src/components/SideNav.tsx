@@ -1,6 +1,27 @@
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import { Avatar } from './Avatar';
+
+// Íconos inline (la lib no depende de lucide-react). Paths equivalentes a
+// lucide `panel-left-close` / `panel-left-open`.
+function PanelLeftCloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m16 15-3-3 3-3" />
+    </svg>
+  );
+}
+function PanelLeftOpenIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m14 9 3 3-3 3" />
+    </svg>
+  );
+}
 
 export interface SideNavItem {
   href: string;
@@ -30,6 +51,13 @@ export interface SideNavProps {
   /** Contenido principal (a la derecha del sidebar). */
   children?: ReactNode;
   className?: string;
+  /**
+   * Muestra el botón para ocultar/mostrar el sidebar. Default `true`.
+   * Con el sidebar oculto queda un botón flotante arriba a la izquierda para volver a mostrarlo.
+   */
+  collapsible?: boolean;
+  /** Estado inicial colapsado (default `false`). No controlado: el toggle es interno. */
+  defaultCollapsed?: boolean;
 }
 
 function NavItemContent({ item }: { item: SideNavItem }) {
@@ -55,7 +83,11 @@ export function SideNav({
   renderLink,
   children,
   className,
+  collapsible = true,
+  defaultCollapsed = false,
 }: SideNavProps) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+
   function renderItem(item: SideNavItem) {
     const content = <NavItemContent item={item} />;
     if (renderLink) return renderLink(item.href, content, !!item.active);
@@ -69,11 +101,23 @@ export function SideNav({
   return (
     <div className={cn('flex h-screen overflow-hidden bg-bg', className)}>
       {/* Sidebar */}
+      {!(collapsible && collapsed) && (
       <aside className="flex w-56 shrink-0 flex-col bg-surface border-r border-border">
-        {/* Logo */}
-        {logo && (
-          <div className="px-4 py-4 border-b border-border">
-            {logo}
+        {/* Header: logo + botón para ocultar */}
+        {(logo || collapsible) && (
+          <div className="flex items-start justify-between gap-2 px-4 py-4 border-b border-border">
+            <div className="min-w-0">{logo}</div>
+            {collapsible && (
+              <button
+                type="button"
+                onClick={() => setCollapsed(true)}
+                title="Ocultar menú"
+                aria-label="Ocultar menú"
+                className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+              >
+                <PanelLeftCloseIcon />
+              </button>
+            )}
           </div>
         )}
 
@@ -110,13 +154,24 @@ export function SideNav({
           </div>
         )}
       </aside>
+      )}
 
       {/* Contenido principal */}
-      {children != null && (
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
-      )}
+      <main className="relative flex-1 overflow-y-auto">
+        {/* Con el sidebar oculto, botón flotante para volver a mostrarlo. */}
+        {collapsible && collapsed && (
+          <button
+            type="button"
+            onClick={() => setCollapsed(false)}
+            title="Mostrar menú"
+            aria-label="Mostrar menú"
+            className="absolute left-3 top-3 z-20 rounded-sm border border-border bg-surface p-1.5 text-subtle shadow-sm transition-colors hover:bg-elevated hover:text-text"
+          >
+            <PanelLeftOpenIcon />
+          </button>
+        )}
+        {children}
+      </main>
     </div>
   );
 }
