@@ -67,6 +67,11 @@ export interface SideNavProps {
   renderLink?: (href: string, children: ReactNode, active: boolean) => ReactNode;
   /** Contenido principal (a la derecha del sidebar). */
   children?: ReactNode;
+  /**
+   * Slot opcional en el pie del sidebar, renderizado arriba del bloque de usuario.
+   * Pensado para controles de estado del propio usuario (ej. toggle de presencia).
+   */
+  footerSlot?: ReactNode;
   className?: string;
   /**
    * Muestra el botón para ocultar/mostrar el sidebar. Default `true`.
@@ -101,6 +106,7 @@ export function SideNav({
   user,
   renderLink,
   children,
+  footerSlot,
   className,
   collapsible = true,
   defaultCollapsed = false,
@@ -184,9 +190,11 @@ export function SideNav({
           ))}
         </nav>
 
-        {/* User footer */}
-        {user && (
-          <div className="px-3 py-3 border-t border-border">
+        {/* Footer: slot opcional (ej. presencia) + bloque de usuario */}
+        {(user || footerSlot) && (
+          <div className="px-3 py-3 border-t border-border flex flex-col gap-1">
+            {footerSlot}
+            {user && (
             <div className="flex items-center gap-2 px-3 py-2">
               <Avatar name={user.name} size="sm" className="shrink-0" />
               <div className="min-w-0 flex-1">
@@ -207,13 +215,22 @@ export function SideNav({
                 </button>
               )}
             </div>
+            )}
           </div>
         )}
       </aside>
       )}
 
-      {/* Contenido principal */}
-      <main className="relative flex-1 min-w-0 overflow-y-auto">
+      {/* Contenido principal. En desktop con el sidebar colapsado aparece el botón flotante de
+          "mostrar menú" en la esquina sup-izq: reservamos un canal (md:pl-12) para que no pise el
+          contenido de la página (ej. el título). En mobile no aplica: ahí el gutter del botón ☰ lo
+          maneja cada página en su encabezado (el contenido no debe correrse en pantallas chicas). */}
+      <main
+        className={cn(
+          'relative flex-1 min-w-0 overflow-y-auto',
+          collapsible && collapsed && 'md:pl-12',
+        )}
+      >
         {/* Desktop, sidebar oculto: botón flotante para volver a mostrarlo. */}
         {collapsible && collapsed && (
           <button
