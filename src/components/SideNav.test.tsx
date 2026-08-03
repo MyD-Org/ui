@@ -106,4 +106,26 @@ describe('SideNav', () => {
     render(<SideNav items={items} collapsible={false} />);
     expect(screen.queryByLabelText('Abrir menú')).toBeNull();
   });
+
+  it('rail mode keeps the aside mounted when collapsed (icons visible, labels hidden)', async () => {
+    render(<SideNav items={items} collapsedMode="rail"><div>Contenido</div></SideNav>);
+    // Antes de colapsar: labels visibles.
+    expect(screen.getByText('Inbox')).toBeDefined();
+    await userEvent.click(screen.getByLabelText('Ocultar menú'));
+    // En rail el aside sigue montado pero los labels de texto quedan ocultos.
+    // El botón para expandir es "Expandir menú" (vive dentro del sidebar, no flotante).
+    expect(screen.getByLabelText('Expandir menú')).toBeDefined();
+    expect(screen.queryByLabelText('Mostrar menú')).toBeNull();
+    // Los labels desaparecen del render (se muestran solo los íconos / initial).
+    expect(screen.queryByText('Inbox')).toBeNull();
+    // Al expandir vuelve el label.
+    await userEvent.click(screen.getByLabelText('Expandir menú'));
+    expect(screen.getByText('Inbox')).toBeDefined();
+  });
+
+  it('rail mode honors defaultCollapsed by rendering the expand button inside the aside', () => {
+    render(<SideNav items={items} collapsedMode="rail" defaultCollapsed><div>c</div></SideNav>);
+    expect(screen.getByLabelText('Expandir menú')).toBeDefined();
+    expect(screen.queryByLabelText('Mostrar menú')).toBeNull();
+  });
 });
