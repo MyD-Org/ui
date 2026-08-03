@@ -197,7 +197,9 @@ export function SideNav({
   // no aplique transform (cliente lo actualiza post-mount si corresponde).
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    // Guard: SSR no tiene window; jsdom (tests) tiene window pero puede no tener matchMedia.
+    // Sin este check, tests que rendean SideNav crashean con "matchMedia is not a function".
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
     const mq = window.matchMedia('(max-width: 639px)');
     const update = () => setIsMobileViewport(mq.matches);
     update();
