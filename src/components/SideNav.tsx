@@ -82,20 +82,37 @@ export interface SideNavProps {
   collapsible?: boolean;
   /** Estado inicial colapsado en desktop (default `false`). No controlado: el toggle es interno. */
   defaultCollapsed?: boolean;
+  /**
+   * Comportamiento del colapso en desktop:
+   * - `'hidden'` (default): oculta el sidebar por completo. Aparece un botón flotante para reabrirlo.
+   * - `'rail'`: deja una barra angosta al costado mostrando solo los íconos de los ítems.
+   * En mobile no aplica: el sidebar siempre se comporta como drawer off-canvas.
+   */
+  collapsedMode?: 'hidden' | 'rail';
 }
 
-function NavItemContent({ item }: { item: SideNavItem }) {
+export type SideNavCollapsedMode = 'hidden' | 'rail';
+
+function NavItemContent({ item, rail }: { item: SideNavItem; rail?: boolean }) {
   return (
     <span
+      title={rail ? item.label : undefined}
       className={cn(
-        'flex w-full items-center gap-2.5 px-3 py-2 rounded-sm text-sm font-medium transition-colors',
+        'flex w-full items-center rounded-sm text-sm font-medium transition-colors',
+        rail ? 'justify-center px-2 py-2' : 'gap-2.5 px-3 py-2',
         item.active
           ? 'bg-primary-soft text-primary'
           : 'text-muted hover:bg-elevated hover:text-text',
       )}
     >
-      {item.icon && <span className="shrink-0 [&>*]:block">{item.icon}</span>}
-      {item.label}
+      {item.icon ? (
+        <span className="shrink-0 [&>*]:block">{item.icon}</span>
+      ) : rail ? (
+        <span className="shrink-0 text-xs font-semibold uppercase">
+          {item.label.charAt(0)}
+        </span>
+      ) : null}
+      {!rail && item.label}
     </span>
   );
 }
@@ -110,6 +127,7 @@ export function SideNav({
   className,
   collapsible = true,
   defaultCollapsed = false,
+  collapsedMode = 'hidden',
 }: SideNavProps) {
   // Colapso en desktop (md+): oculta/muestra el sidebar inline (desmonta el aside).
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -117,8 +135,11 @@ export function SideNav({
   // Independiente de `collapsed` para que el default sea cerrado en mobile sin afectar desktop.
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  function renderItem(item: SideNavItem) {
-    const content = <NavItemContent item={item} />;
+  const isRail = collapsible && collapsed && collapsedMode === 'rail';
+  const isHiddenCollapsed = collapsible && collapsed && collapsedMode === 'hidden';
+
+  function renderItem(item: SideNavItem, rail: boolean) {
+    const content = <NavItemContent item={item} rail={rail} />;
     if (renderLink) return renderLink(item.href, content, !!item.active);
     return (
       <a key={item.href} href={item.href} className="block">
@@ -127,10 +148,9 @@ export function SideNav({
     );
   }
 
-  // El aside se monta si: no está colapsado en desktop, o el drawer mobile está abierto.
-  // (En mobile `collapsed` sigue false por default, así que el aside se monta pero queda
-  //  oculto por CSS hasta que `mobileOpen` lo muestra como drawer.)
-  const asideMounted = !(collapsible && collapsed) || mobileOpen;
+  // El aside se monta si: no está colapsado en desktop (o está en modo rail), o el drawer mobile
+  // está abierto. En rail mode dejamos el aside montado pero angosto.
+  const asideMounted = !isHiddenCollapsed || mobileOpen;
 
   return (
     <div className={cn('flex h-dvh overflow-hidden bg-bg', className)}>
@@ -144,77 +164,139 @@ export function SideNav({
       )}
 
       {/* Sidebar. En mobile: drawer fixed off-canvas (oculto salvo que mobileOpen).
-          En desktop: columna inline estática de ancho fijo. */}
+          En desktop: columna inline estática. Rail mode: ancho angosto (solo íconos). */}
       {asideMounted && (
       <aside
         className={cn(
           'z-40 flex-col bg-surface border-r border-border',
           'fixed inset-y-0 left-0 w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)]',
-          'md:static md:inset-auto md:z-auto md:w-56 md:shrink-0 md:shadow-none',
+          'md:static md:inset-auto md:z-auto md:shrink-0 md:shadow-none',
+          // En mobile el drawer siempre se abre expandido. Rail solo aplica en md+.
+          isRail && !mobileOpen ? 'md:w-14' : 'md:w-56',
           mobileOpen ? 'flex' : 'hidden md:flex',
         )}
       >
-        {/* Header: logo + botón para ocultar (desktop) / cerrar drawer (mobile) */}
+        {/* Header: solo logo (desktop) y close del drawer (mobile).
+            El toggle desktop vive en el footer para no competir con el logo. */}
         {(logo || collapsible) && (
-          <div className="flex items-start justify-between gap-2 px-4 py-4 border-b border-border">
-            <div className="min-w-0">{logo}</div>
+          <div
+            className={cn(
+              'flex items-start gap-2 border-b border-border justify-between px-4 py-4',
+              isRail && !mobileOpen && 'md:justify-center md:px-2',
+            )}
+          >
+            <div className={cn('min-w-0', isRail && !mobileOpen && 'md:hidden')}>
+              {logo}
+            </div>
             {collapsible && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setCollapsed(true)}
-                  title="Ocultar menú"
-                  aria-label="Ocultar menú"
-                  className="hidden md:block shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
-                >
-                  <PanelLeftCloseIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMobileOpen(false)}
-                  title="Cerrar menú"
-                  aria-label="Cerrar menú"
-                  className="md:hidden shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
-                >
-                  <XIcon />
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                title="Cerrar menú"
+                aria-label="Cerrar menú"
+                className="md:hidden shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+              >
+                <XIcon />
+              </button>
             )}
           </div>
         )}
 
         {/* Nav. Al tocar un ítem en mobile, cerramos el drawer. */}
-        <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5" aria-label="Navegación principal">
+        <nav
+          className={cn(
+            'flex-1 py-3 flex flex-col gap-0.5',
+            isRail && !mobileOpen ? 'md:px-2 px-3' : 'px-3',
+          )}
+          aria-label="Navegación principal"
+        >
           {items.map((item) => (
-            <div key={item.href} onClick={() => setMobileOpen(false)}>{renderItem(item)}</div>
+            <div key={item.href} onClick={() => setMobileOpen(false)}>
+              {renderItem(item, isRail && !mobileOpen)}
+            </div>
           ))}
         </nav>
 
-        {/* Footer: slot opcional (ej. presencia) + bloque de usuario */}
-        {(user || footerSlot) && (
-          <div className="px-3 py-3 border-t border-border flex flex-col gap-1">
-            {footerSlot}
-            {user && (
-            <div className="flex items-center gap-2 px-3 py-2">
-              <Avatar name={user.name} size="sm" className="shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-text truncate">{user.name}</p>
-                {user.subtitle && (
-                  <p className="text-[10px] text-subtle truncate">{user.subtitle}</p>
+        {/* Footer: toggle de colapso (desktop) + slot opcional + bloque de usuario.
+            En rail: toggle y avatar centrados, sin nombre ni subtítulo. */}
+        {(user || footerSlot || collapsible) && (
+          <div
+            className={cn(
+              'py-3 border-t border-border flex flex-col gap-1',
+              isRail && !mobileOpen ? 'md:px-2 px-3' : 'px-3',
+            )}
+          >
+            {/* Toggle desktop del sidebar (colapsar / expandir). Solo md+. */}
+            {collapsible && (
+              <div
+                className={cn(
+                  'hidden md:flex',
+                  isRail && !mobileOpen ? 'justify-center' : 'justify-end',
+                )}
+              >
+                {isRail ? (
+                  <button
+                    type="button"
+                    onClick={() => setCollapsed(false)}
+                    title="Expandir menú"
+                    aria-label="Expandir menú"
+                    className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                  >
+                    <PanelLeftOpenIcon />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCollapsed(true)}
+                    title="Ocultar menú"
+                    aria-label="Ocultar menú"
+                    className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                  >
+                    <PanelLeftCloseIcon />
+                  </button>
                 )}
               </div>
-              {user.onLogout && (
-                <button
-                  onClick={user.onLogout}
-                  title={user.logoutLabel ?? 'Salir'}
-                  className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
-                >
-                  {user.logoutIcon ?? (
-                    <span className="text-[10px]">{user.logoutLabel ?? 'Salir'}</span>
+            )}
+            {footerSlot}
+            {user && (
+              isRail && !mobileOpen ? (
+                <div className="flex items-center justify-center px-1 py-2" title={user.name}>
+                  {user.onLogout ? (
+                    <button
+                      type="button"
+                      onClick={user.onLogout}
+                      title={user.logoutLabel ?? 'Salir'}
+                      aria-label={user.logoutLabel ?? 'Salir'}
+                      className="rounded-full transition-opacity hover:opacity-80"
+                    >
+                      <Avatar name={user.name} size="sm" />
+                    </button>
+                  ) : (
+                    <Avatar name={user.name} size="sm" />
                   )}
-                </button>
-              )}
-            </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <Avatar name={user.name} size="sm" className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-text truncate">{user.name}</p>
+                    {user.subtitle && (
+                      <p className="text-[10px] text-subtle truncate">{user.subtitle}</p>
+                    )}
+                  </div>
+                  {user.onLogout && (
+                    <button
+                      onClick={user.onLogout}
+                      title={user.logoutLabel ?? 'Salir'}
+                      className="shrink-0 p-1.5 rounded-sm text-subtle transition-colors hover:bg-elevated hover:text-text"
+                    >
+                      {user.logoutIcon ?? (
+                        <span className="text-[10px]">{user.logoutLabel ?? 'Salir'}</span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )
             )}
           </div>
         )}
@@ -228,11 +310,12 @@ export function SideNav({
       <main
         className={cn(
           'relative flex-1 min-w-0 overflow-y-auto',
-          collapsible && collapsed && 'md:pl-12',
+          isHiddenCollapsed && 'md:pl-12',
         )}
       >
-        {/* Desktop, sidebar oculto: botón flotante para volver a mostrarlo. */}
-        {collapsible && collapsed && (
+        {/* Desktop, sidebar oculto (modo `hidden`): botón flotante para volver a mostrarlo.
+            En modo `rail` el botón para expandir vive dentro del propio sidebar. */}
+        {isHiddenCollapsed && (
           <button
             type="button"
             onClick={() => setCollapsed(false)}
