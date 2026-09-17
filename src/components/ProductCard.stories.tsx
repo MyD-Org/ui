@@ -36,6 +36,28 @@ export const OutOfStock: Story = {
   },
 };
 
+export const ConCuotasYNota: Story = {
+  args: {
+    brand: 'Macroled',
+    name: 'Reflector LED 200W IP65',
+    price: 713028.8,
+    stock: 'in',
+    image: <div className="text-4xl">💡</div>,
+    priceNote: <>PRECIO SIN IMPUESTOS NACIONALES $589.280,00</>,
+    installments: (
+      <>
+        <span className="font-medium text-text">Hasta 3 cuotas de $237.676,27</span>{' '}
+        <span className="text-[11px]">Valor de referencia</span>
+      </>
+    ),
+    action: (
+      <button className="rounded-sm bg-primary px-3 py-2 text-sm font-medium text-on-primary">
+        Agregar
+      </button>
+    ),
+  },
+};
+
 export const LowStock: Story = {
   args: {
     brand: 'Osram',
