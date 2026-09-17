@@ -45,6 +45,13 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement> {
   currency?: string;
   locale?: string;
   action?: ReactNode;
+  /**
+   * Aclaracion legal/fiscal bajo el precio (ej. "PRECIO SIN IMPUESTOS NACIONALES $X").
+   * Se dibuja chica y muted: el precio sigue siendo lo mas fuerte de la card.
+   */
+  priceNote?: ReactNode;
+  /** Linea de financiacion bajo el precio (ej. "Hasta 3 cuotas de $5.840,69"). */
+  installments?: ReactNode;
 }
 
 export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
@@ -62,13 +69,24 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       currency = 'ARS',
       locale = 'es-AR',
       action,
+      priceNote,
+      installments,
       className,
       ...props
     },
     ref,
   ) => {
-    const fmt = (n: number) =>
-      new Intl.NumberFormat(locale, { style: 'currency', currency, minimumFractionDigits: 0 }).format(n);
+    // Enteros limpios ($14.990) pero con centavos completos ($713.028,80): con
+    // minimumFractionDigits: 0 a secas, Intl imprime "$713.028,8".
+    const fmt = (n: number) => {
+      const hasCents = Math.round(n * 100) % 100 !== 0;
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: hasCents ? 2 : 0,
+        maximumFractionDigits: 2,
+      }).format(n);
+    };
 
     return (
       <div
@@ -94,15 +112,24 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           </span>
 
           <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-            <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="text-lg font-bold text-text">{fmt(price)}</span>
-              {oldPrice != null && (
-                <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-y-0.5">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-lg font-bold text-text">{fmt(price)}</span>
+                {oldPrice != null && (
+                  <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>
+                )}
+                {discount && (
+                  <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">
+                    {discount}
+                  </span>
+                )}
+              </div>
+
+              {priceNote && (
+                <div className="text-[11px] leading-snug text-muted">{priceNote}</div>
               )}
-              {discount && (
-                <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">
-                  {discount}
-                </span>
+              {installments && (
+                <div className="text-xs leading-snug text-muted">{installments}</div>
               )}
             </div>
 
