@@ -70,3 +70,4 @@ export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/H
 export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
+export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter';
