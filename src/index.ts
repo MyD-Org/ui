@@ -67,3 +67,4 @@ export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipR
 export { ServiceCard, type ServiceCardProps } from './components/ServiceCard';
 export { Marquee, type MarqueeProps } from './components/Marquee';
 export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
+export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
