@@ -63,3 +63,4 @@ export {
   type DateRangeValue,
 } from './components/DateRangeField';
 export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps } from './components/WidgetSkeletons';
+export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipRow';
