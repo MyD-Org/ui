@@ -31,6 +31,16 @@
   --radius: var(--radius);
   --radius-lg: var(--radius-lg);
   --font-sans: var(--font-sans);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-highlight: var(--color-highlight);
+  --font-display: var(--font-display);
+  --animate-marquee: marquee 32s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
 }

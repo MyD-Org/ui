@@ -7,6 +7,24 @@ const css = readFileSync(
   "utf8",
 );
 
+const tailwind = readFileSync(
+  resolve(fileURLToPath(import.meta.url), "..", "tailwind.css"),
+  "utf8",
+);
+
+describe("mapeo tailwind", () => {
+  it("mapea los roles nuevos a @theme inline", () => {
+    expect(tailwind).toContain("--color-highlight: var(--color-highlight);");
+    expect(tailwind).toContain("--color-accent-soft: var(--color-accent-soft);");
+    expect(tailwind).toContain("--font-display: var(--font-display);");
+  });
+
+  it("define la animación marquee con keyframes", () => {
+    expect(tailwind).toContain("--animate-marquee:");
+    expect(tailwind).toContain("@keyframes marquee");
+  });
+});
+
 describe("tema editorial", () => {
   it("existe el selector dual .editorial / [data-theme='editorial']", () => {
     expect(css).toMatch(/\.editorial,\s*\n?\[data-theme='editorial'\]/);
