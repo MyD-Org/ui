@@ -46,7 +46,7 @@ export { QuantityStepper, type QuantityStepperProps } from './components/Quantit
 export { Rating, type RatingProps } from './components/Rating';
 export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier';
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
-export { ProductCard, type ProductCardProps, type ProductStock } from './components/ProductCard';
+export { ProductCard, type ProductCardProps, type ProductStock, type ProductCardVariant } from './components/ProductCard';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';
 export { KpiCard, type KpiCardProps } from './components/KpiCard';
 export { LineChart, type LineChartProps } from './components/LineChart';
@@ -63,3 +63,11 @@ export {
   type DateRangeValue,
 } from './components/DateRangeField';
 export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps } from './components/WidgetSkeletons';
+export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipRow';
+export { ServiceCard, type ServiceCardProps } from './components/ServiceCard';
+export { Marquee, type MarqueeProps } from './components/Marquee';
+export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
+export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
+export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
+export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
+export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter';

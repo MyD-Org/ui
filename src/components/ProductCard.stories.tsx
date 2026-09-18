@@ -67,3 +67,14 @@ export const LowStock: Story = {
     badge: <Badge tone="warning">ÚLTIMO</Badge>,
   },
 };
+
+export const Editorial: Story = {
+  args: {
+    variant: 'editorial',
+    brand: 'Macroled',
+    name: 'Lámpara LED filamento vintage 8W E27 luz cálida',
+    price: 2667,
+    installments: '6 cuotas de $ 445',
+    badge: <span className="rounded-full bg-surface px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-widest text-accent-strong">Más vendido</span>,
+  },
+};

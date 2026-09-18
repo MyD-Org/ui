@@ -34,11 +34,14 @@
   --color-surface-dark: #07193a;
   --color-surface-darker: #0a2550;
   --color-on-surface-dark: #ffffff;
+  --color-accent-soft: #e8e8ea;
+  --color-highlight: #f0c98f;
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 18px;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-2: 0 16px 40px -16px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -72,6 +75,8 @@
   --color-warning-soft: #33280f;
   --color-info: #38bdf8;
   --color-info-soft: #0c2a3f;
+  --color-accent-soft: #27272a;
+  --color-highlight: #f0c98f;
   /* paleta categórica para charts, subida de brillo para fondo oscuro */
   --chart-1: #60a5fa;
   --chart-2: #34d399;
@@ -81,4 +86,42 @@
   --chart-6: #22d3ee;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-2: 0 16px 40px -16px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+  --font-display: Georgia, "Times New Roman", serif;
+}
+
+/* Editorial — storefront Central LED (crema/tinta/ámbar). Se activa con
+   data-theme="editorial" (o la clase .editorial) en un ancestro. Redeclara
+   los MISMOS roles: componentes y charts heredan el tema sin tocar código. */
+.editorial,
+[data-theme='editorial'] {
+  --color-bg: #f7f2ea;
+  --color-surface: #fffcf7;
+  --color-elevated: #efe7da;
+  --color-border: rgba(51, 41, 31, 0.14);
+  --color-ring: rgba(192, 122, 43, 0.28);
+  --color-text: #33291f;
+  --color-muted: #8a7a66;
+  --color-subtle: #b3a48e;
+  --color-primary: #33291f;
+  --color-primary-hover: #c07a2b;
+  --color-primary-soft: #f3e3cb;
+  --color-on-primary: #f7f2ea;
+  --color-border-strong: rgba(51, 41, 31, 0.26);
+  --color-accent: #c07a2b;
+  --color-accent-strong: #b3603f;
+  --color-accent-soft: #f3e3cb;
+  --color-highlight: #f0c98f;
+  --color-success: #15803d;
+  --color-success-soft: #effaf2;
+  --color-danger: #e1242f;
+  --color-danger-soft: #fdecec;
+  --color-warning: #b45309;
+  --color-warning-soft: #fbf0db;
+  --color-info: #c07a2b;
+  --color-info-soft: #f3e3cb;
+  --color-surface-dark: #33291f;
+  --color-surface-darker: #241c14;
+  --color-on-surface-dark: #f7f2ea;
+  --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
 }

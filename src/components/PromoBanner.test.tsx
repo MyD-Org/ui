@@ -1,0 +1,31 @@
+import { describe, expect, it } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { PromoBanner } from './PromoBanner';
+
+describe('PromoBanner', () => {
+  it('renderiza eyebrow, título con acento y CTA claro', () => {
+    render(
+      <PromoBanner
+        eyebrow="Línea decorativa · Nuevo"
+        title="Ambientá tus noches con"
+        accent="luz cálida"
+        lead="Guirnaldas, neones, veladores y colgantes."
+        cta={{ label: 'Descubrir la línea →', href: '/deco' }}
+        imageSrc="/deco.jpg"
+      />,
+    );
+    expect(screen.getByText('Línea decorativa · Nuevo')).toBeInTheDocument();
+    const h2 = screen.getByRole('heading', { level: 2 });
+    expect(h2.querySelector('em')?.textContent).toBe('luz cálida');
+    const cta = screen.getByRole('link', { name: 'Descubrir la línea →' });
+    expect(cta).toHaveAttribute('href', '/deco');
+    expect(cta.className).toContain('bg-surface');
+  });
+
+  it('el banner es redondeado y lleva overlay oscuro', () => {
+    const { container } = render(<PromoBanner eyebrow="e" title="t" imageSrc="/d.jpg" />);
+    const section = container.querySelector('section');
+    expect(section?.className).toContain('rounded-[28px]');
+    expect(section?.querySelector('img')?.className).toContain('object-cover');
+  });
+});
