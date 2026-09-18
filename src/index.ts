@@ -46,7 +46,7 @@ export { QuantityStepper, type QuantityStepperProps } from './components/Quantit
 export { Rating, type RatingProps } from './components/Rating';
 export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier';
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
-export { ProductCard, type ProductCardProps, type ProductStock } from './components/ProductCard';
+export { ProductCard, type ProductCardProps, type ProductStock, type ProductCardVariant } from './components/ProductCard';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';
 export { KpiCard, type KpiCardProps } from './components/KpiCard';
 export { LineChart, type LineChartProps } from './components/LineChart';

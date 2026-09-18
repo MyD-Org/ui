@@ -1,6 +1,29 @@
 import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+
+const card = cva(
+  'group flex flex-col overflow-hidden transition-shadow duration-200',
+  {
+    variants: {
+      variant: {
+        default: 'cursor-default rounded-lg border border-border bg-surface hover:shadow-2',
+        editorial: 'cursor-pointer rounded-[20px] border border-border/50 bg-surface hover:shadow-2',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
+
+const priceText = cva('', {
+  variants: {
+    variant: {
+      default: 'text-lg font-bold text-text',
+      editorial: 'font-display text-[22px] font-semibold tracking-tight text-text',
+    },
+  },
+  defaultVariants: { variant: 'default' },
+});
 
 const stockIndicator = cva('inline-flex items-center gap-1.5 text-xs font-medium', {
   variants: {
@@ -32,7 +55,9 @@ const stockLabels: Record<string, string> = {
 
 export type ProductStock = 'in' | 'low' | 'out';
 
-export interface ProductCardProps extends HTMLAttributes<HTMLDivElement> {
+export type ProductCardVariant = NonNullable<VariantProps<typeof card>['variant']>;
+
+export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof card> {
   image?: ReactNode;
   badge?: ReactNode;
   brand?: string;
@@ -71,6 +96,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       action,
       priceNote,
       installments,
+      variant,
       className,
       ...props
     },
@@ -91,10 +117,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'group flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-shadow hover:shadow-2',
-          className,
-        )}
+        className={cn(card({ variant }), className)}
         {...props}
       >
         <div className="relative flex aspect-square items-center justify-center bg-elevated/50 p-4">
@@ -106,15 +129,17 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           {brand && <span className="text-xs font-medium uppercase tracking-wide text-muted">{brand}</span>}
           <h3 className="line-clamp-2 text-sm font-semibold text-text">{name}</h3>
 
-          <span className={stockIndicator({ stock })}>
-            <span className={stockDot({ stock })} />
-            {stockLabel ?? stockLabels[stock]}
-          </span>
+          {variant !== 'editorial' && (
+            <span className={stockIndicator({ stock })}>
+              <span className={stockDot({ stock })} />
+              {stockLabel ?? stockLabels[stock]}
+            </span>
+          )}
 
           <div className="mt-auto flex items-end justify-between gap-2 pt-2">
             <div className="flex min-w-0 flex-1 flex-col gap-y-0.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-bold text-text">{fmt(price)}</span>
+                <span className={priceText({ variant })}>{fmt(price)}</span>
                 {oldPrice != null && (
                   <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>
                 )}

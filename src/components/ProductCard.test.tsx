@@ -56,3 +56,26 @@ describe('ProductCard', () => {
     expect(screen.getByText((c) => c.includes('14.990') && !c.includes('14.990,00'))).toBeDefined();
   });
 });
+
+describe('variant editorial', () => {
+  it('aplica la card editorial: radius 20px y sombra elevada', () => {
+    const { container } = render(<ProductCard variant="editorial" name="Panel LED" price={1000} />);
+    expect((container.firstElementChild as HTMLElement).className).toContain('rounded-[20px]');
+  });
+
+  it('precio en tipografía display serif', () => {
+    render(<ProductCard variant="editorial" name="Panel LED" price={1000} />);
+    const precio = screen.getByText(/\$|1\.000/);
+    expect(precio.className).toContain('font-display');
+  });
+
+  it('no muestra el indicador de stock (el mockup editorial no lo lleva)', () => {
+    render(<ProductCard variant="editorial" name="Panel LED" price={1000} stock="in" />);
+    expect(screen.queryByText('En stock')).toBeNull();
+  });
+
+  it('la variant default sigue mostrando stock (regresión)', () => {
+    render(<ProductCard name="Panel LED" price={1000} stock="in" />);
+    expect(screen.getByText('En stock')).toBeInTheDocument();
+  });
+});
