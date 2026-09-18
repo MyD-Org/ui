@@ -28,7 +28,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
         <a href="/" className="text-center leading-none max-lg:order-1 max-lg:text-left">
           <span className="font-display text-[26px] font-semibold tracking-tight text-text">
             {brandName}
-            {brandAccent ? <> {' '}<em className="italic text-accent">{brandAccent}</em></> : null}
+            {brandAccent ? <> {' '}<em className="italic text-highlight">{brandAccent}</em></> : null}
           </span>
           <span className="mt-[5px] block text-[9.5px] font-bold uppercase tracking-[0.32em] text-muted">
             {brandSub}
