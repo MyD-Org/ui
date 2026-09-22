@@ -103,6 +103,12 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
    */
   href?: string;
   renderLink?: RenderLink;
+  /**
+   * Acción en la esquina superior derecha de la imagen (simétrica a `badge`), p. ej. el
+   * corazón de favoritos (`ToggleIconButton`). Queda por encima del enlace estirado (`z-10`)
+   * y fuera del `<a>`: un clic en ella no navega.
+   */
+  cornerAction?: ReactNode;
 }
 
 const nameLink =
@@ -130,6 +136,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       installments,
       href,
       renderLink = defaultRenderLink,
+      cornerAction,
       variant,
       layout,
       className,
@@ -160,6 +167,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
         <div className={imageWrap({ layout: resolvedLayout })}>
           {badge && <div className="absolute left-2 top-2">{badge}</div>}
           {image}
+          {cornerAction && <div className="absolute right-2 top-2 z-10">{cornerAction}</div>}
         </div>
 
         <div className={cn('flex flex-1 flex-col gap-1.5 p-4', resolvedLayout === 'list' && 'sm:flex-row sm:items-center sm:gap-4')}>

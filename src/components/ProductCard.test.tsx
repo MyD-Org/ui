@@ -186,3 +186,45 @@ describe('ProductCardSkeleton', () => {
     expect((root.firstElementChild as HTMLElement).className).toContain('w-32');
   });
 });
+
+describe('cornerAction', () => {
+  const corazon = <button aria-label="Guardar en favoritos" />;
+
+  it('se renderiza en la esquina superior derecha por encima del enlace estirado', () => {
+    render(<ProductCard name="Lámpara LED" price={100} cornerAction={corazon} />);
+    const boton = screen.getByRole('button', { name: 'Guardar en favoritos' });
+    const wrap = boton.parentElement as HTMLElement;
+    expect(wrap.className).toContain('absolute');
+    expect(wrap.className).toContain('right-2');
+    expect(wrap.className).toContain('top-2');
+    expect(wrap.className).toContain('z-10');
+  });
+
+  it('convive con badge (badge a la izquierda, acción a la derecha)', () => {
+    render(
+      <ProductCard name="Lámpara LED" price={100} badge={<span data-testid="badge">Nuevo</span>} cornerAction={corazon} />,
+    );
+    expect(screen.getByTestId('badge').parentElement?.className).toContain('left-2');
+    expect(screen.getByRole('button', { name: 'Guardar en favoritos' }).parentElement?.className).toContain('right-2');
+  });
+
+  it('con href el botón del slot no queda dentro del <a>', () => {
+    render(<ProductCard name="Lámpara LED" price={100} href="/producto/42" cornerAction={corazon} />);
+    expect(screen.getByRole('link', { name: 'Lámpara LED' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Guardar en favoritos' }).closest('a')).toBeNull();
+  });
+
+  it('en layout list mantiene data-layout y el slot sigue en el wrapper de imagen', () => {
+    const { container } = render(
+      <ProductCard name="Lámpara LED" price={100} layout="list" image={<img alt="" data-testid="img" />} cornerAction={corazon} />,
+    );
+    expect(container.firstElementChild).toHaveAttribute('data-layout', 'list');
+    const imgWrap = screen.getByTestId('img').parentElement as HTMLElement;
+    expect(imgWrap.contains(screen.getByRole('button', { name: 'Guardar en favoritos' }))).toBe(true);
+  });
+
+  it('sin cornerAction no agrega el wrapper', () => {
+    const { container } = render(<ProductCard name="Lámpara LED" price={100} />);
+    expect(container.querySelector('.right-2.top-2')).toBeNull();
+  });
+});
