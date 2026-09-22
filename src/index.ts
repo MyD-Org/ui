@@ -1,5 +1,5 @@
 export { cn } from './lib/cn';
-export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './components/Button';
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize, type ButtonShape } from './components/Button';
 export { Input, type InputProps } from './components/Input';
 export { Textarea, type TextareaProps } from './components/Textarea';
 export { Field, type FieldProps } from './components/Field';
@@ -17,7 +17,7 @@ export { Avatar, type AvatarProps } from './components/Avatar';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
 export { Progress, type ProgressProps, type ProgressTone } from './components/Progress';
 export { SelectionBar, type SelectionBarProps } from './components/SelectionBar';
-export { Dialog, type DialogProps, type DialogSize } from './components/Dialog';
+export { Dialog, type DialogProps, type DialogSize, type DialogPlacement } from './components/Dialog';
 export { Tabs, type TabsProps, type TabsVariant, type TabItem } from './components/Tabs';
 export {
   DropdownMenu,
@@ -46,7 +46,15 @@ export { QuantityStepper, type QuantityStepperProps } from './components/Quantit
 export { Rating, type RatingProps } from './components/Rating';
 export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier';
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile';
-export { ProductCard, type ProductCardProps, type ProductStock, type ProductCardVariant } from './components/ProductCard';
+export {
+  ProductCard,
+  ProductCardSkeleton,
+  type ProductCardProps,
+  type ProductStock,
+  type ProductCardVariant,
+  type ProductCardLayout,
+  type ProductCardSkeletonProps,
+} from './components/ProductCard';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';
 export { KpiCard, type KpiCardProps } from './components/KpiCard';
 export { LineChart, type LineChartProps } from './components/LineChart';
@@ -71,3 +79,10 @@ export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/Room
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
 export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter';
+export { type RenderLink, type RenderLinkProps } from './lib/renderLink';
+export { Switch, type SwitchProps } from './components/Switch';
+export { RangeSlider, type RangeSliderProps } from './components/RangeSlider';
+export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItem } from './components/Breadcrumb';
+export { Pagination, paginationWindow, type PaginationProps, type PaginationLabels } from './components/Pagination';
+export { SegmentedControl, type SegmentedControlProps, type SegmentedOption } from './components/SegmentedControl';
+export { FacetGroup, type FacetGroupProps, type FacetItem } from './components/FacetGroup';
