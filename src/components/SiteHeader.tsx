@@ -78,9 +78,17 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
     ref,
   ) => {
     const propio = useRef<HTMLElement | null>(null);
+    const barraRef = useRef<HTMLDivElement | null>(null);
     const avisar = useRef(onCompactChange);
     avisar.current = onCompactChange;
     const [compacto, setCompacto] = useState(false);
+
+    // `inert` por DOM y no como prop: en React 19 es booleano y en 18 todavía no
+    // existe, así que pasarlo por JSX anda en una versión y se descarta en la
+    // otra. `toggleAttribute` da lo mismo en las dos.
+    useEffect(() => {
+      barraRef.current?.toggleAttribute('inert', !compacto);
+    }, [compacto]);
 
     useEffect(() => {
       if (!compactOnScroll) return;
@@ -191,10 +199,9 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
 
         {compactOnScroll ? (
           <div
-            // `inert` saca la barra oculta del tab order. El peer es react>=18
-            // y sus tipos todavía no lo declaran, así que va como atributo: React
-            // pasa los desconocidos en minúscula al DOM tal cual.
-            {...({ inert: compacto ? undefined : true } as HTMLAttributes<HTMLDivElement>)}
+            // El atributo `inert` (saca la barra plegada del tab order) lo pone
+            // el efecto de arriba.
+            ref={barraRef}
             aria-hidden={!compacto}
             data-compacto={compacto ? '' : undefined}
             // Transición, no keyframes: subiendo y bajando justo en el umbral
