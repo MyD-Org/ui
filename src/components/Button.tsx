@@ -1,6 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 const button = cva(
   'inline-flex items-center justify-center gap-2 rounded-sm font-medium transition-[color,background-color,opacity,box-shadow,transform] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:opacity-50 disabled:pointer-events-none',
@@ -33,6 +34,14 @@ export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof button> {
   loading?: boolean;
+  /**
+   * Con `href` el botón se renderiza como enlace con el mismo aspecto (vía `renderLink`,
+   * default `<a>`). `disabled`, `loading`, `onClick`, `type` y el `ref` sólo aplican
+   * al `<button>`: no se pasan al enlace.
+   */
+  href?: string;
+  /** Escape hatch para enchufar el `<Link>` del framework cuando hay `href`. */
+  renderLink?: RenderLink;
 }
 
 export type ButtonVariant = NonNullable<VariantProps<typeof button>['variant']>;
@@ -40,16 +49,16 @@ export type ButtonSize = NonNullable<VariantProps<typeof button>['size']>;
 export type ButtonShape = NonNullable<VariantProps<typeof button>['shape']>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, shape, loading, disabled, children, ...props }, ref) => (
-    <button
-      ref={ref}
-      className={cn(button({ variant, size, shape }), className)}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      {...props}
-    >
-      {children}
-    </button>
-  ),
+  ({ className, variant, size, shape, loading, disabled, href, renderLink = defaultRenderLink, children, ...props }, ref) => {
+    const classes = cn(button({ variant, size, shape }), className);
+    if (href !== undefined) {
+      return <>{renderLink({ href, className: classes, children, 'aria-label': props['aria-label'] })}</>;
+    }
+    return (
+      <button ref={ref} className={classes} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
+        {children}
+      </button>
+    );
+  },
 );
 Button.displayName = 'Button';

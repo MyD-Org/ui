@@ -36,6 +36,9 @@ export const Outline: Story = {
     ),
   },
 };
+export const ComoEnlace: Story = {
+  args: { href: '/mi-cuenta/pedidos/1', variant: 'outline', size: 'sm', children: 'Ver detalle →' },
+};
 export const Loading: Story = { args: { loading: true } };
 export const IconRound: Story = {
   args: {
