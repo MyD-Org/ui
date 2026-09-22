@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FacetGroup, type FacetItem } from './FacetGroup';
@@ -110,5 +110,51 @@ describe('FacetGroup', () => {
   it('ítem disabled deja el checkbox deshabilitado', () => {
     render(<FacetGroup title="Marcas" items={[{ ...marcas[0], disabled: true }]} onToggle={() => {}} />);
     expect(screen.getByRole('checkbox', { name: 'GENROD' })).toBeDisabled();
+  });
+});
+
+describe('FacetGroup: la lista expandida no agranda el grupo', () => {
+  // jsdom no hace layout: todo mide 0. Se simula el alto de la lista colapsada.
+  const simularAlto = (px: number) =>
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(px);
+  afterEach(() => vi.restoreAllMocks());
+
+  const lista = () => screen.getByRole('group', { name: 'Marcas' }).querySelector('ul')!;
+
+  it('colapsada no tiene tope; expandida queda con el alto colapsado y scrollea', async () => {
+    simularAlto(160);
+    render(<FacetGroup title="Marcas" items={muchas()} onToggle={() => {}} initialVisible={6} />);
+    expect(lista().style.maxHeight).toBe('');
+    expect(lista().className).not.toContain('overflow-y-auto');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ver todas (22)' }));
+    expect(filas()).toHaveLength(22);
+    expect(lista().style.maxHeight).toBe('160px');
+    expect(lista().className).toContain('overflow-y-auto');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ver menos' }));
+    expect(lista().style.maxHeight).toBe('');
+  });
+
+  it('con una búsqueda también queda con el tope', async () => {
+    simularAlto(160);
+    render(<FacetGroup title="Marcas" items={muchas()} onToggle={() => {}} initialVisible={6} searchable />);
+    await userEvent.type(screen.getByRole('textbox'), 'marca');
+    expect(filas()).toHaveLength(22);
+    expect(lista().style.maxHeight).toBe('160px');
+  });
+
+  it('sin initialVisible nunca hay tope: no hay un alto colapsado que respetar', async () => {
+    simularAlto(160);
+    render(<FacetGroup title="Marcas" items={muchas()} onToggle={() => {}} searchable />);
+    await userEvent.type(screen.getByRole('textbox'), 'marca');
+    expect(lista().style.maxHeight).toBe('');
+  });
+
+  it('sin medida (alto 0) no pone tope: nunca esconde la lista entera', async () => {
+    simularAlto(0);
+    render(<FacetGroup title="Marcas" items={muchas()} onToggle={() => {}} initialVisible={6} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Ver todas (22)' }));
+    expect(lista().style.maxHeight).toBe('');
   });
 });

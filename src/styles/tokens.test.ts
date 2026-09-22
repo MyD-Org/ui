@@ -14,6 +14,11 @@ const tailwind = readFileSync(
 );
 
 describe("mapeo tailwind", () => {
+  it("expone la utilidad scroll-fino, con los colores de la piel", () => {
+    expect(tailwind).toContain("@utility scroll-fino");
+    expect(tailwind).toContain("scrollbar-color: var(--color-border-strong) transparent;");
+  });
+
   it("mapea los roles nuevos a @theme inline", () => {
     expect(tailwind).toContain("--color-highlight: var(--color-highlight);");
     expect(tailwind).toContain("--color-accent-soft: var(--color-accent-soft);");
