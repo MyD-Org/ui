@@ -13,7 +13,28 @@ export const Primary: Story = { args: { variant: 'primary' } };
 export const Secondary: Story = { args: { variant: 'secondary' } };
 export const Ghost: Story = { args: { variant: 'ghost' } };
 export const Danger: Story = { args: { variant: 'danger' } };
+export const Link: Story = { args: { variant: 'link', children: 'Limpiar filtros' } };
+export const LinkInline: Story = {
+  render: () => (
+    <p className="text-sm text-muted">
+      Mostrando 6 de 22 marcas.{' '}
+      <Button variant="link" size="inline">Ver todas (22)</Button>
+    </p>
+  ),
+};
 export const Loading: Story = { args: { loading: true } };
+export const IconRound: Story = {
+  args: {
+    size: 'icon-lg',
+    shape: 'round',
+    'aria-label': 'Agregar al carrito',
+    children: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    ),
+  },
+};
 export const Icon: Story = {
   args: {
     variant: 'ghost',

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card } from './Card';
+import { Button } from './Button';
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',
@@ -15,3 +16,10 @@ export default meta;
 type Story = StoryObj<typeof Card>;
 
 export const Default: Story = {};
+export const ConTituloYAccion: Story = {
+  render: () => (
+    <Card title="Filtros" action={<Button variant="link" size="inline">Limpiar</Button>}>
+      <p className="text-muted text-sm">Categorías, marcas, precio y disponibilidad.</p>
+    </Card>
+  ),
+};

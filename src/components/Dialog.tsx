@@ -1,23 +1,35 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import * as RDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
 const content = cva(
-  'fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg bg-surface shadow-[var(--shadow-2)] focus:outline-none',
+  'fixed z-50 flex flex-col overflow-hidden bg-surface shadow-[var(--shadow-2)] focus:outline-none',
   {
     variants: {
+      placement: {
+        center: 'left-1/2 top-1/2 max-h-[90vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg',
+        /** Hoja anclada abajo, a todo el ancho (filtros en mobile). */
+        sheet: 'inset-x-0 bottom-0 max-h-[92vh] w-full max-w-none rounded-t-lg rounded-b-none',
+      },
       size: {
-        sm: 'max-w-sm',
-        md: 'max-w-xl',
-        lg: 'max-w-3xl',
+        sm: '',
+        md: '',
+        lg: '',
       },
     },
-    defaultVariants: { size: 'md' },
+    // `size` sólo limita el ancho cuando el diálogo está centrado.
+    compoundVariants: [
+      { placement: 'center', size: 'sm', className: 'max-w-sm' },
+      { placement: 'center', size: 'md', className: 'max-w-xl' },
+      { placement: 'center', size: 'lg', className: 'max-w-3xl' },
+    ],
+    defaultVariants: { placement: 'center', size: 'md' },
   },
 );
 
 export type DialogSize = NonNullable<VariantProps<typeof content>['size']>;
+export type DialogPlacement = NonNullable<VariantProps<typeof content>['placement']>;
 
 export interface DialogProps extends VariantProps<typeof content> {
   open: boolean;
@@ -38,12 +50,28 @@ function XIcon() {
   );
 }
 
-export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, size, className }: DialogProps) {
+export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, size, placement, className }: DialogProps) {
+  const resolvedPlacement: DialogPlacement = placement ?? 'center';
+  // Radix devuelve el foco a su propio `Dialog.Trigger`, que este DS no usa: sin esto el
+  // foco se perdía al cerrar. Se captura el elemento activo antes de que el FocusScope
+  // lo mueva adentro (onOpenAutoFocus corre antes del autofocus) y se restaura al cerrar.
+  const opener = useRef<HTMLElement | null>(null);
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
-        <RDialog.Content className={cn(content({ size }), className)}>
+        <RDialog.Content
+          data-placement={resolvedPlacement}
+          className={cn(content({ size, placement: resolvedPlacement }), className)}
+          onOpenAutoFocus={() => {
+            opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          }}
+          onCloseAutoFocus={(event) => {
+            if (!opener.current?.isConnected) return;
+            event.preventDefault();
+            opener.current.focus();
+          }}
+        >
           <div className={cn('flex items-start gap-4 px-5 py-4', headerBorder && 'border-b border-border')}>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <RDialog.Title className="text-base font-semibold text-text">{title}</RDialog.Title>
@@ -60,7 +88,13 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
           </div>
           {children != null && <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text">{children}</div>}
           {footer != null && (
-            <div className="flex items-center justify-end gap-2 border-t border-border bg-elevated/40 px-5 py-3">
+            <div
+              className={cn(
+                'flex items-center justify-end gap-2 border-t border-border bg-elevated/40 px-5 py-3',
+                // Única clase arbitraria admitida: el pie de la hoja no puede quedar bajo el home indicator del celular.
+                resolvedPlacement === 'sheet' && 'pb-[env(safe-area-inset-bottom)] pt-3',
+              )}
+            >
               {footer}
             </div>
           )}
