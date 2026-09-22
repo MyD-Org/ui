@@ -30,7 +30,7 @@ export function Menu({ items, value, onValueChange, ariaLabel, className }: Menu
             aria-current={active ? 'page' : undefined}
             onClick={() => onValueChange?.(item.value)}
             className={cn(
-              'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors',
+              'flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-sm transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]',
               'disabled:cursor-not-allowed disabled:opacity-50',
               active

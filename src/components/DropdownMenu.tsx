@@ -50,7 +50,7 @@ export function DropdownMenu({ items, children, align = 'end', side = 'bottom', 
           side={side}
           sideOffset={6}
           className={cn(
-            'z-50 min-w-[12rem] rounded-md border border-border bg-surface p-1 text-sm shadow-[var(--shadow-2)]',
+            'z-50 min-w-[12rem] rounded-lg border border-border bg-surface p-2 text-sm shadow-[var(--shadow-2)]',
             'focus-visible:outline-none',
             className,
           )}

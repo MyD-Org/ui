@@ -32,7 +32,7 @@ function Inner({ content, children, side = 'top', align = 'center', delayMs, cla
           align={align}
           sideOffset={6}
           className={cn(
-            'z-50 max-w-[16rem] rounded-md bg-text px-2.5 py-1.5 text-xs text-on-primary shadow-[var(--shadow-1)]',
+            'z-50 max-w-[16rem] rounded-sm bg-text px-2.5 py-1.5 text-xs text-on-primary shadow-[var(--shadow-1)]',
             className,
           )}
         >
