@@ -11,10 +11,19 @@ const button = cva(
         secondary: 'bg-elevated text-text hover:opacity-80',
         ghost: 'bg-transparent text-text hover:bg-elevated',
         danger: 'bg-danger text-on-primary hover:opacity-90',
+        link: 'bg-transparent text-primary hover:underline',
       },
-      size: { sm: 'h-8 px-3 text-sm', md: 'h-10 px-4 text-sm', icon: 'h-9 w-9 text-sm' },
+      size: {
+        sm: 'h-8 px-3 text-sm',
+        md: 'h-10 px-4 text-sm',
+        icon: 'h-9 w-9 text-sm',
+        'icon-lg': 'h-10 w-10 text-base',
+        /** Sin alto ni padding: para links de texto en línea ("Limpiar", "Ver todas"). */
+        inline: 'h-auto p-0 text-sm',
+      },
+      shape: { square: '', round: 'rounded-full' },
     },
-    defaultVariants: { variant: 'primary', size: 'md' },
+    defaultVariants: { variant: 'primary', size: 'md', shape: 'square' },
   },
 );
 
@@ -26,12 +35,13 @@ export interface ButtonProps
 
 export type ButtonVariant = NonNullable<VariantProps<typeof button>['variant']>;
 export type ButtonSize = NonNullable<VariantProps<typeof button>['size']>;
+export type ButtonShape = NonNullable<VariantProps<typeof button>['shape']>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, children, ...props }, ref) => (
+  ({ className, variant, size, shape, loading, disabled, children, ...props }, ref) => (
     <button
       ref={ref}
-      className={cn(button({ variant, size }), className)}
+      className={cn(button({ variant, size, shape }), className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...props}
