@@ -12,6 +12,8 @@ const button = cva(
         ghost: 'bg-transparent text-text hover:bg-elevated',
         danger: 'bg-danger text-on-primary hover:opacity-90',
         link: 'bg-transparent text-primary hover:underline',
+        /** Acción secundaria con borde ("Volver a comprar", "Descargar PDF"). */
+        outline: 'border border-border bg-surface text-text hover:bg-elevated',
       },
       size: {
         sm: 'h-8 px-3 text-sm',

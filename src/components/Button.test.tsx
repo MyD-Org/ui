@@ -65,4 +65,26 @@ describe('Button', () => {
     render(<Button>Ir</Button>);
     expect(screen.getByRole('button').className).toContain('rounded-sm');
   });
+  it('variant outline tiene borde y fondo surface, sin bg-primary', () => {
+    render(<Button variant="outline">Volver a comprar</Button>);
+    const c = screen.getByRole('button').className;
+    expect(c).toContain('border-border');
+    expect(c).toContain('bg-surface');
+    expect(c).toContain('text-text');
+    expect(c).toContain('hover:bg-elevated');
+    expect(c).not.toContain('bg-primary');
+  });
+  it('variant outline convive con size sm, loading y shape round', () => {
+    render(
+      <Button variant="outline" size="sm" shape="round" loading>
+        Volver a comprar
+      </Button>,
+    );
+    const b = screen.getByRole('button');
+    expect(b).toBeDisabled();
+    expect(b).toHaveAttribute('aria-busy', 'true');
+    expect(b.className).toContain('h-8');
+    expect(b.className).toContain('rounded-full');
+    expect(b.className).not.toContain('rounded-sm');
+  });
 });
