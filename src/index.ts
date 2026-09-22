@@ -76,6 +76,7 @@ export { ServiceCard, type ServiceCardProps } from './components/ServiceCard';
 export { Marquee, type MarqueeProps } from './components/Marquee';
 export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
 export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
+export { Carousel, type CarouselProps } from './components/Carousel';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
 export { CtaBanner, type CtaBannerProps } from './components/CtaBanner';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
