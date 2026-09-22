@@ -228,3 +228,19 @@ describe('cornerAction', () => {
     expect(container.querySelector('.right-2.top-2')).toBeNull();
   });
 });
+
+describe('fila de precio y acción', () => {
+  it('se parte en dos líneas cuando la acción no entra al lado del precio', () => {
+    render(<ProductCard name="Lámpara" price={2566938.53} action={<button>Agregar</button>} />);
+    const accion = screen.getByRole('button', { name: 'Agregar' }).parentElement!;
+    const fila = accion.parentElement!;
+    // La fila puede partirse: si el precio largo y el stepper no entran juntos,
+    // la acción baja a su propia línea en vez de montarse sobre el precio.
+    expect(fila.className).toContain('flex-wrap');
+    // El precio no se achica por debajo de su ancho: es lo que forzaba el solapamiento.
+    const precio = fila.firstElementChild as HTMLElement;
+    expect(precio.className).not.toContain('min-w-0');
+    // La acción queda a la derecha también cuando baja de línea.
+    expect(accion.className).toContain('ml-auto');
+  });
+});
