@@ -1,5 +1,4 @@
 import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { cn } from '../lib/cn';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 /**
