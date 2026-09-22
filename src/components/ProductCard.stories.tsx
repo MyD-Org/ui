@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ProductCard } from './ProductCard';
+import { ProductCard, ProductCardSkeleton } from './ProductCard';
 import { Badge } from './Badge';
+import { Button } from './Button';
 
 const meta: Meta<typeof ProductCard> = {
   title: 'Components/ProductCard',
@@ -8,6 +9,20 @@ const meta: Meta<typeof ProductCard> = {
 };
 export default meta;
 type Story = StoryObj<typeof ProductCard>;
+
+function PlusIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+const agregar = (
+  <Button size="icon-lg" shape="round" aria-label="Agregar al carrito">
+    <PlusIcon />
+  </Button>
+);
 
 export const Default: Story = {
   args: {
@@ -73,8 +88,105 @@ export const Editorial: Story = {
     variant: 'editorial',
     brand: 'Macroled',
     name: 'Lámpara LED filamento vintage 8W E27 luz cálida',
+    code: 'ML-2210',
+    stock: 'in',
     price: 2667,
     installments: '6 cuotas de $ 445',
     badge: <span className="rounded-full bg-surface px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-widest text-accent-strong">Más vendido</span>,
   },
+};
+
+/** La card del catálogo: código, stock con cantidad, cuotas, "+" redondo y la card entera enlaza a la ficha. */
+export const ConCodigoYStock: Story = {
+  render: () => (
+    <div className="grid max-w-3xl grid-cols-2 gap-5 md:grid-cols-3">
+      <ProductCard
+        variant="editorial"
+        brand="Genrod"
+        name="Lámpara LED A60 9W E27 fría"
+        code="02141N"
+        stock="in"
+        price={538.01}
+        installments="3 cuotas sin interés de $214,65"
+        href="/producto/1"
+        badge={<Badge tone="info">NUEVO</Badge>}
+        image={<div className="text-4xl">💡</div>}
+        action={agregar}
+      />
+      <ProductCard
+        variant="editorial"
+        brand="Exultt"
+        name="Termomagnética 2P 20A curva C"
+        code="0302302"
+        stock="low"
+        stockLabel="¡Últimas 3!"
+        price={528.07}
+        installments="3 cuotas sin interés de $210,68"
+        href="/producto/2"
+        image={<div className="text-4xl">🔌</div>}
+        action={agregar}
+      />
+      <ProductCard
+        variant="editorial"
+        brand="Chint"
+        name="Contactor trifásico 32A 220V"
+        code="NXC-32"
+        stock="in"
+        price={8975.5}
+        oldPrice={9972}
+        discount="-10%"
+        installments="3 cuotas sin interés de $3.578,00"
+        href="/producto/3"
+        image={<div className="text-4xl">⚙️</div>}
+        action={agregar}
+      />
+    </div>
+  ),
+};
+
+export const Lista: Story = {
+  render: () => (
+    <div className="flex max-w-3xl flex-col gap-3">
+      <ProductCard
+        variant="editorial"
+        layout="list"
+        brand="Genrod"
+        name="Lámpara LED A60 9W E27 fría"
+        code="02141N"
+        stock="in"
+        price={538.01}
+        installments="3 cuotas sin interés de $214,65"
+        href="/producto/1"
+        image={<div className="text-4xl">💡</div>}
+        action={agregar}
+      />
+      <ProductCard
+        variant="editorial"
+        layout="list"
+        brand="Jadever"
+        name="Pinza amperimétrica digital 600A con pantalla retroiluminada y funda"
+        code="JD-600"
+        stock="low"
+        stockLabel="¡Últimas 2!"
+        price={12450}
+        installments="3 cuotas sin interés de $4.150,00"
+        href="/producto/2"
+        image={<div className="text-4xl">🧰</div>}
+        action={agregar}
+      />
+    </div>
+  ),
+};
+
+export const Skeleton: Story = {
+  render: () => (
+    <div className="flex max-w-3xl flex-col gap-6">
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+        <ProductCardSkeleton variant="editorial" />
+        <ProductCardSkeleton variant="editorial" />
+        <ProductCardSkeleton variant="editorial" />
+      </div>
+      <ProductCardSkeleton variant="editorial" layout="list" />
+    </div>
+  ),
 };
