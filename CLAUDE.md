@@ -44,15 +44,22 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 
 ---
 
-## Componentes (18 + `cn`)
+## Componentes (lista no exhaustiva + `cn`; el barrel `src/index.ts` es la fuente de verdad)
 
-`Button` `Input` `Textarea` `Field` `Select` `Card` `Table` `Badge` `PageShell` · `Spinner` `Alert` `Skeleton` `Divider` `Stack` `Avatar` `Checkbox` `Progress` `SelectionBar` · `Switch` `RangeSlider` `Breadcrumb` `Pagination` (+ `paginationWindow`) `SegmentedControl` `FacetGroup` `ProductCardSkeleton`.
+`Button` `Input` `Textarea` `Field` `Select` `Card` `Table` `Badge` `PageShell` · `Spinner` `Alert` `Skeleton` `Divider` `Stack` `Avatar` `Checkbox` `Progress` `SelectionBar` · `Switch` `RangeSlider` `Breadcrumb` `Pagination` (+ `paginationWindow`) `SegmentedControl` `FacetGroup` `ProductCardSkeleton` · `SectionNav` `StatCard` `Stepper` `ToggleIconButton`.
 
 - **`Select`** usa `@radix-ui/react-select` (dropdown custom accesible, no nativo). API: `options` + `value`/`defaultValue`/`onValueChange`.
 - **`Table`** tiene paridad con la tabla del CRM: sort (built-in client-side o controlado), selección con `Checkbox` (select-all + indeterminate), columnas responsive (`hideBelow`), hover, `onRowClick`. API retro-compatible (las props nuevas son opcionales).
 - **`SelectionBar`** es la barra de accionables sobre la tabla (aparece con la selección). **`Progress`** es la barra de progreso (ej. pago parcial). Ver el story `Components/Table → Tabla rica (CRM-style)`.
 - **Primitivas del catálogo (0.12.0)**: `Switch` (a mano, `role=switch`), `RangeSlider` (`@radix-ui/react-slider`, dos pulgares, `onValueCommit` al soltar), `Breadcrumb` y `Pagination` (enlaces reales; `renderLink` para `next/link`), `SegmentedControl` (`radiogroup` + roving tabindex), `FacetGroup` (compone `Checkbox` + `SearchInput`, búsqueda sin tildes, colapso "Ver todas (n)").
-- **`renderLink`** (`src/lib/renderLink.ts`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination` y `ProductCard.href`. (`SideNav` conserva su firma posicional vieja.)
+- **Primitivas de Mi cuenta (0.13.0)**: `SectionNav` (navegación de secciones dentro de una página: `<nav><ul>`, activo con `aria-current="page"`, separador antes del ítem `danger`, horizontal desplazable en `< md`; no es un shell como `SideNav`), `StatCard` (ícono en tile + valor + etiqueta, enlazable, `loading`; `KpiCard` sigue siendo la de dashboards), `Stepper` (estados por paso `done|current|pending`, `<ol>` con `aria-current="step"` y estado sr-only; no calcula progreso), `ToggleIconButton` (`aria-pressed`, `onClick` antes de `onPressedChange`, `tone primary|danger`).
+- **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard` y `SectionNav`. (`SideNav` conserva su firma posicional vieja.)
+
+### Changelog 0.13.0 (aditivo: los defaults no cambian)
+- Nuevos: `SectionNav`, `StatCard`, `Stepper`, `ToggleIconButton` (+ tipos `SectionNavItem`, `StepItem`, `StepState`, `ToggleIconButtonTone`).
+- `Button`: `variant="outline"`; `href` + `renderLink` (enlace con aspecto de botón; `disabled`/`loading`/`ref` sólo aplican al `<button>`).
+- `ProductCard`: slot `cornerAction` (esquina superior derecha de la imagen, `z-10`, fuera del enlace estirado).
+- Sin dependencias nuevas. `OrderLineItem` **no** se agregó: la línea de pedido se compone en la app con clases de la escala (un solo consumidor).
 
 ### Changelog 0.12.0 (semver 0.x: cambios visibles)
 - `ProductCard`: el indicador de stock **ahora se muestra también en `variant="editorial"`** (`showStock={false}` para ocultarlo); precio editorial pasa de `text-[22px]` a `text-xl md:text-2xl`; nuevas props `code`/`codeLabel`, `layout="grid"|"list"` (`data-layout`), `href` + `renderLink` (stretched link: un solo `<a>` por card, el slot `action` queda fuera); el `<h3>` en grid reserva dos líneas (`min-h-10`). Nuevo `ProductCardSkeleton`.
