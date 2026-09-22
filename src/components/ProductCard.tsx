@@ -190,8 +190,15 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
             )}
           </div>
 
-          <div className={cn('mt-auto flex items-end justify-between gap-2 pt-2', resolvedLayout === 'list' && 'sm:mt-0 sm:shrink-0 sm:pt-0')}>
-            <div className="flex min-w-0 flex-1 flex-col gap-y-0.5">
+          {/*
+            Precio y acción comparten fila, pero la fila puede partirse: si un
+            precio largo y una acción ancha (p. ej. un QuantityStepper) no entran
+            juntos, la acción baja a su propia línea en vez de montarse sobre el
+            precio. Por eso el precio no lleva `min-w-0`: no se achica por debajo
+            de su ancho real.
+          */}
+          <div className={cn('mt-auto flex flex-wrap items-end justify-between gap-2 pt-2', resolvedLayout === 'list' && 'sm:mt-0 sm:shrink-0 sm:pt-0')}>
+            <div className="flex flex-1 flex-col gap-y-0.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className={priceText({ variant })}>{fmt(price)}</span>
                 {oldPrice != null && (
@@ -212,7 +219,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
               )}
             </div>
 
-            {action && <div className="relative z-10 shrink-0">{action}</div>}
+            {action && <div className="relative z-10 ml-auto shrink-0">{action}</div>}
           </div>
         </div>
       </div>

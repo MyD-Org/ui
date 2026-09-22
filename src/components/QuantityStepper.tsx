@@ -44,7 +44,7 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
           aria-label={decrementLabel}
           disabled={disabled || value <= min}
           onClick={() => onValueChange(clamp(value - step))}
-          className="flex h-9 w-9 items-center justify-center text-lg text-muted transition-colors hover:bg-elevated disabled:pointer-events-none"
+          className="flex h-9 rounded-l-sm w-9 items-center justify-center text-lg text-muted transition-colors hover:bg-elevated disabled:pointer-events-none"
         >
           −
         </button>
@@ -68,7 +68,7 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
           aria-label={incrementLabel}
           disabled={disabled || value >= max}
           onClick={() => onValueChange(clamp(value + step))}
-          className="flex h-9 w-9 items-center justify-center text-lg text-muted transition-colors hover:bg-elevated disabled:pointer-events-none"
+          className="flex h-9 rounded-r-sm w-9 items-center justify-center text-lg text-muted transition-colors hover:bg-elevated disabled:pointer-events-none"
         >
           +
         </button>

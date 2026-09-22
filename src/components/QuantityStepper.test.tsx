@@ -33,3 +33,12 @@ describe('QuantityStepper', () => {
     expect(screen.getByLabelText('Aumentar cantidad')).toBeDisabled();
   });
 });
+
+describe('bordes de los botones', () => {
+  it('los botones extremos siguen la curva del contorno (el fondo del hover no se sale)', () => {
+    render(<QuantityStepper value={1} onValueChange={() => {}} />);
+    const [menos, mas] = screen.getAllByRole('button');
+    expect(menos.className).toContain('rounded-l-sm');
+    expect(mas.className).toContain('rounded-r-sm');
+  });
+});
