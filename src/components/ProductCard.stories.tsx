@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ProductCard, ProductCardSkeleton } from './ProductCard';
+import { useState } from 'react';
+import { ProductCard, ProductCardSkeleton, type ProductCardLayout } from './ProductCard';
+import { ToggleIconButton } from './ToggleIconButton';
 import { Badge } from './Badge';
 import { Button } from './Button';
 
@@ -174,6 +176,55 @@ export const Lista: Story = {
         image={<div className="text-4xl">🧰</div>}
         action={agregar}
       />
+    </div>
+  ),
+};
+
+function Favorito() {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <ToggleIconButton
+      pressed={pressed}
+      onPressedChange={setPressed}
+      tone="danger"
+      size="sm"
+      aria-label={pressed ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+      icon={
+        <svg width="16" height="16" viewBox="0 0 24 24" fill={pressed ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+        </svg>
+      }
+    />
+  );
+}
+
+function CardConFavorito({ layout }: { layout: ProductCardLayout }) {
+  return (
+    <ProductCard
+      variant="editorial"
+      layout={layout}
+      brand="Genrod"
+      name="Lámpara LED A60 9W E27 fría"
+      code="02141N"
+      price={538.01}
+      href="#producto-1"
+      badge={<Badge tone="info">Nuevo</Badge>}
+      image={<div className="text-4xl">💡</div>}
+      cornerAction={<Favorito />}
+      action={agregar}
+    />
+  );
+}
+
+/** El corazón queda sobre la imagen: un clic en él no navega; en el resto de la card sí. */
+export const ConFavorito: Story = {
+  render: () => (
+    <div className="flex max-w-3xl flex-col gap-6">
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+        <CardConFavorito layout="grid" />
+        <CardConFavorito layout="grid" />
+      </div>
+      <CardConFavorito layout="list" />
     </div>
   ),
 };
