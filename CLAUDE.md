@@ -46,11 +46,20 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 
 ## Componentes (18 + `cn`)
 
-`Button` `Input` `Textarea` `Field` `Select` `Card` `Table` `Badge` `PageShell` · `Spinner` `Alert` `Skeleton` `Divider` `Stack` `Avatar` `Checkbox` `Progress` `SelectionBar`.
+`Button` `Input` `Textarea` `Field` `Select` `Card` `Table` `Badge` `PageShell` · `Spinner` `Alert` `Skeleton` `Divider` `Stack` `Avatar` `Checkbox` `Progress` `SelectionBar` · `Switch` `RangeSlider` `Breadcrumb` `Pagination` (+ `paginationWindow`) `SegmentedControl` `FacetGroup` `ProductCardSkeleton`.
 
 - **`Select`** usa `@radix-ui/react-select` (dropdown custom accesible, no nativo). API: `options` + `value`/`defaultValue`/`onValueChange`.
 - **`Table`** tiene paridad con la tabla del CRM: sort (built-in client-side o controlado), selección con `Checkbox` (select-all + indeterminate), columnas responsive (`hideBelow`), hover, `onRowClick`. API retro-compatible (las props nuevas son opcionales).
 - **`SelectionBar`** es la barra de accionables sobre la tabla (aparece con la selección). **`Progress`** es la barra de progreso (ej. pago parcial). Ver el story `Components/Table → Tabla rica (CRM-style)`.
+- **Primitivas del catálogo (0.12.0)**: `Switch` (a mano, `role=switch`), `RangeSlider` (`@radix-ui/react-slider`, dos pulgares, `onValueCommit` al soltar), `Breadcrumb` y `Pagination` (enlaces reales; `renderLink` para `next/link`), `SegmentedControl` (`radiogroup` + roving tabindex), `FacetGroup` (compone `Checkbox` + `SearchInput`, búsqueda sin tildes, colapso "Ver todas (n)").
+- **`renderLink`** (`src/lib/renderLink.ts`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination` y `ProductCard.href`. (`SideNav` conserva su firma posicional vieja.)
+
+### Changelog 0.12.0 (semver 0.x: cambios visibles)
+- `ProductCard`: el indicador de stock **ahora se muestra también en `variant="editorial"`** (`showStock={false}` para ocultarlo); precio editorial pasa de `text-[22px]` a `text-xl md:text-2xl`; nuevas props `code`/`codeLabel`, `layout="grid"|"list"` (`data-layout`), `href` + `renderLink` (stretched link: un solo `<a>` por card, el slot `action` queda fuera); el `<h3>` en grid reserva dos líneas (`min-h-10`). Nuevo `ProductCardSkeleton`.
+- `Button`: `variant="link"`, `size="inline"`, `size="icon-lg"`, `shape="round"`.
+- `Card`: slot `action` a la derecha del título.
+- `Dialog`: `placement="center"|"sheet"` (`data-placement`; `size` sólo aplica en `center`); el pie de la hoja lleva `pb-[env(safe-area-inset-bottom)]` (única clase arbitraria admitida). Al cerrar, el foco vuelve al elemento que lo abrió (antes se perdía: Radix sólo devolvía el foco a su propio `Dialog.Trigger`).
+- Dep nueva: `@radix-ui/react-slider` (externalizada por el patrón `/^@radix-ui\//` de tsup).
 
 ---
 

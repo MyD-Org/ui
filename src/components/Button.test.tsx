@@ -36,4 +36,33 @@ describe('Button', () => {
     render(<Button>Ir</Button>);
     expect(screen.getByRole('button').className).toContain('active:scale-');
   });
+  it('variant link es texto primario sin fondo con subrayado en hover', () => {
+    render(<Button variant="link">Limpiar</Button>);
+    const c = screen.getByRole('button').className;
+    expect(c).toContain('bg-transparent');
+    expect(c).toContain('text-primary');
+    expect(c).toContain('hover:underline');
+  });
+  it('size inline no reserva alto ni padding', () => {
+    render(<Button variant="link" size="inline">Ver todas</Button>);
+    const c = screen.getByRole('button').className;
+    expect(c).toContain('h-auto');
+    expect(c).toContain('p-0');
+  });
+  it('size icon-lg mide 40px', () => {
+    render(<Button size="icon-lg" aria-label="Agregar">+</Button>);
+    expect(screen.getByRole('button').className).toContain('h-10 w-10');
+  });
+  it('shape round es rounded-full y pisa rounded-sm', () => {
+    render(<Button shape="round" size="icon" aria-label="Agregar al carrito">+</Button>);
+    const c = screen.getByRole('button').className;
+    expect(c).toContain('rounded-full');
+    expect(c).not.toContain('rounded-sm');
+    expect(c).toContain('bg-primary');
+    expect(c).toContain('text-on-primary');
+  });
+  it('por defecto sigue siendo rounded-sm', () => {
+    render(<Button>Ir</Button>);
+    expect(screen.getByRole('button').className).toContain('rounded-sm');
+  });
 });
