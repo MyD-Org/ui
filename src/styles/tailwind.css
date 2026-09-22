@@ -44,3 +44,14 @@
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
 }
+
+/*
+ * Barra de scroll de las listas con alto limitado (marcas en los filtros,
+ * productos en el preview del carrito): fina, sin canaleta y del color de los
+ * bordes de la piel. La nativa es un control gris de sistema que no pertenece
+ * a ningún skin. Una sola utilidad para que todas las listas scrolleen igual.
+ */
+@utility scroll-fino {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}

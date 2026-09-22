@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '../lib/cn';
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
@@ -24,7 +24,14 @@ export interface FacetGroupProps {
   searchable?: boolean;
   /** Default 'Buscar…'. */
   searchPlaceholder?: string;
-  /** Si `items.length` lo supera, colapsa a los primeros n no tildados + todos los tildados. Default: sin colapso. */
+  /**
+   * Si `items.length` lo supera, colapsa a los primeros n no tildados + todos
+   * los tildados. Default: sin colapso.
+   *
+   * Expandida (o con una búsqueda), la lista no crece: queda con el alto que
+   * tenía colapsada y scrollea adentro. Así el grupo mide lo mismo abierto o
+   * cerrado, y un panel de filtros que entraba en pantalla sigue entrando.
+   */
   initialVisible?: number;
   /** Default 'Ver todas ({n})' — `{n}` = `items.length`. */
   moreLabel?: string;
@@ -75,6 +82,18 @@ export function FacetGroup({
 
   const anyChecked = items.some((it) => it.checked);
 
+  // Alto de la lista colapsada, medido cada vez que se la ve colapsada (cambia
+  // si se tilda algo: los tildados se suman a los n visibles). Se mide en vez
+  // de calcular n × alto de fila para no depender de lo que mida un checkbox
+  // en cada piel. 0 = todavía sin medir (o jsdom): no se pone tope.
+  const listaRef = useRef<HTMLUListElement>(null);
+  const [altoColapsada, setAltoColapsada] = useState(0);
+  const colapsada = collapsible && !expanded;
+  useLayoutEffect(() => {
+    if (colapsada && listaRef.current) setAltoColapsada(listaRef.current.offsetHeight);
+  }, [colapsada, visible.length]);
+  const conTope = altoColapsada > 0 && (expanded || searching) && initialVisible !== Infinity;
+
   return (
     <div role="group" aria-labelledby={titleId} className={cn('flex flex-col gap-2', className)}>
       <div className="flex items-center justify-between gap-2">
@@ -97,7 +116,20 @@ export function FacetGroup({
       ) : visible.length === 0 ? (
         <p className="text-sm text-muted">{searchEmptyText}</p>
       ) : (
-        <ul className="flex flex-col gap-1.5">
+        <ul
+          ref={listaRef}
+          // `-mx-1 px-1`: aire para el anillo de foco del checkbox, que el
+          // `overflow` recortaría contra el borde cuando la lista scrollea.
+          //
+          // Con tope, barra `scroll-fino` (ver tailwind.css): la nativa es un
+          // control gris de sistema en medio del panel. `pr-3` la separa de los
+          // conteos, que si no quedan pegados a ella.
+          className={cn(
+            '-mx-1 flex flex-col gap-1.5 px-1',
+            conTope && 'scroll-fino overflow-y-auto overscroll-contain pr-3',
+          )}
+          style={conTope ? { maxHeight: altoColapsada } : undefined}
+        >
           {visible.map((it) => {
             const rowId = `${id}-${it.value}`;
             return (
