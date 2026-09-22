@@ -77,6 +77,7 @@ export { Marquee, type MarqueeProps } from './components/Marquee';
 export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
 export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
+export { CtaBanner, type CtaBannerProps } from './components/CtaBanner';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
 export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter';
 export { type RenderLink, type RenderLinkProps } from './lib/renderLink';
