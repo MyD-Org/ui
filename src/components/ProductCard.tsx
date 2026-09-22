@@ -70,6 +70,7 @@ export type ProductStock = 'in' | 'low' | 'out';
 
 export type ProductCardVariant = NonNullable<VariantProps<typeof card>['variant']>;
 export type ProductCardLayout = NonNullable<VariantProps<typeof card>['layout']>;
+export type ProductCardActionPlacement = 'inline' | 'below';
 
 export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof card> {
   image?: ReactNode;
@@ -90,6 +91,15 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   currency?: string;
   locale?: string;
   action?: ReactNode;
+  /**
+   * Dónde va `action` respecto del precio. Default 'inline'.
+   * - 'inline': al costado del precio; si no entran juntos, baja a su propia
+   *   línea. Pensado para acciones chicas (un botón redondo "+").
+   * - 'below': siempre en su propia línea, debajo del precio y a la derecha.
+   *   Para acciones anchas (un `QuantityStepper`): con 'inline' unas cards de
+   *   la grilla lo ponían al lado y otras abajo, según lo largo del precio.
+   */
+  actionPlacement?: ProductCardActionPlacement;
   /**
    * Aclaracion legal/fiscal bajo el precio (ej. "PRECIO SIN IMPUESTOS NACIONALES $X").
    * Se dibuja chica y muted: el precio sigue siendo lo mas fuerte de la card.
@@ -132,6 +142,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       currency = 'ARS',
       locale = 'es-AR',
       action,
+      actionPlacement = 'inline',
       priceNote,
       installments,
       href,
@@ -195,9 +206,16 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
             precio largo y una acción ancha (p. ej. un QuantityStepper) no entran
             juntos, la acción baja a su propia línea en vez de montarse sobre el
             precio. Por eso el precio no lleva `min-w-0`: no se achica por debajo
-            de su ancho real.
+            de su ancho real. Con `actionPlacement="below"` la fila no depende del
+            precio: la acción va siempre abajo, y todas las cards quedan iguales.
           */}
-          <div className={cn('mt-auto flex flex-wrap items-end justify-between gap-2 pt-2', resolvedLayout === 'list' && 'sm:mt-0 sm:shrink-0 sm:pt-0')}>
+          <div
+            className={cn(
+              'mt-auto flex gap-2 pt-2',
+              actionPlacement === 'below' ? 'flex-col' : 'flex-wrap items-end justify-between',
+              resolvedLayout === 'list' && 'sm:mt-0 sm:shrink-0 sm:pt-0',
+            )}
+          >
             <div className="flex flex-1 flex-col gap-y-0.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className={priceText({ variant })}>{fmt(price)}</span>
@@ -219,7 +237,9 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
               )}
             </div>
 
-            {action && <div className="relative z-10 ml-auto shrink-0">{action}</div>}
+            {action && (
+              <div className={cn('relative z-10 shrink-0', actionPlacement === 'below' ? 'self-end' : 'ml-auto')}>{action}</div>
+            )}
           </div>
         </div>
       </div>

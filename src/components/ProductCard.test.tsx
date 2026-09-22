@@ -243,4 +243,13 @@ describe('fila de precio y acción', () => {
     // La acción queda a la derecha también cuando baja de línea.
     expect(accion.className).toContain('ml-auto');
   });
+
+  it('actionPlacement="below": la acción va siempre en su propia línea, sin depender del precio', () => {
+    render(<ProductCard name="Lámpara" price={538} actionPlacement="below" action={<button>Agregar</button>} />);
+    const accion = screen.getByRole('button', { name: 'Agregar' }).parentElement!;
+    const fila = accion.parentElement!;
+    expect(fila.className).toContain('flex-col');
+    expect(fila.className).not.toContain('flex-wrap');
+    expect(accion.className).toContain('self-end');
+  });
 });

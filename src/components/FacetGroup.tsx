@@ -10,7 +10,16 @@ export interface FacetItem {
   count?: number;
   checked: boolean;
   disabled?: boolean;
+  /**
+   * Nivel en un árbol (0 = raíz, default). La fila entera —casilla incluida—
+   * se corre a la derecha por nivel, hasta 3. Los ítems van en orden de
+   * lectura: cada madre seguida de sus hijas.
+   */
+  depth?: number;
 }
+
+/** Sangría por nivel. Clases fijas (no interpoladas) para que el Tailwind del consumidor las vea. */
+const sangria = ['', 'pl-5', 'pl-10', 'pl-15'] as const;
 
 export interface FacetGroupProps {
   title: string;
@@ -133,7 +142,7 @@ export function FacetGroup({
           {visible.map((it) => {
             const rowId = `${id}-${it.value}`;
             return (
-              <li key={it.value}>
+              <li key={it.value} className={sangria[Math.min(Math.max(it.depth ?? 0, 0), sangria.length - 1)]}>
                 <label
                   htmlFor={rowId}
                   className={cn('flex cursor-pointer items-center gap-2 text-sm text-text', it.disabled && 'cursor-not-allowed opacity-50')}

@@ -107,6 +107,24 @@ describe('FacetGroup', () => {
     expect(screen.queryByRole('button', { name: 'Limpiar' })).toBeNull();
   });
 
+  it('depth corre la fila entera por nivel (casilla incluida) y satura en 3', () => {
+    render(
+      <FacetGroup
+        title="Categorías"
+        items={[
+          { value: 'ilu', label: 'Iluminación', checked: false },
+          { value: 'focos', label: 'Focos led', checked: false, depth: 1 },
+          { value: 'hondo', label: 'Muy hondo', checked: false, depth: 7 },
+        ]}
+        onToggle={() => {}}
+      />,
+    );
+    const fila = (name: string) => screen.getByRole('checkbox', { name }).closest('li')!;
+    expect(fila('Iluminación').className).toBe('');
+    expect(fila('Focos led').className).toBe('pl-5');
+    expect(fila('Muy hondo').className).toBe('pl-15');
+  });
+
   it('ítem disabled deja el checkbox deshabilitado', () => {
     render(<FacetGroup title="Marcas" items={[{ ...marcas[0], disabled: true }]} onToggle={() => {}} />);
     expect(screen.getByRole('checkbox', { name: 'GENROD' })).toBeDisabled();
