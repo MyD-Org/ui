@@ -57,3 +57,35 @@ describe("tema editorial", () => {
     expect(dark).toContain("--font-display:");
   });
 });
+
+/**
+ * Guarda de radios: la escala de formas es un token (`--radius-sm`, `--radius`,
+ * `--radius-lg`) y cada piel la redefine — el Shop la sube a 14/20/28, el CRM
+ * la deja en 8/12/18. Una utilidad como `rounded-md` NO está mapeada en
+ * `tailwind.css`, así que Tailwind cae a sus 6px de fábrica y ese componente
+ * deja de obedecer a la piel: queda con la única esquina dura de la página.
+ *
+ * Pasó con DropdownMenu, Tooltip y Menu. Esto lo atrapa antes del review.
+ */
+describe("radios: sólo la escala de tokens", () => {
+  const FUERA_DE_ESCALA = /\brounded-(?:md|xl|2xl|3xl|4xl)\b/;
+
+  it("`rounded-md` y compañía no están mapeados en tailwind.css", () => {
+    // Si algún día se agregan, esta guarda deja de tener sentido y hay que
+    // actualizarla en vez de borrarla.
+    expect(tailwind).not.toContain("--radius-md:");
+    expect(tailwind).not.toContain("--radius-xl:");
+  });
+
+  it("ningún componente usa un radio fuera de la escala", async () => {
+    const { readdirSync } = await import("node:fs");
+    const dir = resolve(fileURLToPath(import.meta.url), "..", "..", "components");
+    const infractores = readdirSync(dir)
+      .filter((f) => f.endsWith(".tsx") && !f.includes(".test.") && !f.includes(".stories."))
+      .flatMap((f) => {
+        const texto = readFileSync(resolve(dir, f), "utf8");
+        return FUERA_DE_ESCALA.test(texto) ? [`${f}: ${texto.match(FUERA_DE_ESCALA)?.[0]}`] : [];
+      });
+    expect(infractores, infractores.join("\n")).toEqual([]);
+  });
+});

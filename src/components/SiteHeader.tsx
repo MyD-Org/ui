@@ -18,12 +18,12 @@ export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
   brandName: string;
   /** Segunda palabra de la marca, en itálica ámbar (ej. "Led"). */
   brandAccent?: string;
-  /** Descriptor chico en small caps bajo la marca. */
+  /** Descriptor chico en small caps bajo la marca. Oculto debajo de `lg`. */
   brandSub: string;
   /**
    * Dónde va la marca desde lg: `center` (default: búsqueda a la izquierda) o
-   * `start` (marca a la izquierda y búsqueda al centro). Debajo de lg el header
-   * se apila igual en los dos casos.
+   * `start` (marca a la izquierda y búsqueda al centro). Debajo de lg los dos
+   * casos quedan igual: marca y acciones en una fila, búsqueda en la de abajo.
    */
   brandPlacement?: 'center' | 'start';
   /** Zona de búsqueda (slot): el consumidor pasa su autocomplete. */
@@ -124,7 +124,10 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             </>
           ) : null}
         </span>
-        <span className="mt-[5px] block text-[9.5px] font-bold uppercase tracking-[0.32em] text-muted">
+        {/* El descriptor se esconde debajo de lg: con 0.32em de tracking mide
+            219px, más de lo que sobra al lado de las acciones en un teléfono,
+            y a 9.5px en esa pantalla es decoración, no información. */}
+        <span className="mt-[5px] block text-[9.5px] font-bold uppercase tracking-[0.32em] text-muted max-lg:hidden">
           {brandSub}
         </span>
       </>
@@ -145,13 +148,17 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
         >
           <div
             className={cn(
-              'mx-auto grid h-[78px] max-w-[1280px] items-center gap-5 px-[clamp(18px,4vw,48px)] max-lg:h-auto max-lg:grid-cols-1 max-lg:py-3.5',
+              // Debajo de lg, dos columnas: marca y acciones comparten la
+              // primera fila y la búsqueda ocupa la segunda a todo el ancho.
+              // Apiladas de a tres el header se comía 243px de alto en un
+              // teléfono de 812; así son 182.
+              'mx-auto grid h-[78px] max-w-[1280px] items-center gap-5 px-[clamp(18px,4vw,48px)] max-lg:h-auto max-lg:grid-cols-[1fr_auto] max-lg:py-3.5',
               alInicio ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[1fr_auto_1fr]',
             )}
           >
             <div
               className={cn(
-                'flex max-lg:order-2 max-lg:w-full max-lg:col-span-full',
+                'flex max-lg:order-3 max-lg:w-full max-lg:col-span-full',
                 alInicio && 'lg:order-2',
               )}
             >
@@ -168,7 +175,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             </a>
             <div
               className={cn(
-                'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:order-3',
+                'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:order-2 max-lg:gap-3.5',
                 alInicio && 'lg:order-3',
               )}
             >

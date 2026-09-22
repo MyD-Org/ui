@@ -86,7 +86,7 @@ function ToastCard({ it, dismiss }: { it: ToastInstance; dismiss: (id: string) =
   return (
     <div
       role="status"
-      className="pointer-events-auto w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-2)]"
+      className="pointer-events-auto w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-2)]"
     >
       {/* Header */}
       <div className={cn('flex items-center gap-2 border-b px-4 py-2.5 text-sm font-semibold', headerTone[tone])}>
