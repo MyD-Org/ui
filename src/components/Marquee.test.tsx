@@ -2,16 +2,53 @@ import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Marquee } from './Marquee';
 
+function mitades(container: HTMLElement) {
+  const pista = container.querySelector('.animate-marquee') as HTMLElement;
+  return Array.from(pista.children) as HTMLElement[];
+}
+
 describe('Marquee', () => {
-  it('renderiza los items duplicados para el loop infinito', () => {
-    render(<Marquee items={['Más de 5.000 productos', 'Despacho en 24 h']} />);
-    expect(screen.getAllByText('Más de 5.000 productos').length).toBe(2);
-    expect(screen.getAllByText('Despacho en 24 h').length).toBe(2);
+  it('renderiza dos mitades idénticas para el loop infinito', () => {
+    const { container } = render(<Marquee items={['Más de 5.000 productos', 'Despacho en 24 h']} />);
+    const [a, b] = mitades(container);
+    expect(mitades(container)).toHaveLength(2);
+    expect(a.innerHTML).toBe(b.innerHTML);
+    expect(screen.getAllByText('Más de 5.000 productos').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('usa la animación marquee y bordes de línea', () => {
+  it('repite los ítems hasta que una mitad cubra cualquier viewport (sin hueco al final)', () => {
+    const { container } = render(<Marquee items={['a', 'b', 'c', 'd']} />);
+    const [mitad] = mitades(container);
+    expect(mitad.children.length).toBeGreaterThanOrEqual(24);
+    // Conserva el orden original al repetir.
+    const textos = Array.from(mitad.children).map((s) => s.textContent);
+    expect(textos.slice(0, 8)).toEqual(['a', 'b', 'c', 'd', 'a', 'b', 'c', 'd']);
+  });
+
+  it('no repite de más cuando la lista ya es larga', () => {
+    const items = Array.from({ length: 30 }, (_, i) => `item ${i}`);
+    const { container } = render(<Marquee items={items} />);
+    expect(mitades(container)[0].children.length).toBe(30);
+  });
+
+  it('escala la duración con las repeticiones para mantener la velocidad', () => {
+    const { container: corta } = render(<Marquee items={['a', 'b', 'c', 'd']} />);
+    const { container: larga } = render(<Marquee items={Array.from({ length: 24 }, (_, i) => `i${i}`)} />);
+    const pista = (c: HTMLElement) => c.querySelector('.animate-marquee') as HTMLElement;
+    expect(pista(corta).style.animationDuration).toBe('192s'); // 6 repeticiones × 32 s
+    expect(pista(larga).style.animationDuration).toBe('32s');
+  });
+
+  it('usa la animación marquee, bordes de línea y respeta reduced motion', () => {
     const { container } = render(<Marquee items={['x']} />);
-    expect(container.querySelector('.animate-marquee')).not.toBeNull();
+    const pista = container.querySelector('.animate-marquee');
+    expect(pista).not.toBeNull();
+    expect(pista?.className).toContain('motion-reduce:');
     expect((container.firstChild as HTMLElement)?.className).toContain('border-y');
+  });
+
+  it('no renderiza nada sin ítems', () => {
+    const { container } = render(<Marquee items={[]} />);
+    expect(container.firstChild).toBeNull();
   });
 });
