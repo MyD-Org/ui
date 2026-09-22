@@ -41,4 +41,58 @@ describe('SiteHeader', () => {
     const { container } = render(<SiteHeader brandName="Central" brandSub="s" />);
     expect(container.querySelector('header')?.className).toContain('sticky');
   });
+
+  it('brandPlacement="start" pone la marca a la izquierda y la búsqueda al centro', () => {
+    const { container } = render(
+      <SiteHeader
+        brandName="Central"
+        brandSub="s"
+        brandPlacement="start"
+        search={<input aria-label="buscar" />}
+      />,
+    );
+    const fila = container.querySelector('header > div') as HTMLElement;
+    expect(fila.className).toContain('grid-cols-[auto_1fr_auto]');
+    const marca = screen.getByRole('link', { name: /central/i });
+    expect(marca.className).toContain('lg:order-1');
+    expect(marca.className).toContain('text-left');
+  });
+
+  it('sin compactOnScroll no monta la barra compacta', () => {
+    const { container } = render(<SiteHeader brandName="Central" brandSub="s" />);
+    expect(container.querySelector('.fixed')).toBeNull();
+  });
+
+  it('compactOnScroll: el header deja de ser sticky y la barra arranca oculta e inerte', () => {
+    const { container } = render(
+      <SiteHeader brandName="Central" brandSub="s" compactOnScroll actions={<a href="/c">Carrito</a>} />,
+    );
+    // Si el header siguiera pegado habría dos headers arriba a la vez.
+    expect(container.querySelector('header')?.className).not.toContain('sticky');
+
+    const barra = container.querySelector('.fixed') as HTMLElement;
+    expect(barra).not.toBeNull();
+    expect(barra.className).toContain('-translate-y-full');
+    expect(barra).toHaveAttribute('aria-hidden', 'true');
+    expect(barra).toHaveAttribute('inert');
+  });
+
+  it('compactOnScroll: la barra usa los slots propios cuando se los pasan', () => {
+    render(
+      <SiteHeader
+        brandName="Central"
+        brandSub="s"
+        compactOnScroll
+        search={<input aria-label="buscar" />}
+        compactSearch={<input aria-label="buscar compacto" />}
+        actions={<a href="/c">Carrito</a>}
+        compactActions={<a href="/c">Carrito compacto</a>}
+      />,
+    );
+    expect(screen.getByLabelText('buscar compacto')).toBeInTheDocument();
+    // Por rol no aparece: plegada, la barra está aria-hidden y queda fuera del
+    // árbol de accesibilidad (que es justamente lo que se busca).
+    expect(screen.getByText('Carrito compacto')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Carrito compacto' })).toBeNull();
+  });
 });

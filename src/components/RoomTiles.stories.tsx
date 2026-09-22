@@ -17,3 +17,20 @@ type Story = StoryObj<typeof RoomTiles>;
 
 export const Mosaic: Story = {};
 export const Grid: Story = { args: { variant: 'grid' } };
+
+/**
+ * Apiladas (pensada para mobile): cada tarjeta se pega un poco más abajo que la
+ * anterior y la siguiente se monta encima, así se despegan al scrollear. Hay
+ * que scrollear el canvas para verlo.
+ */
+export const Stack: Story = {
+  args: { variant: 'stack', stackTop: 16 },
+  decorators: [
+    (Story) => (
+      <div className="mx-auto max-w-[420px]">
+        <Story />
+        <div className="h-[80vh]" />
+      </div>
+    ),
+  ],
+};

@@ -47,6 +47,15 @@ describe('Marquee', () => {
     expect((container.firstChild as HTMLElement)?.className).toContain('border-y');
   });
 
+  it('recorta con clip y no es interactiva (scrolleable, robaría el scroll de la página)', () => {
+    const { container } = render(<Marquee items={['x']} />);
+    const cinta = container.firstChild as HTMLElement;
+    expect(cinta.className).toContain('overflow-clip');
+    expect(cinta.className).not.toContain('overflow-hidden');
+    expect(cinta.className).toContain('select-none');
+    expect(container.querySelector('.animate-marquee')?.className).toContain('pointer-events-none');
+  });
+
   it('no renderiza nada sin ítems', () => {
     const { container } = render(<Marquee items={[]} />);
     expect(container.firstChild).toBeNull();

@@ -36,12 +36,20 @@ export function Marquee({ items, className, ...props }: MarqueeProps) {
 
   return (
     <div
-      className={cn('overflow-hidden whitespace-nowrap border-y border-border py-4', className)}
+      // `overflow-clip`, no `overflow-hidden`: con hidden la cinta es un
+      // contenedor scrolleable (la pista mide miles de px), así que al hacer
+      // clic adentro el navegador la toma como scroll activo y la página deja
+      // de responder al teclado. `clip` recorta sin generar ese contenedor.
+      // Y al ser decorativa (aria-hidden) no recibe clics ni se selecciona.
+      className={cn(
+        'select-none overflow-clip whitespace-nowrap border-y border-border py-4',
+        className,
+      )}
       aria-hidden="true"
       {...props}
     >
       <div
-        className="inline-flex animate-marquee motion-reduce:[animation-play-state:paused]"
+        className="pointer-events-none inline-flex animate-marquee motion-reduce:[animation-play-state:paused]"
         style={{ animationDuration: duracion }}
       >
         {[0, 1].map((copy) => (
