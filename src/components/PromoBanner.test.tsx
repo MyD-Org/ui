@@ -42,4 +42,23 @@ describe('PromoBanner', () => {
     expect(columna?.className).toContain('before:-right-24');
     expect(columna?.className).toContain('self-stretch');
   });
+
+  it('eyebrow, título, bajada y botón se pueden mostrar solo en un tamaño', () => {
+    render(
+      <PromoBanner
+        eyebrow="Eyebrow"
+        eyebrowVisibleOn="mobile"
+        title="Título"
+        titleVisibleOn="desktop"
+        lead="Bajada"
+        leadVisibleOn="mobile"
+        cta={{ label: 'Ver', href: '/deco', visibleOn: 'desktop' }}
+        imageSrc="/b.jpg"
+      />,
+    );
+    expect(screen.getByText('Eyebrow').className.split(' ')).toContain('md:hidden');
+    expect(screen.getByRole('heading', { level: 2 }).className.split(' ')).toContain('max-md:hidden');
+    expect(screen.getByText('Bajada').closest('p')?.className.split(' ')).toContain('md:hidden');
+    expect(screen.getByRole('link', { name: 'Ver' }).className.split(' ')).toContain('max-md:hidden');
+  });
 });

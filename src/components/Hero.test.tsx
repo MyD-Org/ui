@@ -28,6 +28,41 @@ describe('Hero', () => {
     expect(screen.getByText('Envíos a todo el país')).toBeInTheDocument();
   });
 
+  it('un USP con href es un link; si es externo abre en otra pestaña', () => {
+    render(
+      <Hero
+        title="t"
+        imageSrc="/h.jpg"
+        usps={[{ label: 'Stock en tiempo real' }, { label: 'Asesoramiento por WhatsApp', href: 'https://wa.me/5490000000000' }]}
+      />,
+    );
+    expect(screen.queryByRole('link', { name: 'Stock en tiempo real' })).toBeNull();
+    const wsp = screen.getByRole('link', { name: 'Asesoramiento por WhatsApp' });
+    expect(wsp).toHaveAttribute('href', 'https://wa.me/5490000000000');
+    expect(wsp).toHaveAttribute('target', '_blank');
+    expect(wsp).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('cada texto, botón y USP se puede mostrar solo en mobile o solo en desktop', () => {
+    render(
+      <Hero
+        eyebrow="Eyebrow"
+        eyebrowVisibleOn="desktop"
+        title="Título"
+        titleVisibleOn="mobile"
+        lead="Bajada"
+        imageSrc="/h.jpg"
+        ctas={[{ label: 'Ver catálogo', href: '/catalogo', visibleOn: 'mobile' }]}
+        usps={[{ label: 'Envíos', visibleOn: 'desktop' }]}
+      />,
+    );
+    expect(screen.getByText('Eyebrow').className).toContain('max-md:hidden');
+    expect(screen.getByRole('heading', { level: 1 }).className.split(' ')).toContain('md:hidden');
+    expect(screen.getByText('Bajada').closest('p')?.className).not.toMatch(/(^|\s)(max-)?md:hidden/);
+    expect(screen.getByRole('link', { name: 'Ver catálogo' }).className.split(' ')).toContain('md:hidden');
+    expect(screen.getByText('Envíos').className).toContain('max-md:hidden');
+  });
+
   it('usa el frame editorial redondeado', () => {
     const { container } = render(<Hero eyebrow="e" title="t" imageSrc="/h.jpg" />);
     expect(container.querySelector('section')?.className).toContain('rounded-[28px]');
@@ -62,5 +97,13 @@ describe('Hero', () => {
     const columna = screen.getByRole('heading').parentElement;
     expect(columna?.className).toContain('before:-right-24');
     expect(columna?.className).toContain('self-stretch');
+  });
+
+  it('con media, pinta el fondo propio en lugar de la foto', () => {
+    const { container } = render(
+      <Hero title="t" imageSrc="/h.jpg" media={<div data-testid="escena" />} />,
+    );
+    expect(screen.getByTestId('escena')).toBeInTheDocument();
+    expect(container.querySelector('img')).toBeNull();
   });
 });

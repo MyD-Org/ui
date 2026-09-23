@@ -1,16 +1,29 @@
 import { type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
+import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
 export interface CtaBannerProps extends HTMLAttributes<HTMLElement> {
   icon: ReactNode;
   /** Vacío o ausente ⇒ no se muestra. */
   title?: string;
+  /** Dónde se ve el título. Ausente ⇒ en los dos tamaños. Lo mismo `textVisibleOn`. */
+  titleVisibleOn?: VisibleOn;
   /** Vacío o ausente ⇒ no se muestra. */
   text?: string;
+  textVisibleOn?: VisibleOn;
   cta: { label: string; href: string };
 }
 
-export function CtaBanner({ icon, title, text, cta, className, ...props }: CtaBannerProps) {
+export function CtaBanner({
+  icon,
+  title,
+  titleVisibleOn,
+  text,
+  textVisibleOn,
+  cta,
+  className,
+  ...props
+}: CtaBannerProps) {
   return (
     <section
       className={cn(
@@ -22,8 +35,8 @@ export function CtaBanner({ icon, title, text, cta, className, ...props }: CtaBa
       <div className="flex items-center gap-5">
         <span className="[&_svg]:h-8 [&_svg]:w-8 [&_svg]:text-highlight">{icon}</span>
         <div>
-          {title ? <p className="text-lg font-extrabold">{title}</p> : null}
-          {text ? <p className="text-sm text-on-primary/70">{text}</p> : null}
+          {title ? <p className={cn('text-lg font-extrabold', visibleOnClass(titleVisibleOn))}>{title}</p> : null}
+          {text ? <p className={cn('text-sm text-on-primary/70', visibleOnClass(textVisibleOn))}>{text}</p> : null}
         </div>
       </div>
       <a
