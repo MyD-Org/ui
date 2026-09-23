@@ -35,4 +35,11 @@ describe('PromoBanner', () => {
     expect(h2.querySelector('em')?.textContent).toBe('Luz cálida');
     expect(h2).toHaveTextContent('Luz cálida para sus noches');
   });
+
+  it('el velo de contraste va pegado a la columna de texto', () => {
+    render(<PromoBanner title="t" imageSrc="/x.jpg" />);
+    const columna = screen.getByRole('heading').parentElement;
+    expect(columna?.className).toContain('before:-right-24');
+    expect(columna?.className).toContain('self-stretch');
+  });
 });

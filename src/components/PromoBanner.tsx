@@ -39,7 +39,14 @@ export function PromoBanner({
     >
       <img src={imageSrc} alt={imageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(95deg,rgba(24,17,10,0.78)_0%,rgba(24,17,10,0.45)_45%,transparent_75%)]" />
-      <div className="max-w-[560px] p-[clamp(30px,5vw,72px)]">
+      {/* Velo pegado a la columna de texto (ver Hero). */}
+      <div
+        className={cn(
+          'relative flex max-w-[560px] flex-col items-start justify-center self-stretch p-[clamp(30px,5vw,72px)] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)]',
+          "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:-right-24 before:-z-10 before:content-['']",
+          'before:bg-[linear-gradient(to_right,rgba(24,17,10,0.8)_0%,rgba(24,17,10,0.62)_70%,transparent_100%)]',
+        )}
+      >
         {eyebrow ? (
           <span className="mb-4 inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-highlight before:h-[1.5px] before:w-[26px] before:bg-highlight before:content-['']">
             {eyebrow}

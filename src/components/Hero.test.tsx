@@ -56,4 +56,11 @@ describe('Hero', () => {
     render(<Hero imageSrc="/h.jpg" lead="Solo bajada" />);
     expect(screen.queryByRole('heading')).toBeNull();
   });
+
+  it('el velo de contraste va pegado a la columna de texto', () => {
+    render(<Hero title="t" imageSrc="/x.jpg" />);
+    const columna = screen.getByRole('heading').parentElement;
+    expect(columna?.className).toContain('before:-right-24');
+    expect(columna?.className).toContain('self-stretch');
+  });
 });
