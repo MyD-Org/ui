@@ -58,6 +58,26 @@ function Demo({ items, ...props }: Omit<ComponentProps<typeof FacetGroup>, 'onTo
 
 export const Categorias: Story = { render: () => <Demo title="Categorías" items={categorias} /> };
 
+const arbol: FacetItem[] = [
+  { value: 'ELECTRICIDAD', label: 'Electricidad', count: 758, checked: false },
+  { value: 'CABLES', label: 'Cables', count: 310, checked: false, depth: 1 },
+  { value: 'TERMICAS', label: 'Térmicas', count: 120, checked: false, depth: 1 },
+  { value: 'HERRAMIENTAS', label: 'Herramientas', count: 223, checked: false },
+  { value: 'ILUMINACION', label: 'Iluminación', count: 800, checked: false },
+  { value: 'FOCOS', label: 'Focos led', count: 6, checked: false, depth: 1 },
+  { value: 'DICROICAS', label: 'Dicroicas', count: 2, checked: true, depth: 2 },
+  { value: 'PANELES', label: 'Paneles', count: 41, checked: false, depth: 1 },
+  { value: 'TIRAS', label: 'Tiras led', count: 87, checked: false, depth: 1 },
+  { value: 'SEGURIDAD', label: 'Seguridad', count: 16, checked: false },
+];
+
+/**
+ * Árbol plegable: sólo la rama con algo tildado arranca abierta; la madre de
+ * una hija tildada queda en estado intermedio. La demo tilda y destilda sin
+ * más: sacar a las hijas al tildar una madre es cosa de quien usa el grupo.
+ */
+export const CategoriasEnArbol: Story = { render: () => <Demo title="Categorías" items={arbol} /> };
+
 export const MarcasConBuscador: Story = {
   render: () => (
     <Demo

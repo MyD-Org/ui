@@ -158,3 +158,89 @@ describe('FacetGroup: la lista expandida no agranda el grupo', () => {
     expect(lista().style.maxHeight).toBe('');
   });
 });
+
+describe('FacetGroup: árbol plegable', () => {
+  const arbol = (tildados: string[] = []): FacetItem[] =>
+    [
+      { value: 'ele', label: 'Electricidad', count: 758 },
+      { value: 'ilu', label: 'Iluminación', count: 800 },
+      { value: 'focos', label: 'Focos led', count: 6, depth: 1 },
+      { value: 'dicro', label: 'Dicroicas', count: 2, depth: 2 },
+      { value: 'paneles', label: 'Paneles', count: 41, depth: 1 },
+      { value: 'seg', label: 'Seguridad', count: 16 },
+    ].map((it) => ({ ...it, checked: tildados.includes(it.value) }));
+
+  const nombres = () => filas().map((c) => c.getAttribute('aria-label'));
+
+  it('arranca con las ramas cerradas: sólo las raíces, y chevron sólo en las madres', () => {
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} />);
+    expect(nombres()).toEqual(['Electricidad', 'Iluminación', 'Seguridad']);
+    expect(screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: /subcategorías de Electricidad/ })).toBeNull();
+  });
+
+  it('el chevron abre y cierra la rama, un nivel por vez', async () => {
+    const user = userEvent.setup();
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} />);
+    await user.click(screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' }));
+    expect(nombres()).toEqual(['Electricidad', 'Iluminación', 'Focos led', 'Paneles', 'Seguridad']);
+    await user.click(screen.getByRole('button', { name: 'Ocultar subcategorías de Iluminación' }));
+    expect(nombres()).toEqual(['Electricidad', 'Iluminación', 'Seguridad']);
+  });
+
+  it('una rama con algo tildado adentro se abre sola y la madre queda en estado intermedio', () => {
+    render(<FacetGroup title="Categorías" items={arbol(['dicro'])} onToggle={() => {}} />);
+    expect(nombres()).toEqual(['Electricidad', 'Iluminación', 'Focos led', 'Dicroicas', 'Paneles', 'Seguridad']);
+    expect(screen.getByRole('checkbox', { name: 'Iluminación' })).toHaveAttribute('aria-checked', 'mixed');
+    expect(screen.getByRole('checkbox', { name: 'Focos led' })).toHaveAttribute('aria-checked', 'mixed');
+  });
+
+  it('con la madre tildada, las hijas se ven tildadas y deshabilitadas', async () => {
+    const user = userEvent.setup();
+    render(<FacetGroup title="Categorías" items={arbol(['ilu'])} onToggle={() => {}} />);
+    await user.click(screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' }));
+    const focos = screen.getByRole('checkbox', { name: 'Focos led' });
+    expect(focos).toHaveAttribute('aria-checked', 'true');
+    expect(focos).toBeDisabled();
+  });
+
+  it('el chevron no tilda: onToggle sólo sale de la casilla', async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={onToggle} />);
+    await user.click(screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' }));
+    expect(onToggle).not.toHaveBeenCalled();
+    await user.click(screen.getByText('Focos led'));
+    expect(onToggle).toHaveBeenCalledWith('focos', true);
+  });
+
+  it('la sangría corre la fila entera por nivel y satura en 3', () => {
+    render(
+      <FacetGroup
+        title="Categorías"
+        items={[
+          { value: 'a', label: 'A', checked: false },
+          { value: 'b', label: 'B', checked: false, depth: 1 },
+          { value: 'c', label: 'C', checked: false, depth: 2 },
+          { value: 'd', label: 'D', checked: true, depth: 7 },
+        ]}
+        onToggle={() => {}}
+      />,
+    );
+    const fila = (name: string) => screen.getByRole('checkbox', { name }).closest('li')!;
+    expect(fila('A').className).not.toMatch(/\bpl-/);
+    expect(fila('B').className).toContain('pl-6');
+    expect(fila('D').className).toContain('pl-18');
+  });
+
+  it('expandLabel y collapseLabel configurables', () => {
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} expandLabel="Abrir {label}" collapseLabel="Cerrar {label}" />);
+    expect(screen.getByRole('button', { name: 'Abrir Iluminación' })).toBeInTheDocument();
+  });
+
+  it('una lista sin madres no dibuja chevrons ni huecos', () => {
+    const { container } = render(<FacetGroup title="Marcas" items={marcas} onToggle={() => {}} />);
+    expect(screen.queryByRole('button', { name: /subcategorías/ })).toBeNull();
+    expect(container.querySelector('li > span[aria-hidden="true"]')).toBeNull();
+  });
+});

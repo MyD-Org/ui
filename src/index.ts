@@ -53,6 +53,7 @@ export {
   type ProductStock,
   type ProductCardVariant,
   type ProductCardLayout,
+  type ProductCardActionPlacement,
   type ProductCardSkeletonProps,
 } from './components/ProductCard';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone';
