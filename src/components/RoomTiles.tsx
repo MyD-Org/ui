@@ -1,4 +1,4 @@
-import { type HTMLAttributes } from 'react';
+import { type HTMLAttributes, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
@@ -23,22 +23,48 @@ const tile = cva('group relative isolate flex overflow-hidden rounded-[24px]', {
   defaultVariants: { variant: 'mosaic' },
 });
 
-/** Dónde se pega la primera tarjeta apilada, en px desde el borde superior. */
+/** Borde superior de la pila (la franja de la tarjeta más al fondo), en px. */
 const STACK_TOP = 72;
-/** Franja visible de la tarjeta de atrás, en px. */
+/** Franja visible de cada tarjeta de atrás, en px. */
 const STACK_SOLAPE = 10;
+/** Cuántas tarjetas se asoman detrás de la de adelante. */
+const STACK_PROFUNDIDAD = 2;
+/** Cuánto se achica cada nivel de profundidad (0.08 = 8% por tarjeta). */
+const STACK_ESCALA = 0.08;
+
+/**
+ * Profundidad continua de cada tarjeta: cuántas de las siguientes ya se le
+ * montaron encima (0 = adelante; 1.5 = una entera y media más).
+ * `tops` son los bordes superiores de los wrappers sticky, `alturas` sus alturas
+ * y `pegue` la altura a la que se pegan todas.
+ */
+export function profundidadesPila(tops: number[], alturas: number[], pegue: number): number[] {
+  const llegada = tops.map((top, j) => {
+    const h = alturas[j] || 1;
+    return Math.min(1, Math.max(0, 1 - (top - pegue) / h));
+  });
+  return tops.map((_, i) => {
+    let d = 0;
+    for (let j = i + 1; j < llegada.length; j++) d += llegada[j];
+    return d;
+  });
+}
 
 export interface RoomTilesProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof tile> {
   items: RoomTile[];
   /**
-   * Sólo en `variant="stack"`: px desde el borde superior donde se pega la
-   * primera tarjeta. Subilo si la app tiene un header fijo más alto.
+   * Sólo en `variant="stack"`: px desde el borde superior donde arranca la pila
+   * (la franja de la tarjeta más al fondo). La de adelante se pega
+   * `stackProfundidad * stackSolape` px más abajo. Subilo si la app tiene un
+   * header fijo más alto.
    */
   stackTop?: number;
-  /** Sólo en `variant="stack"`: franja visible de la tarjeta de atrás, en px. */
+  /** Sólo en `variant="stack"`: franja visible de cada tarjeta de atrás, en px. */
   stackSolape?: number;
+  /** Sólo en `variant="stack"`: cuántas tarjetas se asoman detrás (default 2). */
+  stackProfundidad?: number;
   /** Texto del call to action de cada tile. */
   ctaLabel?: string;
 }
@@ -47,33 +73,34 @@ export interface RoomTilesProps
  * Tiles de ambientes. Tres disposiciones:
  * - `mosaic` (default): la primera tile grande + el resto al costado.
  * - `grid`: todas iguales, 2 columnas en mobile y 4 desde lg.
- * - `stack`: una por fila, apiladas — cada una se pega un poco más abajo que la
- *   anterior y la siguiente se monta encima, así se despegan al scrollear.
- *   Es `position: sticky` puro, sin JS: sigue al dedo y nunca queda a mitad de
- *   camino. Con reduced motion quedan una debajo de otra, sin pila.
+ * - `stack`: una por fila, en pila tipo billetera. Todas se pegan a la misma
+ *   altura y la siguiente se monta encima; la de atrás se achica y sube a medida
+ *   que la tapan, así se asoma una franja cada vez más chica (como mucho
+ *   `stackProfundidad` detrás). El pegado es `position: sticky`; la profundidad
+ *   se calcula por scroll y se escribe como `transform` en cada tarjeta, así
+ *   sigue al dedo sin easing. Con reduced motion quedan una debajo de otra.
  */
 export function RoomTiles({
   items,
   variant,
   stackTop = STACK_TOP,
   stackSolape = STACK_SOLAPE,
+  stackProfundidad = STACK_PROFUNDIDAD,
   ctaLabel = 'Explorar',
   className,
   ...props
 }: RoomTilesProps) {
   if (variant === 'stack') {
     return (
-      <div className={cn('flex flex-col gap-4', className)} {...props}>
-        {items.map((item, i) => (
-          <div
-            key={item.href + item.title}
-            className="sticky motion-reduce:static"
-            style={{ top: `${stackTop + i * stackSolape}px`, zIndex: i + 1 }}
-          >
-            <Tile item={item} variant="stack" ctaLabel={ctaLabel} />
-          </div>
-        ))}
-      </div>
+      <PilaTiles
+        items={items}
+        stackTop={stackTop}
+        stackSolape={stackSolape}
+        stackProfundidad={stackProfundidad}
+        ctaLabel={ctaLabel}
+        className={className}
+        {...props}
+      />
     );
   }
 
@@ -95,6 +122,89 @@ export function RoomTiles({
           destacada={i === 0 && esMosaic}
           ctaLabel={ctaLabel}
         />
+      ))}
+    </div>
+  );
+}
+
+function PilaTiles({
+  items,
+  stackTop,
+  stackSolape,
+  stackProfundidad,
+  ctaLabel,
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & {
+  items: RoomTile[];
+  stackTop: number;
+  stackSolape: number;
+  stackProfundidad: number;
+  ctaLabel: string;
+}) {
+  const pegue = stackTop + stackProfundidad * stackSolape;
+  const wrappers = useRef<(HTMLDivElement | null)[]>([]);
+  const caras = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    const pintar = () => {
+      frame = 0;
+      const els = wrappers.current.slice(0, items.length);
+      const rects = els.map((el) => el?.getBoundingClientRect());
+      const ds = profundidadesPila(
+        rects.map((r) => r?.top ?? 0),
+        rects.map((r) => r?.height ?? 0),
+        pegue,
+      );
+      ds.forEach((d, i) => {
+        const cara = caras.current[i];
+        if (!cara) return;
+        const nivel = Math.min(d, stackProfundidad + 1);
+        cara.style.transform =
+          nivel === 0
+            ? ''
+            : `translateY(${-nivel * stackSolape}px) scale(${1 - nivel * STACK_ESCALA})`;
+        // Más allá de la profundidad máxima se desvanece en vez de seguir asomando.
+        const opacidad = Math.min(1, Math.max(0, stackProfundidad + 1 - d));
+        cara.style.opacity = opacidad === 1 ? '' : String(opacidad);
+      });
+    };
+    const pedir = () => {
+      if (!frame) frame = requestAnimationFrame(pintar);
+    };
+    pintar();
+    window.addEventListener('scroll', pedir, { passive: true });
+    window.addEventListener('resize', pedir);
+    return () => {
+      window.removeEventListener('scroll', pedir);
+      window.removeEventListener('resize', pedir);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [items.length, pegue, stackSolape, stackProfundidad]);
+
+  return (
+    <div className={cn('flex flex-col gap-4', className)} {...props}>
+      {items.map((item, i) => (
+        <div
+          key={item.href + item.title}
+          ref={(el) => {
+            wrappers.current[i] = el;
+          }}
+          className="sticky motion-reduce:static"
+          style={{ top: `${pegue}px`, zIndex: i + 1 }}
+        >
+          <div
+            ref={(el) => {
+              caras.current[i] = el;
+            }}
+            data-pila-cara
+            className="origin-top will-change-transform motion-reduce:transform-none"
+          >
+            <Tile item={item} variant="stack" ctaLabel={ctaLabel} />
+          </div>
+        </div>
       ))}
     </div>
   );
