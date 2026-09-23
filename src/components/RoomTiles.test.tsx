@@ -113,4 +113,17 @@ describe('RoomTiles', () => {
     expect(first.className).toContain('items-start');
     expect(first.querySelector('[class*="to_bottom"]')).not.toBeNull();
   });
+
+  it('un tile sin título ni eyebrow no deja elementos vacíos', () => {
+    const { container } = render(<RoomTiles items={[{ imageSrc: '/a.jpg', href: '/a' }]} />);
+    expect(container.querySelector('h3')).toBeNull();
+    expect(container.querySelector('small')).toBeNull();
+  });
+
+  it('el velo de contraste va pegado al bloque de texto, no al alto del tile', () => {
+    const { container } = render(<RoomTiles items={[{ eyebrow: 'Instalación', title: 'Cajas', imageSrc: '/a.jpg', href: '/a' }]} />);
+    const bloque = container.querySelector('h3')?.parentElement;
+    expect(bloque?.className).toContain('before:-top-24');
+    expect(bloque?.className).toContain('w-full');
+  });
 });

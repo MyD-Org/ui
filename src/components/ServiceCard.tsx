@@ -3,8 +3,10 @@ import { cn } from '../lib/cn';
 
 export interface ServiceCardProps extends HTMLAttributes<HTMLDivElement> {
   icon: ReactNode;
-  title: string;
-  text: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  title?: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  text?: string;
 }
 
 export function ServiceCard({ icon, title, text, className, ...props }: ServiceCardProps) {
@@ -19,8 +21,8 @@ export function ServiceCard({ icon, title, text, className, ...props }: ServiceC
       <div className="mb-4 flex h-[46px] w-[46px] items-center justify-center rounded-[14px] bg-accent-soft text-accent-strong [&_svg]:h-[22px] [&_svg]:w-[22px]">
         {icon}
       </div>
-      <b className="block text-[15px] font-extrabold text-text">{title}</b>
-      <span className="mt-1.5 block text-[13px] leading-snug text-muted">{text}</span>
+      {title ? <b className="block text-[15px] font-extrabold text-text">{title}</b> : null}
+      {text ? <span className="mt-1.5 block text-[13px] leading-snug text-muted">{text}</span> : null}
     </div>
   );
 }

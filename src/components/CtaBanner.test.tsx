@@ -32,4 +32,9 @@ describe('CtaBanner', () => {
     expect(section?.className).toContain('bg-primary');
     expect(section?.className).toContain('rounded-[28px]');
   });
+
+  it('sin título ni texto no deja párrafos vacíos', () => {
+    const { container } = render(<CtaBanner icon={null} cta={{ label: 'Consultar', href: '/c' }} />);
+    expect(container.querySelectorAll('p')).toHaveLength(0);
+  });
 });

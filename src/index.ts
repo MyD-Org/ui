@@ -75,6 +75,13 @@ export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps 
 export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipRow';
 export { ServiceCard, type ServiceCardProps } from './components/ServiceCard';
 export { Marquee, type MarqueeProps } from './components/Marquee';
+export {
+  AccentText,
+  parseAccent,
+  stripAccent,
+  type AccentTextProps,
+  type AccentSegment,
+} from './components/AccentText';
 export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
 export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
 export { Carousel, type CarouselProps } from './components/Carousel';

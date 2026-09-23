@@ -32,4 +32,35 @@ describe('Hero', () => {
     const { container } = render(<Hero eyebrow="e" title="t" imageSrc="/h.jpg" />);
     expect(container.querySelector('section')?.className).toContain('rounded-[28px]');
   });
+
+  it('acepta el acento en el medio del título', () => {
+    render(<Hero title="Todo lo que *su proyecto* necesita" imageSrc="/h.jpg" />);
+    const titulo = screen.getByRole('heading', { level: 1 });
+    expect(titulo).toHaveTextContent('Todo lo que su proyecto necesita');
+    expect(titulo.querySelector('em')?.textContent).toBe('su proyecto');
+  });
+
+  it('sin eyebrow no deja la línea decorativa vacía', () => {
+    const { container } = render(<Hero title="t" imageSrc="/h.jpg" />);
+    expect(container.querySelector('span[class*="before:content"]')).toBeNull();
+  });
+
+  it('usa título y bajada de mobile debajo de md', () => {
+    render(<Hero title="Largo" titleMobile="Corto" lead="Bajada larga" leadMobile="Bajada corta" imageSrc="/h.jpg" />);
+    expect(screen.getByText('Corto').className).toBe('md:hidden');
+    expect(screen.getByText('Largo').className).toBe('hidden md:inline');
+    expect(screen.getByText('Bajada corta').className).toBe('md:hidden');
+  });
+
+  it('sin título no deja un h1 vacío', () => {
+    render(<Hero imageSrc="/h.jpg" lead="Solo bajada" />);
+    expect(screen.queryByRole('heading')).toBeNull();
+  });
+
+  it('el velo de contraste va pegado a la columna de texto', () => {
+    render(<Hero title="t" imageSrc="/x.jpg" />);
+    const columna = screen.getByRole('heading').parentElement;
+    expect(columna?.className).toContain('before:-right-24');
+    expect(columna?.className).toContain('self-stretch');
+  });
 });
