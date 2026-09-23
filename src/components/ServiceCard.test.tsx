@@ -16,4 +16,10 @@ describe('ServiceCard', () => {
     expect(card?.className).toContain('rounded-[20px]');
     expect(card?.className).toContain('bg-surface');
   });
+
+  it('sin título ni texto no deja elementos vacíos', () => {
+    const { container } = render(<ServiceCard icon={null} />);
+    expect(container.querySelector('b')).toBeNull();
+    expect(container.querySelector('span')).toBeNull();
+  });
 });

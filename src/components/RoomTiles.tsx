@@ -3,8 +3,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
 export interface RoomTile {
-  eyebrow: string;
-  title: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  eyebrow?: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  title?: string;
   imageSrc: string;
   imageAlt?: string;
   href: string;
@@ -116,7 +118,7 @@ export function RoomTiles({
     >
       {items.map((item, i) => (
         <Tile
-          key={item.href + item.title}
+          key={`${item.href}|${item.title ?? ''}|${i}`}
           item={item}
           variant={esMosaic ? 'mosaic' : 'grid'}
           destacada={i === 0 && esMosaic}
@@ -188,7 +190,7 @@ function PilaTiles({
     <div className={cn('flex flex-col gap-4', className)} {...props}>
       {items.map((item, i) => (
         <div
-          key={item.href + item.title}
+          key={`${item.href}|${item.title ?? ''}|${i}`}
           ref={(el) => {
             wrappers.current[i] = el;
           }}
@@ -242,12 +244,16 @@ function Tile({
         )}
       />
       <div className="p-[clamp(22px,2.5vw,34px)]">
-        <small className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.2em] text-highlight">
-          {item.eyebrow}
-        </small>
-        <h3 className="font-display text-[clamp(24px,2.4vw,34px)] font-medium leading-[1.1] text-white">
-          {item.title}
-        </h3>
+        {item.eyebrow ? (
+          <small className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.2em] text-highlight">
+            {item.eyebrow}
+          </small>
+        ) : null}
+        {item.title ? (
+          <h3 className="font-display text-[clamp(24px,2.4vw,34px)] font-medium leading-[1.1] text-white">
+            {item.title}
+          </h3>
+        ) : null}
         {/* Mismo CTA en las tres variantes: antes `grid` y `stack` usaban un
             círculo con la flecha rotando, que no se parecía al resto de las
             cards y llamaba más la atención que el título. */}

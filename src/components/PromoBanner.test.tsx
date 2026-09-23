@@ -28,4 +28,11 @@ describe('PromoBanner', () => {
     expect(section?.className).toContain('rounded-[28px]');
     expect(section?.querySelector('img')?.className).toContain('object-cover');
   });
+
+  it('acepta el acento en cualquier posición y eyebrow opcional', () => {
+    render(<PromoBanner title="*Luz cálida* para sus noches" imageSrc="/d.jpg" />);
+    const h2 = screen.getByRole('heading', { level: 2 });
+    expect(h2.querySelector('em')?.textContent).toBe('Luz cálida');
+    expect(h2).toHaveTextContent('Luz cálida para sus noches');
+  });
 });

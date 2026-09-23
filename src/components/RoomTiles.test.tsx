@@ -113,4 +113,10 @@ describe('RoomTiles', () => {
     expect(first.className).toContain('items-start');
     expect(first.querySelector('[class*="to_bottom"]')).not.toBeNull();
   });
+
+  it('un tile sin título ni eyebrow no deja elementos vacíos', () => {
+    const { container } = render(<RoomTiles items={[{ imageSrc: '/a.jpg', href: '/a' }]} />);
+    expect(container.querySelector('h3')).toBeNull();
+    expect(container.querySelector('small')).toBeNull();
+  });
 });

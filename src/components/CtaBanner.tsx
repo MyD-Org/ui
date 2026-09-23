@@ -3,8 +3,10 @@ import { cn } from '../lib/cn';
 
 export interface CtaBannerProps extends HTMLAttributes<HTMLElement> {
   icon: ReactNode;
-  title: string;
-  text: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  title?: string;
+  /** Vacío o ausente ⇒ no se muestra. */
+  text?: string;
   cta: { label: string; href: string };
 }
 
@@ -20,8 +22,8 @@ export function CtaBanner({ icon, title, text, cta, className, ...props }: CtaBa
       <div className="flex items-center gap-5">
         <span className="[&_svg]:h-8 [&_svg]:w-8 [&_svg]:text-highlight">{icon}</span>
         <div>
-          <p className="text-lg font-extrabold">{title}</p>
-          <p className="text-sm text-on-primary/70">{text}</p>
+          {title ? <p className="text-lg font-extrabold">{title}</p> : null}
+          {text ? <p className="text-sm text-on-primary/70">{text}</p> : null}
         </div>
       </div>
       <a

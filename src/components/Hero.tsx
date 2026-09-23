@@ -1,5 +1,6 @@
 import { type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
+import { AccentText } from './AccentText';
 
 export interface HeroCta {
   label: string;
@@ -12,18 +13,37 @@ export interface HeroUsp {
 }
 
 export interface HeroProps extends HTMLAttributes<HTMLElement> {
-  eyebrow: string;
-  title: string;
-  /** Palabra final en itálica ámbar (ej. "hogar"). */
+  /** Vacío o ausente ⇒ no se muestra. */
+  eyebrow?: string;
+  /** Vacío o ausente ⇒ no se muestra. Admite marcas `*acento*` en cualquier posición (ej. "La luz que hace *hogar*"). */
+  title?: string;
+  /** Título para mobile (debajo de `md`), con las mismas marcas. Ausente ⇒ `title`. */
+  titleMobile?: string;
+  /** @deprecated Use `*acento*` dentro de `title`. Se agrega al final del título. */
   accent?: string;
   lead?: string;
+  /** Bajada para mobile (debajo de `md`). Ausente ⇒ `lead`. */
+  leadMobile?: string;
   imageSrc: string;
   imageAlt?: string;
   ctas?: HeroCta[];
   usps?: HeroUsp[];
 }
 
-export function Hero({ eyebrow, title, accent, lead, imageSrc, imageAlt = '', ctas, usps, className, ...props }: HeroProps) {
+export function Hero({
+  eyebrow,
+  title,
+  titleMobile,
+  accent,
+  lead,
+  leadMobile,
+  imageSrc,
+  imageAlt = '',
+  ctas,
+  usps,
+  className,
+  ...props
+}: HeroProps) {
   return (
     <section
       className={cn(
@@ -37,19 +57,27 @@ export function Hero({ eyebrow, title, accent, lead, imageSrc, imageAlt = '', ct
       <img src={imageSrc} alt={imageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(247,242,234,0.94)_0%,rgba(247,242,234,0.82)_34%,rgba(247,242,234,0.25)_62%,transparent_80%)]" />
       <div className="relative max-w-[600px] p-[clamp(28px,5vw,72px)]">
-        <span className="mb-5 inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent-strong before:h-[1.5px] before:w-[26px] before:bg-accent-strong before:content-['']">
-          {eyebrow}
-        </span>
-        <h1 className="font-display text-[clamp(38px,4.6vw,64px)] font-medium leading-[1.06] tracking-tight text-text">
-          {title}
-          {accent ? (
-            <>
-              {' '}
-              <em className="italic text-accent">{accent}</em>
-            </>
-          ) : null}
-        </h1>
-        {lead ? <p className="mt-5 max-w-[42ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.65] text-muted">{lead}</p> : null}
+        {eyebrow ? (
+          <span className="mb-5 inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent-strong before:h-[1.5px] before:w-[26px] before:bg-accent-strong before:content-['']">
+            {eyebrow}
+          </span>
+        ) : null}
+        {title || titleMobile || accent ? (
+          <h1 className="font-display text-[clamp(38px,4.6vw,64px)] font-medium leading-[1.06] tracking-tight text-text">
+            <AccentText text={title ?? ''} mobileText={titleMobile} accentClassName="italic text-accent" />
+            {accent ? (
+              <>
+                {' '}
+                <em className="italic text-accent">{accent}</em>
+              </>
+            ) : null}
+          </h1>
+        ) : null}
+        {lead || leadMobile ? (
+          <p className="mt-5 max-w-[42ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.65] text-muted">
+            <AccentText text={lead ?? ''} mobileText={leadMobile} />
+          </p>
+        ) : null}
         {ctas && ctas.length > 0 ? (
           <div className="mt-8 flex flex-wrap gap-3.5">
             {ctas.map((cta, i) => (
