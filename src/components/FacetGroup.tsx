@@ -20,8 +20,8 @@ export interface FacetItem {
 }
 
 /**
- * Sangría por nivel: el ancho del chevron más su separación, para que la
- * casilla de una hija quede bajo la de su madre. Clases fijas (no
+ * Sangría por nivel: el ancho de la casilla más su separación, para que la
+ * casilla de una hija quede bajo el texto de su madre. Clases fijas (no
  * interpoladas) para que el Tailwind del consumidor las vea.
  */
 const sangria = ['', 'pl-6', 'pl-12', 'pl-18'] as const;
@@ -216,21 +216,6 @@ export function FacetGroup({
             const conChevron = esArbol && !searching && nodo.tieneHijas;
             return (
               <li key={it.value} className={cn('flex items-center gap-1', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
-                {conChevron ? (
-                  <button
-                    type="button"
-                    aria-expanded={abierta(i)}
-                    aria-label={(abierta(i) ? collapseLabel : expandLabel).replace('{label}', it.label)}
-                    onClick={() => setRamas((r) => ({ ...r, [it.value]: !abierta(i) }))}
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                  >
-                    <span className={cn('transition-transform duration-150', !abierta(i) && '-rotate-90')}>
-                      <ChevronIcon />
-                    </span>
-                  </button>
-                ) : (
-                  esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0" />
-                )}
                 <label
                   htmlFor={rowId}
                   className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', (it.disabled || incluida) && 'cursor-not-allowed', it.disabled && 'opacity-50')}
@@ -246,6 +231,28 @@ export function FacetGroup({
                   <span className="min-w-0 flex-1 truncate">{it.label}</span>
                   {it.count != null && <span className="text-xs tabular-nums text-muted">{it.count}</span>}
                 </label>
+                {/*
+                  El chevron va a la derecha, después del conteo: a la
+                  izquierda obligaba a correr todas las raíces por su ancho,
+                  tengan hijas o no, y la lista quedaba desalineada del título
+                  y de los otros grupos. El hueco de las filas sin hijas
+                  mantiene los conteos en columna.
+                */}
+                {conChevron ? (
+                  <button
+                    type="button"
+                    aria-expanded={abierta(i)}
+                    aria-label={(abierta(i) ? collapseLabel : expandLabel).replace('{label}', it.label)}
+                    onClick={() => setRamas((r) => ({ ...r, [it.value]: !abierta(i) }))}
+                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+                  >
+                    <span className={cn('transition-transform duration-150', abierta(i) && 'rotate-180')}>
+                      <ChevronIcon />
+                    </span>
+                  </button>
+                ) : (
+                  esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0" />
+                )}
               </li>
             );
           })}

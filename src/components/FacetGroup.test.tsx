@@ -233,6 +233,14 @@ describe('FacetGroup: árbol plegable', () => {
     expect(fila('D').className).toContain('pl-18');
   });
 
+  it('el chevron va a la derecha de la fila y las raíces no se corren', () => {
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} />);
+    const chevron = screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' });
+    const fila = chevron.closest('li')!;
+    expect(fila.lastElementChild).toBe(chevron);
+    expect(fila.className).not.toMatch(/\bpl-/);
+  });
+
   it('expandLabel y collapseLabel configurables', () => {
     render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} expandLabel="Abrir {label}" collapseLabel="Cerrar {label}" />);
     expect(screen.getByRole('button', { name: 'Abrir Iluminación' })).toBeInTheDocument();
