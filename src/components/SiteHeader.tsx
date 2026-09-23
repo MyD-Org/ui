@@ -7,11 +7,14 @@ import {
   type ReactNode,
 } from 'react';
 import { cn } from '../lib/cn';
+import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
 export interface SiteNavItem {
   label: string;
   href: string;
   badge?: string;
+  /** Dónde se ve el badge. Ausente ⇒ en los dos tamaños. */
+  badgeVisibleOn?: VisibleOn;
 }
 
 export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
@@ -184,7 +187,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
           </div>
           {nav && nav.length > 0 ? (
             <nav className="border-t border-border">
-              <div className="mx-auto flex h-[52px] max-w-[1280px] items-center justify-center gap-[clamp(18px,3.5vw,44px)] overflow-x-auto px-[clamp(18px,4vw,48px)] max-lg:justify-start">
+              <div className="mx-auto flex h-[52px] max-w-[1280px] items-center justify-center gap-[clamp(18px,3.5vw,44px)] overflow-x-auto px-[clamp(18px,4vw,48px)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-lg:justify-start max-lg:[mask-image:linear-gradient(to_right,black_calc(100%-32px),transparent)]">
                 {nav.map((item) => (
                   <a
                     key={item.label + item.href}
@@ -193,7 +196,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
                   >
                     {item.label}
                     {item.badge ? (
-                      <span className={cn(NAV_BADGE, 'ml-1.5 px-2.5 py-[3px] text-[10px]')}>
+                      <span className={cn(NAV_BADGE, 'ml-1.5 px-2.5 py-[3px] text-[10px]', visibleOnClass(item.badgeVisibleOn))}>
                         {item.badge}
                       </span>
                     ) : null}
@@ -244,7 +247,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
                     >
                       {item.label}
                       {item.badge ? (
-                        <span className={cn(NAV_BADGE, 'ml-1.5 px-2 py-[2px] text-[9.5px]')}>
+                        <span className={cn(NAV_BADGE, 'ml-1.5 px-2 py-[2px] text-[9.5px]', visibleOnClass(item.badgeVisibleOn))}>
                           {item.badge}
                         </span>
                       ) : null}

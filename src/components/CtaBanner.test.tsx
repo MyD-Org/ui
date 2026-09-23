@@ -37,4 +37,19 @@ describe('CtaBanner', () => {
     const { container } = render(<CtaBanner icon={null} cta={{ label: 'Consultar', href: '/c' }} />);
     expect(container.querySelectorAll('p')).toHaveLength(0);
   });
+
+  it('título y texto se pueden mostrar solo en un tamaño', () => {
+    render(
+      <CtaBanner
+        icon={<svg />}
+        title="Título"
+        titleVisibleOn="desktop"
+        text="Texto"
+        textVisibleOn="mobile"
+        cta={{ label: 'Consultar', href: '/x' }}
+      />,
+    );
+    expect(screen.getByText('Título').className.split(' ')).toContain('max-md:hidden');
+    expect(screen.getByText('Texto').className.split(' ')).toContain('md:hidden');
+  });
 });

@@ -1,4 +1,5 @@
 export { cn } from './lib/cn';
+export { visibleOnClass, type VisibleOn } from './lib/visibleOn';
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize, type ButtonShape } from './components/Button';
 export { Input, type InputProps } from './components/Input';
 export { Textarea, type TextareaProps } from './components/Textarea';
