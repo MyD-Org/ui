@@ -55,6 +55,10 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **Primitivas de Mi cuenta (0.13.0)**: `SectionNav` (navegación de secciones dentro de una página: `<nav><ul>`, activo con `aria-current="page"`, separador antes del ítem `danger`, horizontal desplazable en `< md`; no es un shell como `SideNav`), `StatCard` (ícono en tile + valor + etiqueta, enlazable, `loading`; `KpiCard` sigue siendo la de dashboards), `Stepper` (estados por paso `done|current|pending`, `<ol>` con `aria-current="step"` y estado sr-only; no calcula progreso), `ToggleIconButton` (`aria-pressed`, `onClick` antes de `onPressedChange`, `tone primary|danger`).
 - **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard` y `SectionNav`. (`SideNav` conserva su firma posicional vieja.)
 
+### Changelog 0.19.0
+- **`RoomTiles variant="stack"`** pasa a pila tipo billetera (como Mercado Pago): todas las tarjetas se pegan a la misma altura y la de atrás se achica (8% por nivel) y sube a medida que la siguiente la tapa, así se asoma una franja cada vez más chica. Como mucho se ven `stackProfundidad` (nueva, default 2) detrás; la siguiente se desvanece. La profundidad se calcula por scroll (rAF) y se escribe como `transform`/`opacity` en cada tarjeta; con reduced motion quedan una debajo de otra.
+- **Cambio de semántica**: `stackTop` ahora es el borde de la franja más al fondo; la de adelante se pega en `stackTop + stackProfundidad * stackSolape` (antes cada tarjeta se pegaba `stackSolape` px más abajo que la anterior).
+
 ### Changelog 0.18.1
 - **`FacetGroup`** en árbol: el chevron pasa a la derecha de la fila, después del conteo (abajo = cerrada, arriba = abierta). A la izquierda corría todas las raíces por su ancho y la lista quedaba desalineada del título y de los otros grupos. La sangría de las hijas no cambia.
 
