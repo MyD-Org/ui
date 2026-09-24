@@ -48,3 +48,36 @@ export const SinIconos: Story = {
     </div>
   ),
 };
+
+const byId = (id: string) => conIconos.find((item) => item.id === id)!;
+
+/** Mi cuenta agrupada: títulos desde `md`; en móvil los grupos se separan con una línea. */
+export const Agrupada: Story = {
+  args: {
+    groups: [
+      { id: 'compras', label: 'Compras online', items: [{ ...byId('pedidos'), active: false }, byId('favoritos')] },
+      {
+        id: 'facturacion',
+        label: 'Facturación',
+        items: [
+          { ...byId('facturas'), label: 'Facturas y saldo', active: true },
+          { id: 'pagos', label: 'Pagos', href: '#pagos' },
+          { id: 'presupuestos', label: 'Presupuestos', href: '#presupuestos' },
+          { id: 'avisos', label: 'Avisos', href: '#avisos', badge: 3 },
+        ],
+      },
+      { id: 'perfil', label: 'Mi perfil', items: [byId('datos'), byId('direcciones'), byId('seguridad')] },
+    ],
+    items: [byId('salir')],
+  },
+  render: (args) => (
+    <div className="w-64">
+      <SectionNav {...args} />
+    </div>
+  ),
+};
+
+export const AgrupadaHorizontal: Story = {
+  args: Agrupada.args,
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+};

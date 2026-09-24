@@ -19,4 +19,21 @@ describe('KpiCard', () => {
     render(<KpiCard label="Total" />);
     expect(screen.getByText('—')).toBeInTheDocument();
   });
+  it('children se muestran debajo del valor (listas, barras)', () => {
+    render(
+      <KpiCard label="Deuda total" value="$ 150.000,00" hint="Límite $ 500.000,00">
+        <ul>
+          <li>Factura 0001-00000123</li>
+        </ul>
+      </KpiCard>,
+    );
+    const hint = screen.getByText('Límite $ 500.000,00');
+    const item = screen.getByText('Factura 0001-00000123');
+    expect(hint.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+  it('sin children no agrega el contenedor extra', () => {
+    const { container } = render(<KpiCard label="Total" value={1} />);
+    expect(container.firstElementChild!.children).toHaveLength(2);
+  });
 });
+

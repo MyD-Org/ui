@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SectionNav, type SectionNavItem } from './SectionNav';
+import { SectionNav, type SectionNavGroup, type SectionNavItem } from './SectionNav';
 
 const onSeguridad = vi.fn();
 const onSalir = vi.fn();
@@ -120,4 +120,121 @@ describe('SectionNav', () => {
     expect(c).toContain('overflow-x-auto');
     expect(c).toContain('md:flex-col');
   });
+
+  describe('badge', () => {
+    it('muestra el número y suma "N sin leer" al nombre accesible', () => {
+      render(<SectionNav items={[{ id: 'avisos', label: 'Avisos', href: '/avisos', badge: 3 }]} />);
+      const link = screen.getByRole('link', { name: 'Avisos 3 sin leer' });
+      expect(within(link).getByText('3')).toHaveAttribute('aria-hidden', 'true');
+      expect(within(link).getByText('3 sin leer')).toHaveClass('sr-only');
+    });
+
+    it('0 o ausente no muestra badge', () => {
+      render(
+        <SectionNav
+          items={[
+            { id: 'a', label: 'Avisos', href: '/a', badge: 0 },
+            { id: 'b', label: 'Pagos', href: '/b' },
+          ]}
+        />,
+      );
+      expect(screen.getByRole('link', { name: 'Avisos' })).toHaveTextContent(/^Avisos$/);
+      expect(screen.getByRole('link', { name: 'Pagos' })).toHaveTextContent(/^Pagos$/);
+    });
+
+    it('más de 99 se muestra como 99+ pero el nombre accesible lleva el número real', () => {
+      render(<SectionNav items={[{ id: 'a', label: 'Avisos', href: '/a', badge: 120 }]} />);
+      const link = screen.getByRole('link', { name: 'Avisos 120 sin leer' });
+      expect(within(link).getByText('99+')).toBeInTheDocument();
+    });
+
+    it('badgeLabel cambia el texto accesible ({n} = cantidad)', () => {
+      render(<SectionNav badgeLabel="{n} nuevos" items={[{ id: 'a', label: 'Avisos', href: '/a', badge: 2 }]} />);
+      expect(screen.getByRole('link', { name: 'Avisos 2 nuevos' })).toBeInTheDocument();
+    });
+
+    it('también en ítems de acción (button)', () => {
+      render(<SectionNav items={[{ id: 'a', label: 'Avisos', onSelect: () => {}, badge: 1 }]} />);
+      expect(screen.getByRole('button', { name: 'Avisos 1 sin leer' })).toBeInTheDocument();
+    });
+  });
+
+  describe('grupos', () => {
+    const groups: SectionNavGroup[] = [
+      {
+        id: 'compras',
+        label: 'Compras online',
+        items: [
+          { id: 'pedidos', label: 'Pedidos', href: '/p' },
+          { id: 'favoritos', label: 'Favoritos', href: '/f' },
+        ],
+      },
+      {
+        id: 'facturacion',
+        label: 'Facturación',
+        items: [
+          { id: 'facturas', label: 'Facturas y saldo', href: '/fa', active: true },
+          { id: 'avisos', label: 'Avisos', href: '/av', badge: 4 },
+        ],
+      },
+      { id: 'perfil', label: 'Mi perfil', items: [{ id: 'datos', label: 'Mis datos', href: '/d' }] },
+    ];
+    const salir: SectionNavItem = { id: 'salir', label: 'Cerrar sesión', onSelect: () => {}, tone: 'danger' };
+
+    it('cada grupo es una lista con el título como nombre', () => {
+      render(<SectionNav groups={groups} />);
+      const compras = screen.getByRole('list', { name: 'Compras online' });
+      expect(within(compras).getAllByRole('link').map((l) => l.textContent)).toEqual(['Pedidos', 'Favoritos']);
+      expect(within(screen.getByRole('list', { name: 'Facturación' })).getByRole('link', { name: 'Avisos 4 sin leer' })).toBeInTheDocument();
+      expect(screen.getByRole('list', { name: 'Mi perfil' })).toBeInTheDocument();
+    });
+
+    it('el título es visible desde md y no es interactivo', () => {
+      render(<SectionNav groups={groups} />);
+      const titulo = screen.getByText('Compras online');
+      expect(titulo.tagName).toBe('SPAN');
+      expect(titulo.className).toContain('hidden');
+      expect(titulo.className).toContain('md:block');
+      expect(screen.queryByRole('button', { name: 'Compras online' })).toBeNull();
+      expect(screen.queryByRole('link', { name: 'Compras online' })).toBeNull();
+    });
+
+    it('entre grupos hay separadores verticales que sólo se ven en móvil', () => {
+      render(<SectionNav groups={groups} />);
+      const seps = screen.getAllByRole('separator');
+      expect(seps).toHaveLength(2);
+      for (const sep of seps) {
+        expect(sep).toHaveAttribute('aria-orientation', 'vertical');
+        expect(sep.className).toContain('md:hidden');
+      }
+    });
+
+    it('items se muestran después de los grupos, sin título; el danger conserva su separador', async () => {
+      const onSalir = vi.fn();
+      render(<SectionNav groups={groups} items={[{ ...salir, onSelect: onSalir }]} />);
+      const controles = screen.getByRole('navigation').querySelectorAll('a, button');
+      expect(controles[controles.length - 1]).toHaveAccessibleName('Cerrar sesión');
+      const seps = screen.getAllByRole('separator');
+      // 2 entre grupos + 1 móvil antes de los sueltos + 1 del danger (desde md).
+      expect(seps).toHaveLength(4);
+      expect(seps.filter((s) => s.getAttribute('aria-orientation') === 'horizontal')).toHaveLength(1);
+      await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
+      expect(onSalir).toHaveBeenCalledOnce();
+    });
+
+    it('un grupo vacío no se renderiza', () => {
+      render(<SectionNav groups={[...groups, { id: 'vacio', label: 'Vacío', items: [] }]} />);
+      expect(screen.queryByText('Vacío')).toBeNull();
+      expect(screen.getAllByRole('separator')).toHaveLength(2);
+    });
+
+    it('conserva activo, fila horizontal en móvil y vertical desde md', () => {
+      render(<SectionNav groups={groups} />);
+      expect(screen.getByRole('link', { name: 'Facturas y saldo' })).toHaveAttribute('aria-current', 'page');
+      const externa = screen.getByRole('navigation').querySelector('ul')!;
+      expect(externa.className).toContain('overflow-x-auto');
+      expect(externa.className).toContain('md:flex-col');
+    });
+  });
 });
+
