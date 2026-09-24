@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FileDropZone } from './FileDropZone';
+import { Field } from './Field';
 
 const fileInput = (container: HTMLElement) =>
   container.querySelector('input[type="file"]') as HTMLInputElement;
@@ -90,5 +91,17 @@ describe('FileDropZone', () => {
     const file = new File(['x'], 'recibo.pdf', { type: 'application/pdf' });
     fireEvent.drop(screen.getByRole('button'), { dataTransfer: { files: [file] } });
     expect(onChange).toHaveBeenCalledWith(file);
+  });
+
+  it('dentro de Field recibe id, aria-invalid y el error se suma a la descripción', () => {
+    render(
+      <Field label="Comprobante" error="Adjunte el comprobante">
+        <FileDropZone file={null} onChange={() => {}} hint="PDF, hasta 20 MB" />
+      </Field>,
+    );
+    const zone = screen.getByRole('button');
+    expect(zone).toHaveAttribute('id');
+    expect(zone).toHaveAttribute('aria-invalid', 'true');
+    expect(zone).toHaveAccessibleDescription('Adjunte el comprobante PDF, hasta 20 MB');
   });
 });

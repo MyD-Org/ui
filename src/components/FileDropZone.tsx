@@ -13,6 +13,10 @@ export interface FileDropZoneProps {
   /** Parte resaltada de la segunda línea. */
   selectLabel?: string;
   className?: string;
+  /** Los inyecta `Field`: el error se anuncia junto con el hint. */
+  id?: string;
+  'aria-invalid'?: boolean;
+  'aria-describedby'?: string;
 }
 
 export const FileDropZone = ({
@@ -24,11 +28,15 @@ export const FileDropZone = ({
   selectPrefix = 'o',
   selectLabel = 'selecciónelo desde su equipo',
   className,
+  id,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }: FileDropZoneProps) => {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const labelId = useId();
   const hintId = useId();
+  const describedBy = [ariaDescribedBy, hint ? hintId : undefined].filter(Boolean).join(' ') || undefined;
   const openPicker = () => inputRef.current?.click();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -51,10 +59,12 @@ export const FileDropZone = ({
 
   return (
     <div
+      id={id}
       role="button"
       tabIndex={0}
       aria-labelledby={labelId}
-      aria-describedby={hint ? hintId : undefined}
+      aria-describedby={describedBy}
+      aria-invalid={ariaInvalid}
       onKeyDown={handleKeyDown}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}

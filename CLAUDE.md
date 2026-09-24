@@ -58,6 +58,7 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 ### Changelog 0.23.0 (un cambio visible)
 - **`FileDropZone` (visible)**: el texto por defecto pasa a usted ("Arrastre su archivo aquí" / "o selecciónelo desde su equipo"; antes era voseo). Nuevas props `title`, `selectPrefix` (default `'o'`) y `selectLabel` para cambiarlo sin override.
 - **`FileDropZone` (a11y)**: el área es `role="button"` enfocable (`tabIndex=0`, anillo `focus-visible`); Enter/Espacio abren el selector. El nombre accesible sale del texto (o del nombre del archivo) y el `hint` va por `aria-describedby`, así no se lee dos veces. El `<input type="file">` queda fuera del orden de tabulación y su clic ya no rebota en el área.
+- **`FileDropZone` dentro de `Field`**: toma el `id`, `aria-invalid` y `aria-describedby` que inyecta `Field` (antes los descartaba y el error no se anunciaba); la descripción suma el error/hint del `Field` y después el `hint` propio.
 
 ### Changelog 0.22.0 (aditivo: los defaults no cambian)
 - **`SectionNav`**: `groups` (`SectionNavGroup[]`: `{ id, label, items }`) para una navegación agrupada. Desde `md` cada grupo lleva su título (no interactivo) y es una sublista nombrada por él (`aria-labelledby`); en móvil (fila horizontal) el título no se ve y los grupos se separan con una línea vertical. Con `groups`, `items` pasa a ser opcional y son los ítems sueltos que van al final, sin título (p. ej. "Cerrar sesión", que conserva su separador `danger`). Un grupo vacío no se renderiza. Sin `groups`, el DOM es el mismo de antes.
