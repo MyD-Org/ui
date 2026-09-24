@@ -97,7 +97,8 @@ export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItem } from './compone
 export { Pagination, paginationWindow, type PaginationProps, type PaginationLabels } from './components/Pagination';
 export { SegmentedControl, type SegmentedControlProps, type SegmentedOption } from './components/SegmentedControl';
 export { FacetGroup, type FacetGroupProps, type FacetItem } from './components/FacetGroup';
-export { SectionNav, type SectionNavProps, type SectionNavItem } from './components/SectionNav';
+export { SectionNav, type SectionNavProps, type SectionNavItem, type SectionNavGroup } from './components/SectionNav';
+export { DocumentViewer, type DocumentViewerProps } from './components/DocumentViewer';
 export { StatCard, type StatCardProps } from './components/StatCard';
 export { Stepper, type StepperProps, type StepItem, type StepState } from './components/Stepper';
 export {

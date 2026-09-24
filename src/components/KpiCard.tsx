@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cn } from '../lib/cn';
 
 export interface KpiCardProps {
@@ -10,6 +11,8 @@ export interface KpiCardProps {
   hint?: string;
   locale?: string;
   className?: string;
+  /** Contenido debajo del valor y del hint (p. ej. las facturas que suman el saldo, una `Progress`). */
+  children?: ReactNode;
 }
 
 const toneClass = {
@@ -29,6 +32,7 @@ export function KpiCard({
   hint,
   locale = 'es-AR',
   className,
+  children,
 }: KpiCardProps) {
   const display =
     value === undefined || value === null
@@ -46,6 +50,7 @@ export function KpiCard({
         {suffix && <span className="text-xl font-medium text-muted">{suffix}</span>}
       </div>
       {hint && <div className="mt-1 text-xs text-subtle">{hint}</div>}
+      {children != null && <div className="mt-3">{children}</div>}
     </div>
   );
 }
