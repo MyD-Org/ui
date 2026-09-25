@@ -10,7 +10,42 @@ export interface RoomTile {
   imageSrc: string;
   imageAlt?: string;
   href: string;
+  /**
+   * Cuánto se oscurece la foto para que se lea el texto: `soft` para fotos
+   * oscuras (ya tienen contraste), `strong` para fotos claras. Default `default`.
+   */
+  overlay?: RoomTileOverlay;
 }
+
+export type RoomTileOverlay = 'soft' | 'default' | 'strong';
+
+/**
+ * Velos por intensidad. `base` cubre todo el tile; `texto` va pegado al bloque
+ * de texto. Clases literales (no armadas con template) para que Tailwind las vea.
+ */
+const VELOS: Record<
+  RoomTileOverlay,
+  { base: string; baseStack: string; texto: string; textoStack: string }
+> = {
+  soft: {
+    base: 'bg-[linear-gradient(to_top,rgba(30,22,14,0.4)_0%,rgba(30,22,14,0.06)_45%,transparent_70%)]',
+    baseStack: 'bg-[linear-gradient(to_bottom,rgba(30,22,14,0.5)_0%,rgba(30,22,14,0.08)_45%,transparent_75%)]',
+    texto: 'before:bg-[linear-gradient(to_top,rgba(30,22,14,0.55)_0%,rgba(30,22,14,0.3)_55%,transparent_100%)]',
+    textoStack: 'before:bg-[linear-gradient(to_bottom,rgba(30,22,14,0.55)_0%,rgba(30,22,14,0.3)_55%,transparent_100%)]',
+  },
+  default: {
+    base: 'bg-[linear-gradient(to_top,rgba(30,22,14,0.62)_0%,rgba(30,22,14,0.12)_45%,transparent_70%)]',
+    baseStack: 'bg-[linear-gradient(to_bottom,rgba(30,22,14,0.72)_0%,rgba(30,22,14,0.18)_45%,transparent_75%)]',
+    texto: 'before:bg-[linear-gradient(to_top,rgba(30,22,14,0.82)_0%,rgba(30,22,14,0.6)_55%,transparent_100%)]',
+    textoStack: 'before:bg-[linear-gradient(to_bottom,rgba(30,22,14,0.82)_0%,rgba(30,22,14,0.6)_55%,transparent_100%)]',
+  },
+  strong: {
+    base: 'bg-[linear-gradient(to_top,rgba(30,22,14,0.78)_0%,rgba(30,22,14,0.3)_45%,rgba(30,22,14,0.08)_100%)]',
+    baseStack: 'bg-[linear-gradient(to_bottom,rgba(30,22,14,0.85)_0%,rgba(30,22,14,0.32)_45%,rgba(30,22,14,0.08)_100%)]',
+    texto: 'before:bg-[linear-gradient(to_top,rgba(30,22,14,0.9)_0%,rgba(30,22,14,0.72)_55%,transparent_100%)]',
+    textoStack: 'before:bg-[linear-gradient(to_bottom,rgba(30,22,14,0.9)_0%,rgba(30,22,14,0.72)_55%,transparent_100%)]',
+  },
+};
 
 const tile = cva('group relative isolate flex overflow-hidden rounded-[24px]', {
   variants: {
@@ -224,6 +259,7 @@ function Tile({
   destacada?: boolean;
 }) {
   const esStack = variant === 'stack';
+  const velo = VELOS[item.overlay ?? 'default'] ?? VELOS.default;
   return (
     <a
       href={item.href}
@@ -236,12 +272,8 @@ function Tile({
         className="absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045]"
       />
       <div
-        className={cn(
-          'absolute inset-0 -z-10',
-          esStack
-            ? 'bg-[linear-gradient(to_bottom,rgba(30,22,14,0.72)_0%,rgba(30,22,14,0.18)_45%,transparent_75%)]'
-            : 'bg-[linear-gradient(to_top,rgba(30,22,14,0.62)_0%,rgba(30,22,14,0.12)_45%,transparent_70%)]',
-        )}
+        data-overlay={item.overlay ?? 'default'}
+        className={cn('absolute inset-0 -z-10', esStack ? velo.baseStack : velo.base)}
       />
       {/* Velo pegado al bloque de texto (no al alto del tile): se estira
           96px más allá del texto hacia la foto, así el contraste no depende
@@ -251,8 +283,8 @@ function Tile({
           'relative w-full p-[clamp(22px,2.5vw,34px)] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)]',
           "before:pointer-events-none before:absolute before:inset-x-0 before:-z-10 before:content-['']",
           esStack
-            ? 'before:-bottom-24 before:top-0 before:bg-[linear-gradient(to_bottom,rgba(30,22,14,0.82)_0%,rgba(30,22,14,0.6)_55%,transparent_100%)]'
-            : 'before:-top-24 before:bottom-0 before:bg-[linear-gradient(to_top,rgba(30,22,14,0.82)_0%,rgba(30,22,14,0.6)_55%,transparent_100%)]',
+            ? cn('before:-bottom-24 before:top-0', velo.textoStack)
+            : cn('before:-top-24 before:bottom-0', velo.texto),
         )}
       >
         {item.eyebrow ? (

@@ -84,7 +84,7 @@ export {
   type AccentSegment,
 } from './components/AccentText';
 export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero';
-export { RoomTiles, type RoomTilesProps, type RoomTile } from './components/RoomTiles';
+export { RoomTiles, type RoomTilesProps, type RoomTile, type RoomTileOverlay } from './components/RoomTiles';
 export { Carousel, type CarouselProps } from './components/Carousel';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner';
 export { CtaBanner, type CtaBannerProps } from './components/CtaBanner';

@@ -34,3 +34,11 @@ export const Stack: Story = {
     ),
   ],
 };
+
+/** Un velo por foto: suave para fotos oscuras, fuerte para fotos claras. */
+export const Velos: Story = {
+  args: {
+    variant: 'grid',
+    items: items.map((it, i) => ({ ...it, overlay: (['soft', 'default', 'strong'] as const)[i] })),
+  },
+};

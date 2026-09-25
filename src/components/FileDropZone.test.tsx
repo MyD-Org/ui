@@ -96,4 +96,11 @@ describe('FileDropZone', () => {
     expect(click).not.toHaveBeenCalled();
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('size="sm": una fila compacta con el ícono al costado', () => {
+    render(<FileDropZone file={null} onChange={() => {}} size="sm" />);
+    const zona = screen.getByRole('button');
+    expect(zona.className).toContain('py-2.5');
+    expect(zona.className).not.toContain('py-8');
+  });
 });
