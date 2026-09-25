@@ -60,7 +60,7 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
             setDraft(null);
             onValueChange(Number.isNaN(n) ? min : clamp(n));
           }}
-          className="h-9 w-12 border-x border-border-strong bg-transparent text-center text-sm font-medium text-text outline-none"
+          className="h-9 w-12 border-x border-border-strong bg-transparent text-center text-sm font-medium text-text pointer-coarse:text-base outline-none"
           {...props}
         />
         <button

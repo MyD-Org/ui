@@ -215,7 +215,7 @@ export function FacetGroup({
             const parcial = !it.checked && !incluida && conTildadaAdentro.has(i);
             const conChevron = esArbol && !searching && nodo.tieneHijas;
             return (
-              <li key={it.value} className={cn('flex items-center gap-1', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
+              <li key={it.value} className={cn('flex items-center gap-1 pointer-coarse:min-h-10', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
                 <label
                   htmlFor={rowId}
                   className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', (it.disabled || incluida) && 'cursor-not-allowed', it.disabled && 'opacity-50')}
@@ -237,6 +237,10 @@ export function FacetGroup({
                   tengan hijas o no, y la lista quedaba desalineada del título
                   y de los otros grupos. El hueco de las filas sin hijas
                   mantiene los conteos en columna.
+
+                  Con puntero táctil (`pointer-coarse:`) el chevron mide 40 px
+                  y las filas también, parejas: a 20 px era lo único tocable a
+                  la derecha de la fila y costaba acertarle con el dedo.
                 */}
                 {conChevron ? (
                   <button
@@ -244,14 +248,14 @@ export function FacetGroup({
                     aria-expanded={abierta(i)}
                     aria-label={(abierta(i) ? collapseLabel : expandLabel).replace('{label}', it.label)}
                     onClick={() => setRamas((r) => ({ ...r, [it.value]: !abierta(i) }))}
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] pointer-coarse:h-10 pointer-coarse:w-10"
                   >
                     <span className={cn('transition-transform duration-150', abierta(i) && 'rotate-180')}>
                       <ChevronIcon />
                     </span>
                   </button>
                 ) : (
-                  esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0" />
+                  esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0 pointer-coarse:w-10" />
                 )}
               </li>
             );

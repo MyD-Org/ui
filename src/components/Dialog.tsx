@@ -1,7 +1,8 @@
-import { type ReactNode, useRef } from 'react';
+import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
 import * as RDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import { SHEET_DRAG_INTENT_PX, dragsSheet, shouldCloseSheet } from '../lib/sheetDrag';
 
 const content = cva(
   'fixed z-50 flex flex-col overflow-hidden bg-surface shadow-[var(--shadow-2)] focus:outline-none',
@@ -43,6 +44,12 @@ export interface DialogProps extends VariantProps<typeof content> {
   footer?: ReactNode;
   children?: ReactNode;
   headerBorder?: boolean;
+  /**
+   * Sólo con `placement="sheet"`: la hoja se cierra arrastrándola hacia abajo
+   * con el dedo, como las hojas nativas del celular, y lleva una manija arriba
+   * que lo anuncia. Default `true`.
+   */
+  dragToClose?: boolean;
   className?: string;
 }
 
@@ -54,8 +61,114 @@ function XIcon() {
   );
 }
 
-export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, size, placement, className }: DialogProps) {
+const SHEET_DRAG_MS = 200;
+
+/**
+ * Arrastrar hacia abajo para cerrar la hoja. La hoja sigue al dedo si el gesto
+ * arranca en el encabezado (o la manija), o en el cuerpo cuando ya está arriba
+ * de todo; si no, el cuerpo scrollea como siempre. Lo que está marcado
+ * `touch-none` (p. ej. el `RangeSlider`) queda afuera: ahí el dedo mueve el
+ * control. Al soltar, si se la bajó lo suficiente (`shouldCloseSheet`) termina
+ * de bajar y se cierra; si no, vuelve a su lugar.
+ *
+ * `content` llega por callback ref en estado: el portal de Radix monta el
+ * contenido después del render que abre el diálogo.
+ */
+function useSheetDrag(
+  content: HTMLElement | null,
+  header: RefObject<HTMLElement | null>,
+  body: RefObject<HTMLElement | null>,
+  onClose: () => void,
+) {
+  // El cierre por gesto usa siempre el último `onOpenChange` sin re-enganchar listeners.
+  const close = useRef(onClose);
+  close.current = onClose;
+
+  useEffect(() => {
+    if (!content) return;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    let phase: 'idle' | 'deciding' | 'dragging' | 'free' = 'idle';
+    let start: { x: number; y: number; inHeader: boolean } | null = null;
+    let last = { y: 0, t: 0 };
+    let velocity = 0;
+    let offset = 0;
+    let closing: ReturnType<typeof setTimeout> | undefined;
+
+    const move = (px: number, animate: boolean) => {
+      content.style.transition = animate && !reduced ? `transform ${SHEET_DRAG_MS}ms ease-out` : 'none';
+      content.style.transform = px ? `translateY(${px}px)` : '';
+    };
+
+    const onStart = (e: TouchEvent) => {
+      const target = e.target instanceof Element ? e.target : null;
+      if (e.touches.length !== 1 || target?.closest('.touch-none')) {
+        phase = 'free';
+        return;
+      }
+      const t = e.touches[0];
+      phase = 'deciding';
+      start = { x: t.clientX, y: t.clientY, inHeader: !!target && !!header.current?.contains(target) };
+      last = { y: t.clientY, t: e.timeStamp };
+      velocity = 0;
+      offset = 0;
+    };
+
+    const onMove = (e: TouchEvent) => {
+      if (!start || phase === 'free' || phase === 'idle') return;
+      const t = e.touches[0];
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      if (phase === 'deciding') {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < SHEET_DRAG_INTENT_PX) return;
+        const bodyAtTop = (body.current?.scrollTop ?? 0) <= 0;
+        phase = dragsSheet({ dx, dy, inHeader: start.inHeader, bodyAtTop }) ? 'dragging' : 'free';
+        if (phase === 'free') return;
+      }
+      // Arrastrando: el dedo mueve la hoja, no el cuerpo ni la página.
+      e.preventDefault();
+      const dt = e.timeStamp - last.t;
+      if (dt > 0) velocity = (t.clientY - last.y) / dt;
+      last = { y: t.clientY, t: e.timeStamp };
+      offset = Math.max(0, dy);
+      move(offset, false);
+    };
+
+    const onEnd = () => {
+      if (phase === 'dragging') {
+        if (shouldCloseSheet(offset, content.offsetHeight, velocity)) {
+          move(content.offsetHeight, true);
+          closing = setTimeout(() => close.current(), reduced ? 0 : SHEET_DRAG_MS);
+        } else {
+          move(0, true);
+        }
+      }
+      phase = 'idle';
+      start = null;
+    };
+
+    content.addEventListener('touchstart', onStart, { passive: true });
+    // No pasivo: tiene que poder cancelar el scroll mientras arrastra la hoja.
+    content.addEventListener('touchmove', onMove, { passive: false });
+    content.addEventListener('touchend', onEnd);
+    content.addEventListener('touchcancel', onEnd);
+    return () => {
+      clearTimeout(closing);
+      content.removeEventListener('touchstart', onStart);
+      content.removeEventListener('touchmove', onMove);
+      content.removeEventListener('touchend', onEnd);
+      content.removeEventListener('touchcancel', onEnd);
+    };
+  }, [content, header, body]);
+}
+
+export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, dragToClose = true, size, placement, className }: DialogProps) {
   const resolvedPlacement: DialogPlacement = placement ?? 'center';
+  const draggable = resolvedPlacement === 'sheet' && dragToClose;
+  const [contentEl, setContentEl] = useState<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useSheetDrag(draggable ? contentEl : null, headerRef, bodyRef, () => onOpenChange(false));
   // Radix devuelve el foco a su propio `Dialog.Trigger`, que este DS no usa: sin esto el
   // foco se perdía al cerrar. Se captura el elemento activo antes de que el FocusScope
   // lo mueva adentro (onOpenAutoFocus corre antes del autofocus) y se restaura al cerrar.
@@ -65,6 +178,7 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
       <RDialog.Portal>
         <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
         <RDialog.Content
+          ref={setContentEl}
           data-placement={resolvedPlacement}
           className={cn(content({ size, placement: resolvedPlacement }), className)}
           onOpenAutoFocus={() => {
@@ -76,7 +190,10 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
             opener.current.focus();
           }}
         >
-          <div className={cn('flex items-start gap-4 px-5 py-4', headerBorder && 'border-b border-border')}>
+          <div ref={headerRef} className={cn('flex flex-col', headerBorder && 'border-b border-border')}>
+          {/* Manija de la hoja: avisa que se puede arrastrar para cerrar. Es parte del encabezado, así que arrastrar desde ella mueve la hoja. */}
+          {draggable && <div aria-hidden="true" data-sheet-handle="" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-border-strong" />}
+          <div className="flex items-start gap-4 px-5 py-4">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <RDialog.Title className="text-base font-semibold text-text">{title}</RDialog.Title>
               {description != null && (
@@ -90,7 +207,8 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
               <XIcon />
             </RDialog.Close>
           </div>
-          {children != null && <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text">{children}</div>}
+          </div>
+          {children != null && <div ref={bodyRef} className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text">{children}</div>}
           {footer != null && (
             <div
               className={cn(

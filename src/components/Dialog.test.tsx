@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { Dialog } from './Dialog';
@@ -87,5 +87,69 @@ describe('Dialog', () => {
     await user.keyboard('[Escape]');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+  describe('placement="sheet": arrastrar para cerrar', () => {
+    // Un gesto con el dedo: arranca en `desde`, baja `px` en 10 pasos y suelta.
+    function arrastrar(desde: Element, px: number) {
+      const t = (y: number) => {
+        const toque = { clientX: 100, clientY: y };
+        return { touches: [toque], changedTouches: [toque] };
+      };
+      fireEvent.touchStart(desde, t(100));
+      for (let i = 1; i <= 10; i++) fireEvent.touchMove(desde, t(100 + (px * i) / 10));
+      fireEvent.touchEnd(desde, { touches: [], changedTouches: [{ clientX: 100, clientY: 100 + px }] });
+    }
+
+    it('lleva una manija arriba; centrado o con dragToClose={false}, no', () => {
+      const { rerender } = render(<Dialog open onOpenChange={() => {}} title="Filtros" placement="sheet" />);
+      expect(screen.getByRole('dialog').querySelector('[data-sheet-handle]')).not.toBeNull();
+      rerender(<Dialog open onOpenChange={() => {}} title="Filtros" placement="sheet" dragToClose={false} />);
+      expect(screen.getByRole('dialog').querySelector('[data-sheet-handle]')).toBeNull();
+      rerender(<Dialog open onOpenChange={() => {}} title="Filtros" />);
+      expect(screen.getByRole('dialog').querySelector('[data-sheet-handle]')).toBeNull();
+    });
+
+    it('bajarla desde el encabezado la cierra', async () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Filtros" placement="sheet"><p>cuerpo</p></Dialog>);
+      arrastrar(screen.getByText('Filtros'), 300);
+      await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    });
+
+    it('un arrastre corto y lento vuelve a su lugar sin cerrar', async () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Filtros" placement="sheet" />);
+      const t = (y: number) => {
+        const toque = { clientX: 100, clientY: y };
+        return { touches: [toque], changedTouches: [toque] };
+      };
+      const titulo = screen.getByText('Filtros');
+      fireEvent.touchStart(titulo, { ...t(100), timeStamp: 0 });
+      fireEvent.touchMove(titulo, { ...t(110), timeStamp: 100 });
+      fireEvent.touchMove(titulo, { ...t(120), timeStamp: 200 });
+      fireEvent.touchEnd(titulo, { touches: [], changedTouches: [{ clientX: 100, clientY: 120 }] });
+      await new Promise((r) => setTimeout(r, 300));
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('sobre un control touch-none (slider) el dedo no mueve la hoja', async () => {
+      const onOpenChange = vi.fn();
+      render(
+        <Dialog open onOpenChange={onOpenChange} title="Filtros" placement="sheet">
+          <div className="touch-none">slider</div>
+        </Dialog>,
+      );
+      arrastrar(screen.getByText('slider'), 300);
+      await new Promise((r) => setTimeout(r, 300));
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('con dragToClose={false} arrastrar no cierra', async () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Filtros" placement="sheet" dragToClose={false} />);
+      arrastrar(screen.getByText('Filtros'), 300);
+      await new Promise((r) => setTimeout(r, 300));
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
   });
 });

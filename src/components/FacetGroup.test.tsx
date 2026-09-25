@@ -179,6 +179,16 @@ describe('FacetGroup: árbol plegable', () => {
     expect(screen.queryByRole('button', { name: /subcategorías de Electricidad/ })).toBeNull();
   });
 
+  it('con puntero táctil el chevron, el hueco y las filas miden 40 px', () => {
+    render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} />);
+    const chevron = screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' });
+    expect(chevron.className).toContain('pointer-coarse:h-10');
+    expect(chevron.className).toContain('pointer-coarse:w-10');
+    const filaSinHijas = screen.getByRole('checkbox', { name: 'Electricidad' }).closest('li')!;
+    expect(filaSinHijas.className).toContain('pointer-coarse:min-h-10');
+    expect(filaSinHijas.querySelector('span[aria-hidden="true"]:last-child')?.className).toContain('pointer-coarse:w-10');
+  });
+
   it('el chevron abre y cierra la rama, un nivel por vez', async () => {
     const user = userEvent.setup();
     render(<FacetGroup title="Categorías" items={arbol()} onToggle={() => {}} />);
