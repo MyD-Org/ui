@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CtaBanner } from './CtaBanner';
+import type { RenderLink } from '../lib/renderLink';
+
+const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
 describe('CtaBanner', () => {
   it('renderiza título, texto y el link del CTA', () => {
@@ -51,5 +54,10 @@ describe('CtaBanner', () => {
     );
     expect(screen.getByText('Título').className.split(' ')).toContain('max-md:hidden');
     expect(screen.getByText('Texto').className.split(' ')).toContain('md:hidden');
+  });
+
+  it('renderLink reemplaza el <a> del CTA', () => {
+    render(<CtaBanner icon={null} cta={{ label: 'Ir', href: '/x' }} renderLink={enlace} />);
+    expect(screen.getByRole('link', { name: 'Ir' })).toHaveAttribute('data-framework');
   });
 });

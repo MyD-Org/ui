@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { SiteHeader } from './SiteHeader';
+import type { RenderLink } from '../lib/renderLink';
+
+const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
 describe('SiteHeader', () => {
   it('renderiza marca con acento itálico y descriptor', () => {
@@ -94,5 +97,22 @@ describe('SiteHeader', () => {
     // árbol de accesibilidad (que es justamente lo que se busca).
     expect(screen.getByText('Carrito compacto')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Carrito compacto' })).toBeNull();
+  });
+
+  it('renderLink reemplaza los <a> de la marca y del nav, también en la barra compacta', () => {
+    render(
+      <SiteHeader
+        brandName="Central"
+        brandSub="s"
+        compactOnScroll
+        nav={[{ label: 'Iluminación', href: '/ilum', badge: 'Nuevo' }]}
+        renderLink={enlace}
+      />,
+    );
+    const links = document.querySelectorAll('a');
+    // Marca + nav, en el header y en la barra compacta.
+    expect(links).toHaveLength(4);
+    links.forEach((a) => expect(a).toHaveAttribute('data-framework'));
+    expect(document.querySelector('a[href="/ilum"]')?.textContent).toContain('Nuevo');
   });
 });

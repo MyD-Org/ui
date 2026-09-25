@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PromoBanner } from './PromoBanner';
+import type { RenderLink } from '../lib/renderLink';
+
+const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
 describe('PromoBanner', () => {
   it('renderiza eyebrow, título con acento y CTA claro', () => {
@@ -60,5 +63,10 @@ describe('PromoBanner', () => {
     expect(screen.getByRole('heading', { level: 2 }).className.split(' ')).toContain('max-md:hidden');
     expect(screen.getByText('Bajada').closest('p')?.className.split(' ')).toContain('md:hidden');
     expect(screen.getByRole('link', { name: 'Ver' }).className.split(' ')).toContain('max-md:hidden');
+  });
+
+  it('renderLink reemplaza el <a> del CTA', () => {
+    render(<PromoBanner cta={{ label: 'Ver', href: '/x' }} imageSrc="/i.jpg" renderLink={enlace} />);
+    expect(screen.getByRole('link', { name: 'Ver' })).toHaveAttribute('data-framework');
   });
 });

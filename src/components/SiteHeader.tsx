@@ -1,4 +1,5 @@
 import {
+  Fragment,
   forwardRef,
   useEffect,
   useRef,
@@ -7,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { cn } from '../lib/cn';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
 export interface SiteNavItem {
@@ -53,6 +55,11 @@ export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
    * consumidor sepa cuál de las dos instancias de un slot es la visible.
    */
   onCompactChange?: (compacto: boolean) => void;
+  /**
+   * Enlace del framework (ej. `next/link`) para la marca y los ítems del nav. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera.
+   */
+  renderLink?: RenderLink;
 }
 
 const NAV_LINK =
@@ -75,6 +82,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
       compactSearch,
       compactActions,
       onCompactChange,
+      renderLink = defaultRenderLink,
       className,
       ...props
     },
@@ -167,15 +175,14 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             >
               {search}
             </div>
-            <a
-              href="/"
-              className={cn(
+            {renderLink({
+              href: '/',
+              className: cn(
                 'leading-none max-lg:order-1 max-lg:text-left',
                 alInicio ? 'text-left lg:order-1' : 'text-center',
-              )}
-            >
-              {marcaLarga}
-            </a>
+              ),
+              children: marcaLarga,
+            })}
             <div
               className={cn(
                 'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:order-2 max-lg:gap-3.5',
@@ -189,18 +196,22 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             <nav className="border-t border-border">
               <div className="mx-auto flex h-[52px] max-w-[1280px] items-center justify-center gap-[clamp(18px,3.5vw,44px)] overflow-x-auto px-[clamp(18px,4vw,48px)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-lg:justify-start max-lg:[mask-image:linear-gradient(to_right,black_calc(100%-32px),transparent)]">
                 {nav.map((item) => (
-                  <a
-                    key={item.label + item.href}
-                    href={item.href}
-                    className={cn(NAV_LINK, 'py-1.5 text-[13.5px]')}
-                  >
-                    {item.label}
-                    {item.badge ? (
-                      <span className={cn(NAV_BADGE, 'ml-1.5 px-2.5 py-[3px] text-[10px]', visibleOnClass(item.badgeVisibleOn))}>
-                        {item.badge}
-                      </span>
-                    ) : null}
-                  </a>
+                  <Fragment key={item.label + item.href}>
+                    {renderLink({
+                      href: item.href,
+                      className: cn(NAV_LINK, 'py-1.5 text-[13.5px]'),
+                      children: (
+                        <>
+                          {item.label}
+                          {item.badge ? (
+                            <span className={cn(NAV_BADGE, 'ml-1.5 px-2.5 py-[3px] text-[10px]', visibleOnClass(item.badgeVisibleOn))}>
+                              {item.badge}
+                            </span>
+                          ) : null}
+                        </>
+                      ),
+                    })}
+                  </Fragment>
                 ))}
               </div>
             </nav>
@@ -224,34 +235,41 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             )}
           >
             <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-5 px-[clamp(18px,4vw,48px)]">
-              <a
-                href="/"
-                className="hidden shrink-0 font-display text-lg font-semibold leading-none tracking-tight text-text lg:block"
-              >
-                {brandName}
-                {brandAccent ? (
+              {renderLink({
+                href: '/',
+                className: 'hidden shrink-0 font-display text-lg font-semibold leading-none tracking-tight text-text lg:block',
+                children: (
                   <>
-                    {' '}
-                    <em className="italic text-highlight">{brandAccent}</em>
+                    {brandName}
+                    {brandAccent ? (
+                      <>
+                        {' '}
+                        <em className="italic text-highlight">{brandAccent}</em>
+                      </>
+                    ) : null}
                   </>
-                ) : null}
-              </a>
+                ),
+              })}
 
               {nav && nav.length > 0 ? (
                 <nav className="hidden min-w-0 flex-1 items-center gap-[clamp(16px,2vw,28px)] overflow-x-auto pr-6 [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] [scrollbar-width:none] lg:flex">
                   {nav.map((item) => (
-                    <a
-                      key={item.label + item.href}
-                      href={item.href}
-                      className={cn(NAV_LINK, 'py-1 text-[13px]')}
-                    >
-                      {item.label}
-                      {item.badge ? (
-                        <span className={cn(NAV_BADGE, 'ml-1.5 px-2 py-[2px] text-[9.5px]', visibleOnClass(item.badgeVisibleOn))}>
-                          {item.badge}
-                        </span>
-                      ) : null}
-                    </a>
+                    <Fragment key={item.label + item.href}>
+                      {renderLink({
+                        href: item.href,
+                        className: cn(NAV_LINK, 'py-1 text-[13px]'),
+                        children: (
+                          <>
+                            {item.label}
+                            {item.badge ? (
+                              <span className={cn(NAV_BADGE, 'ml-1.5 px-2 py-[2px] text-[9.5px]', visibleOnClass(item.badgeVisibleOn))}>
+                                {item.badge}
+                              </span>
+                            ) : null}
+                          </>
+                        ),
+                      })}
+                    </Fragment>
                   ))}
                 </nav>
               ) : null}

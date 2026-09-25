@@ -1,5 +1,6 @@
-import { type HTMLAttributes } from 'react';
+import { Fragment, type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 export interface SiteFooterLink {
   label: string;
@@ -18,9 +19,14 @@ export interface SiteFooterProps extends HTMLAttributes<HTMLElement> {
   columns: SiteFooterColumn[];
   barLeft?: string;
   barRight?: string;
+  /**
+   * Enlace del framework (ej. `next/link`) para los links de las columnas. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera.
+   */
+  renderLink?: RenderLink;
 }
 
-export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, className, ...props }: SiteFooterProps) {
+export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, renderLink = defaultRenderLink, className, ...props }: SiteFooterProps) {
   return (
     <footer className={cn('mt-2 rounded-t-[32px] bg-primary text-on-primary', className)} {...props}>
       {/* En mobile las columnas van de a dos (la marca ocupa la fila entera):
@@ -39,13 +45,14 @@ export function SiteFooter({ brandName, brandAccent, description, columns, barLe
               {col.title}
             </h5>
             {col.links.map((link) => (
-              <a
-                key={link.label + link.href}
-                href={link.href}
-                className="block py-1.5 text-[14.5px] font-semibold text-on-primary/85 transition-[color,padding-left] duration-150 hover:pl-1.5 hover:text-highlight"
-              >
-                {link.label}
-              </a>
+              <Fragment key={link.label + link.href}>
+                {renderLink({
+                  href: link.href,
+                  className:
+                    'block py-1.5 text-[14.5px] font-semibold text-on-primary/85 transition-[color,padding-left] duration-150 hover:pl-1.5 hover:text-highlight',
+                  children: link.label,
+                })}
+              </Fragment>
             ))}
           </div>
         ))}
