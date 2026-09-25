@@ -14,4 +14,8 @@ describe('Input', () => {
     render(<Input type="email" placeholder="email" />);
     expect(screen.getByPlaceholderText('email')).toHaveAttribute('type', 'email');
   });
+  it('con puntero táctil la letra pasa a 16 px (sin zoom en iOS)', () => {
+    render(<Input aria-label="Nombre" />);
+    expect(screen.getByLabelText('Nombre').className).toContain('pointer-coarse:text-base');
+  });
 });
