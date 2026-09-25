@@ -56,6 +56,21 @@ describe('Marquee', () => {
     expect(container.querySelector('.animate-marquee')?.className).toContain('pointer-events-none');
   });
 
+  it('muestra logos como imagen en gris, mezclados con textos', () => {
+    const { container } = render(
+      <Marquee items={['Despacho en 24 h', { src: '/marcas/acme.png', alt: 'Acme' }]} />,
+    );
+    const [mitad] = mitades(container);
+    const logo = mitad.querySelector('img') as HTMLImageElement;
+    expect(logo.getAttribute('src')).toBe('/marcas/acme.png');
+    expect(logo.getAttribute('alt')).toBe('');
+    expect(logo.className).toContain('brightness-0');
+    expect(logo.className).toContain('h-7');
+    // El orden se conserva: texto, logo, texto, logo…
+    expect(mitad.children[0].textContent).toBe('Despacho en 24 h');
+    expect(mitad.children[1].querySelector('img')).not.toBeNull();
+  });
+
   it('no renderiza nada sin ítems', () => {
     const { container } = render(<Marquee items={[]} />);
     expect(container.firstChild).toBeNull();

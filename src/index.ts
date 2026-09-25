@@ -75,7 +75,7 @@ export {
 export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps } from './components/WidgetSkeletons';
 export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipRow';
 export { ServiceCard, type ServiceCardProps } from './components/ServiceCard';
-export { Marquee, type MarqueeProps } from './components/Marquee';
+export { Marquee, type MarqueeProps, type MarqueeItem, type MarqueeLogo } from './components/Marquee';
 export {
   AccentText,
   parseAccent,
