@@ -8,9 +8,13 @@ const content = cva(
   {
     variants: {
       placement: {
-        center: 'left-1/2 top-1/2 max-h-[90vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg',
-        /** Hoja anclada abajo, a todo el ancho (filtros en mobile). */
-        sheet: 'inset-x-0 bottom-0 max-h-[92vh] w-full max-w-none rounded-t-lg rounded-b-none',
+        center: 'left-1/2 top-1/2 max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg',
+        /**
+         * Hoja anclada abajo, a todo el ancho (filtros en mobile). `dvh` y no
+         * `vh`: en Safari de iOS `vh` cuenta el alto con las barras del
+         * navegador escondidas y la hoja tapaba el título y la X.
+         */
+        sheet: 'inset-x-0 bottom-0 max-h-[92dvh] w-full max-w-none rounded-t-lg rounded-b-none',
       },
       size: {
         sm: '',
@@ -91,8 +95,9 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
             <div
               className={cn(
                 'flex items-center justify-end gap-2 border-t border-border bg-elevated/40 px-5 py-3',
-                // Única clase arbitraria admitida: el pie de la hoja no puede quedar bajo el home indicator del celular.
-                resolvedPlacement === 'sheet' && 'pb-[env(safe-area-inset-bottom)] pt-3',
+                // Única clase arbitraria admitida: el pie de la hoja no puede quedar bajo el home indicator del
+                // celular, y sin home indicator conserva el mismo aire que arriba.
+                resolvedPlacement === 'sheet' && 'pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3',
               )}
             >
               {footer}
