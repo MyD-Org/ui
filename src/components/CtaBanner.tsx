@@ -1,5 +1,6 @@
 import { type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
 export interface CtaBannerProps extends HTMLAttributes<HTMLElement> {
@@ -12,6 +13,11 @@ export interface CtaBannerProps extends HTMLAttributes<HTMLElement> {
   text?: string;
   textVisibleOn?: VisibleOn;
   cta: { label: string; href: string };
+  /**
+   * Enlace del framework (ej. `next/link`) para el botón. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera.
+   */
+  renderLink?: RenderLink;
 }
 
 export function CtaBanner({
@@ -21,6 +27,7 @@ export function CtaBanner({
   text,
   textVisibleOn,
   cta,
+  renderLink = defaultRenderLink,
   className,
   ...props
 }: CtaBannerProps) {
@@ -39,12 +46,12 @@ export function CtaBanner({
           {text ? <p className={cn('text-sm text-on-primary/70', visibleOnClass(textVisibleOn))}>{text}</p> : null}
         </div>
       </div>
-      <a
-        href={cta.href}
-        className="shrink-0 rounded-full border-2 border-on-primary/60 px-6 py-2.5 text-sm font-bold transition-colors hover:bg-on-primary hover:text-primary"
-      >
-        {cta.label}
-      </a>
+      {renderLink({
+        href: cta.href,
+        className:
+          'shrink-0 rounded-full border-2 border-on-primary/60 px-6 py-2.5 text-sm font-bold transition-colors hover:bg-on-primary hover:text-primary',
+        children: cta.label,
+      })}
     </section>
   );
 }

@@ -1,5 +1,6 @@
 import { type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 import { AccentText } from './AccentText';
 import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
@@ -23,6 +24,11 @@ export interface PromoBannerProps extends HTMLAttributes<HTMLElement> {
   cta?: { label: string; href: string; visibleOn?: VisibleOn };
   imageSrc: string;
   imageAlt?: string;
+  /**
+   * Enlace del framework (ej. `next/link`) para el botón. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera.
+   */
+  renderLink?: RenderLink;
 }
 
 export function PromoBanner({
@@ -38,6 +44,7 @@ export function PromoBanner({
   cta,
   imageSrc,
   imageAlt = '',
+  renderLink = defaultRenderLink,
   className,
   ...props
 }: PromoBannerProps) {
@@ -88,15 +95,14 @@ export function PromoBanner({
           </p>
         ) : null}
         {cta ? (
-          <a
-            href={cta.href}
-            className={cn(
+          renderLink({
+            href: cta.href,
+            className: cn(
               'mt-6 inline-flex items-center gap-2.5 rounded-full bg-surface px-[30px] py-4 text-sm font-extrabold text-text transition-[background-color,transform] duration-150 hover:-translate-y-0.5 hover:bg-highlight',
               visibleOnClass(cta.visibleOn),
-            )}
-          >
-            {cta.label}
-          </a>
+            ),
+            children: cta.label,
+          })
         ) : null}
       </div>
     </section>

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { SiteFooter } from './SiteFooter';
+import type { RenderLink } from '../lib/renderLink';
+
+const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
 const columns = [
   { title: 'Rubros', links: [{ label: 'Iluminación LED', href: '/c1' }, { label: 'Tableros', href: '/c2' }] },
@@ -39,5 +42,11 @@ describe('SiteFooter', () => {
     const grilla = container.querySelector('footer > div');
     expect(grilla?.className).toContain('grid-cols-2');
     expect(grilla?.firstElementChild?.className).toContain('col-span-2');
+  });
+
+  it('renderLink reemplaza los <a> de las columnas', () => {
+    render(<SiteFooter brandName="Central" description="d" columns={columns} renderLink={enlace} />);
+    expect(screen.getByRole('link', { name: 'Tableros' })).toHaveAttribute('data-framework');
+    expect(screen.getAllByRole('link')).toHaveLength(3);
   });
 });
