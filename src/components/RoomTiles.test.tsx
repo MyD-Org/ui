@@ -40,6 +40,20 @@ describe('RoomTiles', () => {
     }
   });
 
+  it('overlay: cada tile elige cuánto se oscurece (default si no se indica)', () => {
+    const { container } = render(
+      <RoomTiles
+        variant="grid"
+        items={[{ ...items[0], overlay: 'soft' }, { ...items[1] }, { ...items[2], overlay: 'strong' }]}
+      />,
+    );
+    const velos = [...container.querySelectorAll<HTMLElement>('[data-overlay]')];
+    expect(velos.map((v) => v.dataset.overlay)).toEqual(['soft', 'default', 'strong']);
+    expect(velos[0].className).toContain('rgba(30,22,14,0.4)');
+    expect(velos[1].className).toContain('rgba(30,22,14,0.62)');
+    expect(velos[2].className).toContain('rgba(30,22,14,0.78)');
+  });
+
   it('ctaLabel cambia el texto del call to action', () => {
     render(<RoomTiles items={items} ctaLabel="Ver productos" />);
     expect(screen.getAllByText('Ver productos →').length).toBe(3);

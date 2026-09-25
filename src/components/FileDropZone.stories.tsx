@@ -38,3 +38,8 @@ export const ConError: Story = {
 };
 
 export const Deshabilitada: Story = { args: { disabled: true }, render: (args) => <Controlled {...args} /> };
+
+export const Chico: Story = {
+  args: { size: 'sm', hint: 'JPG, PNG o WEBP de hasta 25 MB.' },
+  render: (args) => <Controlled {...args} />,
+};

@@ -19,6 +19,8 @@ export interface FileDropZoneProps {
   disabled?: boolean;
   /** `id` del elemento enfocable (p. ej. para un `<label htmlFor>` externo). */
   id?: string;
+  /** `sm`: una fila compacta con el ícono al costado, para formularios con varias imágenes. Default `md`. */
+  size?: 'md' | 'sm';
   className?: string;
 }
 
@@ -33,8 +35,10 @@ export const FileDropZone = ({
   error,
   disabled = false,
   id,
+  size = 'md',
   className,
 }: FileDropZoneProps) => {
+  const sm = size === 'sm';
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const baseId = useId();
@@ -83,7 +87,8 @@ export const FileDropZone = ({
       onClick={openPicker}
       onKeyDown={handleKeyDown}
       className={cn(
-        'rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors',
+        'rounded-lg border-2 border-dashed transition-colors',
+        sm ? 'flex items-center gap-3 px-3 py-2.5 text-left' : 'px-6 py-8 text-center',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
         error
@@ -105,36 +110,43 @@ export const FileDropZone = ({
         onClick={(e) => e.stopPropagation()}
         onChange={(e) => onChange(e.target.files?.[0] ?? null)}
       />
-      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-sm bg-primary-soft">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-primary" aria-hidden="true">
+      <div
+        className={cn(
+          'flex items-center justify-center rounded-sm bg-primary-soft',
+          sm ? 'h-8 w-8 shrink-0' : 'mx-auto mb-3 h-10 w-10',
+        )}
+      >
+        <svg width={sm ? 16 : 18} height={sm ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-primary" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
       </div>
-      <div id={labelId}>
-        {file ? (
-          <p className="text-sm font-medium text-text">{file.name}</p>
-        ) : (
-          <>
-            <p className="text-sm font-medium text-text">{title}</p>
-            <p className="mt-1 text-xs text-muted">
-              {orLabel ? `${orLabel} ` : null}
-              <span className="text-primary">{browseLabel}</span>
-            </p>
-          </>
+      <div className={sm ? 'min-w-0 flex-1' : undefined}>
+        <div id={labelId}>
+          {file ? (
+            <p className="text-sm font-medium text-text">{file.name}</p>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-text">{title}</p>
+              <p className={cn('text-xs text-muted', !sm && 'mt-1')}>
+                {orLabel ? `${orLabel} ` : null}
+                <span className="text-primary">{browseLabel}</span>
+              </p>
+            </>
+          )}
+        </div>
+        {hint && (
+          <p id={hintId} className={cn('text-xs text-subtle', sm ? 'mt-0.5' : 'mt-2')}>
+            {hint}
+          </p>
+        )}
+        {error && (
+          <p id={errorId} className={cn('text-xs text-danger', sm ? 'mt-0.5' : 'mt-2')}>
+            {error}
+          </p>
         )}
       </div>
-      {hint && (
-        <p id={hintId} className="mt-2 text-xs text-subtle">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="mt-2 text-xs text-danger">
-          {error}
-        </p>
-      )}
     </div>
   );
 };
