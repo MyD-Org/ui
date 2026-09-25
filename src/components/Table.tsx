@@ -1,6 +1,8 @@
+'use client';
+
 import { type ReactNode, useMemo, useState } from 'react';
-import { cn } from '../lib/cn';
-import { Checkbox } from './Checkbox';
+import { cn } from '../lib/cn.js';
+import { Checkbox } from './Checkbox.js';
 
 export type SortDir = 'asc' | 'desc';
 export interface SortState {

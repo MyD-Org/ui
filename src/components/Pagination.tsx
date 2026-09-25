@@ -1,5 +1,7 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 /**
  * Números de página a mostrar, con `null` donde va una elipsis. Siempre incluye la

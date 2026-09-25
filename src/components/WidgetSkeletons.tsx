@@ -1,4 +1,6 @@
-import { cn } from '../lib/cn';
+'use client';
+
+import { cn } from '../lib/cn.js';
 
 /**
  * Skeletons fidedignos por tipo de widget (dashboards): mientras la query asociada

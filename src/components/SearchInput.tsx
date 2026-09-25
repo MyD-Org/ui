@@ -1,5 +1,7 @@
+'use client';
+
 import { type InputHTMLAttributes, forwardRef } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 function SearchIcon() {
   return (

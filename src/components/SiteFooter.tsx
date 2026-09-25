@@ -1,6 +1,8 @@
+'use client';
+
 import { Fragment, type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 export interface SiteFooterLink {
   label: string;

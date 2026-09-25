@@ -1,6 +1,8 @@
+'use client';
+
 import { type ButtonHTMLAttributes, type ReactNode, forwardRef, useEffect } from 'react';
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 const toggle = cva(
   'inline-flex shrink-0 items-center justify-center rounded-full border transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:pointer-events-none disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50',

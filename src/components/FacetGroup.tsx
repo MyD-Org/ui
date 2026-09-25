@@ -1,8 +1,10 @@
+'use client';
+
 import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '../lib/cn';
-import { Button } from './Button';
-import { Checkbox } from './Checkbox';
-import { SearchInput } from './SearchInput';
+import { cn } from '../lib/cn.js';
+import { Button } from './Button.js';
+import { Checkbox } from './Checkbox.js';
+import { SearchInput } from './SearchInput.js';
 
 export interface FacetItem {
   value: string;

@@ -1,8 +1,10 @@
+'use client';
+
 import { type HTMLAttributes, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { cn } from '../lib/cn.js';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 export interface RoomTile {
   /** Vacío o ausente ⇒ no se muestra. */

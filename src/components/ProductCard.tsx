@@ -1,8 +1,10 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
-import { Skeleton } from './Skeleton';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
+import { Skeleton } from './Skeleton.js';
 
 const card = cva('group relative flex overflow-hidden transition-shadow duration-200', {
   variants: {

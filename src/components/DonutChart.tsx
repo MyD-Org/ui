@@ -1,4 +1,6 @@
-import { BasePie, type PieChartProps } from './PieChart';
+'use client';
+
+import { BasePie, type PieChartProps } from './PieChart.js';
 
 export interface DonutChartProps extends PieChartProps {
   /** Muestra la suma de valueKey centrada en el agujero. */

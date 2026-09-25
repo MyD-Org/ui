@@ -1,9 +1,11 @@
+'use client';
+
 import { type HTMLAttributes } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
-import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
-import { AccentText } from './AccentText';
-import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage.js';
+import { AccentText } from './AccentText.js';
+import { visibleOnClass, type VisibleOn } from '../lib/visibleOn.js';
 
 export interface PromoBannerProps extends HTMLAttributes<HTMLElement> {
   /** Vacío o ausente ⇒ no se muestra. */

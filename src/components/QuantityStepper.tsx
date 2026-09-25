@@ -1,5 +1,7 @@
+'use client';
+
 import { type InputHTMLAttributes, forwardRef, useState } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface QuantityStepperProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange' | 'value' | 'defaultValue'> {
   value: number;

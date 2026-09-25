@@ -1,8 +1,10 @@
+'use client';
+
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
 import * as RDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { SHEET_DRAG_INTENT_PX, dragsSheet, shouldCloseSheet } from '../lib/sheetDrag';
+import { cn } from '../lib/cn.js';
+import { SHEET_DRAG_INTENT_PX, dragsSheet, shouldCloseSheet } from '../lib/sheetDrag.js';
 
 const content = cva(
   'fixed z-50 flex flex-col overflow-hidden bg-surface shadow-[var(--shadow-2)] focus:outline-none',

@@ -1,5 +1,7 @@
+'use client';
+
 import { CartesianGrid, Legend, Line, LineChart as RLineChart, Tooltip, XAxis, YAxis } from 'recharts';
-import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme';
+import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme.js';
 
 export interface LineChartProps {
   data?: Array<Record<string, unknown>>;

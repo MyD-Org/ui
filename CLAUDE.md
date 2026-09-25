@@ -56,6 +56,12 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard`, `SectionNav`, `SiteHeader`, `SiteFooter`, `PromoBanner`, `CtaBanner`, `Hero` (ctas) y `RoomTiles`. Acepta atributos `data-*` opcionales (ej. `data-size` del tile). (`SideNav` conserva su firma posicional vieja.)
 - **`renderImage`** (`src/lib/renderImage.tsx`): escape hatch gemelo para imágenes: `{ src, alt, className?, sizes, fit: 'cover' | 'logo', priority?, data-*? }` → nodo, para enchufar `next/image` sin reconstruir clases. El componente decide `sizes` según su layout (se pisa con `imageSizes`) y el nodo va en el mismo lugar del árbol que el `<img>` (sin envolverlo). `defaultRenderImage` = `<img loading={priority ? 'eager' : 'lazy'} decoding="async">`, sin `fetchPriority` (cambia de nombre entre React 18 y 19). Lo usan `Hero`, `PromoBanner`, `RoomTiles` y `Marquee`.
 
+### Changelog 0.31.0 (sin cambios de API: cambia la forma del `dist`)
+- **ESM por módulo**: `dist/index.js` pasa a ser un barrel de re-exports (sin `"use client"`) y cada componente sale en `dist/components/X.js` con su propio `"use client"` (escrito en el fuente); los helpers puros quedan en `dist/lib/*.js` sin directiva. Un consumidor con tree-shaking sólo arrastra lo que importa: `recharts` (charts) y `react-day-picker` (`DateRangeField`) dejan de viajar a las páginas que no los usan.
+- **CJS igual que antes**: `dist/index.cjs` sigue siendo un bundle único con el banner `"use client"`. `exports`, `sideEffects` y los tipos (`index.d.ts`/`index.d.cts`) no cambian.
+- **Consumidores Next**: sumar `experimental.optimizePackageImports: ['@myd-org/ui']` en `next.config` para que el import del barrel se reescriba al módulo concreto.
+- **Reglas nuevas del fuente** (las exige `src/estructura-modulos.test.ts`): todo import relativo del código publicado lleva `.js` (`from '../lib/cn.js'`), y todo `src/components/*.tsx` arranca con `'use client';`. `npm run build` corre `scripts/verificar-dist.mjs` (postbuild): directivas en su lugar, imports con extensión que existen, `Button` solo no arrastra `recharts`/`react-day-picker`, y el CJS con banner.
+
 ### Changelog 0.30.0 (aditivo: sin renderers el markup es el mismo, salvo `loading`/`decoding`)
 - **`renderImage`** nuevo (`src/lib/renderImage.tsx`, exporta `RenderImage`, `RenderImageProps`, `defaultRenderImage`).
 - **`Hero`**: `renderImage` (recibe `priority: true`, `fit: 'cover'`; el nodo queda hijo directo del `<section>`), `imageSizes` (default `'100vw'`) y `renderLink` para los `ctas` (los `usps` con enlace siguen siendo `<a>`; los http(s) abren en otra pestaña). La foto por defecto suma `loading="eager"` + `decoding="async"`. Con `media` no se llama a `renderImage`.
@@ -147,7 +153,7 @@ Todo componente nuevo se **exporta desde `src/index.ts`** (value + types). Nada 
 npm test            # vitest run (correr SIEMPRE; los tests deben quedar verdes)
 npm run test:watch
 npm run typecheck   # tsc --noEmit (estricto, verbatimModuleSyntax)
-npm run build       # tsup → dist (ESM + CJS + .d.ts + tokens.css + tailwind.css)
+npm run build       # tsup → dist (ESM por módulo + CJS bundleado + .d.ts + tokens.css + tailwind.css) y verificar-dist
 npm run storybook   # explorador visual de componentes (:6006)
 npm run example     # playground Vite (:5175)
 ```
@@ -158,7 +164,7 @@ npm run example     # playground Vite (:5175)
 - Commits convencionales (`feat:`, `fix:`, `chore:`). Trabajar en rama; mergear a `main`.
 
 ### Agregar un componente — checklist
-1. `src/components/X.tsx` (+ `forwardRef`/`cva`/`cn` según corresponda) + `X.test.tsx` (TDD) + `X.stories.tsx`.
+1. `src/components/X.tsx` (+ `forwardRef`/`cva`/`cn` según corresponda) + `X.test.tsx` (TDD) + `X.stories.tsx`. Primera línea `'use client';` e imports relativos con `.js` (`from '../lib/cn.js'`): el ESM se emite archivo por archivo (0.31.0).
 2. Solo clases respaldadas por tokens o built-in de Tailwind.
 3. Export en `src/index.ts` (component + Props + union types).
 4. Si suma una dep runtime (ej. otro Radix): agregarla a `dependencies` **y** externalizarla en `tsup.config.ts`.
@@ -193,7 +199,7 @@ En el CSS global:
 /* re-marca: pisá los roles con la paleta de tu app */
 :root { --color-primary: #0c3ed6; /* … */ }
 ```
-Y usás los componentes: `import { Button, Table, Field } from "@myd-org/ui"`.
+Y usás los componentes: `import { Button, Table, Field } from "@myd-org/ui"`. En Next, `experimental.optimizePackageImports: ['@myd-org/ui']` hace que cada página cargue sólo los módulos que importa (0.31.0+).
 
 ### Consumidores de CSS plano (ai-widget) — solo tokens
 El widget no usa Tailwind; consume el contrato de roles y mapea sus variables sobre él:

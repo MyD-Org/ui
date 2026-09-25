@@ -1,8 +1,10 @@
+'use client';
+
 import { useState } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { DayPicker, type DateRange as DayPickerRange } from 'react-day-picker';
 import { es } from 'react-day-picker/locale';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 /** Rango en ISO YYYY-MM-DD (vacío = sin límite). Es el shape que consumen los dashboards. */
 export interface DateRangeValue {

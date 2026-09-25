@@ -1,6 +1,8 @@
+'use client';
+
 import { forwardRef, useId } from 'react';
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 const track = cva(
   'relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:cursor-not-allowed disabled:opacity-50',

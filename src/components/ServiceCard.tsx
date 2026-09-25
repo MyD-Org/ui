@@ -1,5 +1,7 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface ServiceCardProps extends HTMLAttributes<HTMLDivElement> {
   icon: ReactNode;

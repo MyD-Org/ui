@@ -1,6 +1,8 @@
+'use client';
+
 import { type HTMLAttributes, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 const avatar = cva(
   'inline-flex items-center justify-center overflow-hidden rounded-full bg-primary text-on-primary font-medium select-none',
