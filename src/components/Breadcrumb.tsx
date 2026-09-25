@@ -1,6 +1,8 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode, Fragment, forwardRef } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 export interface BreadcrumbItem {
   label: string;

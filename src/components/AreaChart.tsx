@@ -1,5 +1,7 @@
+'use client';
+
 import { Area, AreaChart as RAreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
-import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme';
+import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme.js';
 
 export interface AreaChartProps {
   data?: Array<Record<string, unknown>>;

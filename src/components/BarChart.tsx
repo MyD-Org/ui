@@ -1,5 +1,7 @@
+'use client';
+
 import { Bar, BarChart as RBarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
-import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme';
+import { axisProps, ChartEmpty, ChartShell, gridProps, normalizeSeries, tooltipProps, type SeriesSpec } from './chartTheme.js';
 
 export interface BarChartProps {
   data?: Array<Record<string, unknown>>;

@@ -1,6 +1,8 @@
+'use client';
+
 import { type HTMLAttributes } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderImage } from '../lib/renderImage';
+import { cn } from '../lib/cn.js';
+import { type RenderImage } from '../lib/renderImage.js';
 
 /** Logo en la cinta: se muestra en gris uniforme. Conviene PNG o SVG con fondo transparente. */
 export interface MarqueeLogo {

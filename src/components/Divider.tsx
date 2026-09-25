@@ -1,6 +1,8 @@
+'use client';
+
 import { type HTMLAttributes, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 const divider = cva('border-border', {
   variants: { orientation: { horizontal: 'w-full border-t', vertical: 'h-full border-l' } },

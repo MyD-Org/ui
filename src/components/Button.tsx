@@ -1,7 +1,9 @@
+'use client';
+
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 const button = cva(
   'inline-flex items-center justify-center gap-2 rounded-sm font-medium transition-[color,background-color,opacity,box-shadow,transform] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:opacity-50 disabled:pointer-events-none',

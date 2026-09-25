@@ -1,8 +1,10 @@
+'use client';
+
 import { type ReactNode, useEffect, useState } from 'react';
-import { cn } from '../lib/cn';
-import { Alert } from './Alert';
-import { Button } from './Button';
-import { Dialog, type DialogPlacement } from './Dialog';
+import { cn } from '../lib/cn.js';
+import { Alert } from './Alert.js';
+import { Button } from './Button.js';
+import { Dialog, type DialogPlacement } from './Dialog.js';
 
 export interface DocumentViewerProps {
   open: boolean;

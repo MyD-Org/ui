@@ -1,5 +1,7 @@
+'use client';
+
 import { Cell, Legend, Pie, PieChart as RPieChart, Tooltip } from 'recharts';
-import { CHART_COLORS, ChartEmpty, ChartShell, tooltipProps } from './chartTheme';
+import { CHART_COLORS, ChartEmpty, ChartShell, tooltipProps } from './chartTheme.js';
 
 export interface PieChartProps {
   data?: Array<Record<string, unknown>>;

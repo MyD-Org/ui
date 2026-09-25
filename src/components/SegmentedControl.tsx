@@ -1,6 +1,8 @@
+'use client';
+
 import { type KeyboardEvent, type ReactNode, forwardRef, useEffect, useRef } from 'react';
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface SegmentedOption {
   value: string;

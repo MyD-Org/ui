@@ -1,5 +1,7 @@
+'use client';
+
 import { type ReactElement, cloneElement, useId } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface FieldProps {
   label?: string;

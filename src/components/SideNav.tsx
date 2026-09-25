@@ -1,6 +1,8 @@
+'use client';
+
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
-import { Avatar } from './Avatar';
+import { cn } from '../lib/cn.js';
+import { Avatar } from './Avatar.js';
 
 // Íconos inline (la lib no depende de lucide-react). Paths equivalentes a
 // lucide `panel-left-close` / `panel-left-open`.

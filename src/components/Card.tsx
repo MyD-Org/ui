@@ -1,5 +1,7 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   /** Título del header (opcional; sin él, la Card es el contenedor pelado de siempre). */

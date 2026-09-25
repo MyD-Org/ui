@@ -1,7 +1,9 @@
+'use client';
+
 import { type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
-import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
+import { visibleOnClass, type VisibleOn } from '../lib/visibleOn.js';
 
 export interface CtaBannerProps extends HTMLAttributes<HTMLElement> {
   icon: ReactNode;

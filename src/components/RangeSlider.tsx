@@ -1,6 +1,8 @@
+'use client';
+
 import { forwardRef } from 'react';
 import * as Slider from '@radix-ui/react-slider';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface RangeSliderProps {
   min: number;

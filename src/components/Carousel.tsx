@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Children,
   useEffect,
@@ -6,7 +8,7 @@ import {
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface CarouselProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /**

@@ -1,7 +1,9 @@
+'use client';
+
 import { type ReactNode } from 'react';
 import * as RTabs from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface TabItem {
   value: string;

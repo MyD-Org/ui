@@ -1,5 +1,7 @@
+'use client';
+
 import { type ReactNode, forwardRef, type HTMLAttributes } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;

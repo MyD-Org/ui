@@ -1,7 +1,9 @@
+'use client';
+
 import type { ReactNode } from 'react';
-import { cn } from '../lib/cn';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
-import { Skeleton } from './Skeleton';
+import { cn } from '../lib/cn.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
+import { Skeleton } from './Skeleton.js';
 
 export interface StatCardProps {
   /** Ícono (20-24px, `currentColor`); se pinta en un tile `bg-primary-soft text-primary`. */

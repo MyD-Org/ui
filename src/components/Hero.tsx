@@ -1,9 +1,11 @@
+'use client';
+
 import { Fragment, type HTMLAttributes, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
-import { AccentText } from './AccentText';
-import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
-import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
-import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { cn } from '../lib/cn.js';
+import { AccentText } from './AccentText.js';
+import { visibleOnClass, type VisibleOn } from '../lib/visibleOn.js';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage.js';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
 export interface HeroCta {
   label: string;

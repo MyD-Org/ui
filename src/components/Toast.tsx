@@ -1,5 +1,7 @@
+'use client';
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 const headerTone: Record<ToastTone, string> = {
   neutral: 'text-muted border-border',

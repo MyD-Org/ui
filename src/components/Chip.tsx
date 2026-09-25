@@ -1,6 +1,8 @@
+'use client';
+
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 function XIcon() {
   return (

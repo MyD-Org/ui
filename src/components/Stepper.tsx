@@ -1,5 +1,7 @@
+'use client';
+
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export type StepState = 'done' | 'current' | 'pending';
 

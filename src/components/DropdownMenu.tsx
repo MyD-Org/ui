@@ -1,6 +1,8 @@
+'use client';
+
 import { type ReactNode } from 'react';
 import * as RDD from '@radix-ui/react-dropdown-menu';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export type DropdownMenuItemTone = 'default' | 'danger';
 

@@ -1,6 +1,8 @@
+'use client';
+
 import { type ReactNode } from 'react';
 import * as RTooltip from '@radix-ui/react-tooltip';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 
 export interface TooltipProps {
   content: ReactNode;
