@@ -33,4 +33,11 @@ describe('SiteFooter', () => {
     expect(footer?.className).toContain('bg-primary');
     expect(footer?.className).toContain('rounded-t-[32px]');
   });
+
+  it('mobile: columnas de a dos y la marca en la fila entera', () => {
+    const { container } = render(<SiteFooter brandName="Central" description="Casa de iluminación" columns={columns} />);
+    const grilla = container.querySelector('footer > div');
+    expect(grilla?.className).toContain('grid-cols-2');
+    expect(grilla?.firstElementChild?.className).toContain('col-span-2');
+  });
 });
