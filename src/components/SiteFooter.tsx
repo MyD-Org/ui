@@ -1,10 +1,15 @@
-import { Fragment, type HTMLAttributes } from 'react';
+import { Fragment, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 export interface SiteFooterLink {
   label: string;
   href: string;
+  /**
+   * Enlace a otro sitio: se abre en una pestaña nueva (`target="_blank"` +
+   * `rel="noopener noreferrer"`) y NO pasa por `renderLink`.
+   */
+  external?: boolean;
 }
 
 export interface SiteFooterColumn {
@@ -19,6 +24,8 @@ export interface SiteFooterProps extends HTMLAttributes<HTMLElement> {
   columns: SiteFooterColumn[];
   barLeft?: string;
   barRight?: string;
+  /** Contenido extra de la barra inferior, a la derecha (p. ej. el QR de Data Fiscal). */
+  barExtra?: ReactNode;
   /**
    * Enlace del framework (ej. `next/link`) para los links de las columnas. Sin esto son `<a>`
    * comunes y cada clic recarga la página entera.
@@ -26,7 +33,10 @@ export interface SiteFooterProps extends HTMLAttributes<HTMLElement> {
   renderLink?: RenderLink;
 }
 
-export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, renderLink = defaultRenderLink, className, ...props }: SiteFooterProps) {
+const LINK_CLASS =
+  'block py-1.5 text-[14.5px] font-semibold text-on-primary/85 transition-[color,padding-left] duration-150 hover:pl-1.5 hover:text-highlight';
+
+export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, barExtra, renderLink = defaultRenderLink, className, ...props }: SiteFooterProps) {
   return (
     <footer className={cn('mt-2 rounded-t-[32px] bg-primary text-on-primary', className)} {...props}>
       {/* En mobile las columnas van de a dos (la marca ocupa la fila entera):
@@ -46,22 +56,30 @@ export function SiteFooter({ brandName, brandAccent, description, columns, barLe
             </h5>
             {col.links.map((link) => (
               <Fragment key={link.label + link.href}>
-                {renderLink({
-                  href: link.href,
-                  className:
-                    'block py-1.5 text-[14.5px] font-semibold text-on-primary/85 transition-[color,padding-left] duration-150 hover:pl-1.5 hover:text-highlight',
-                  children: link.label,
-                })}
+                {link.external ? (
+                  <a href={link.href} className={LINK_CLASS} target="_blank" rel="noopener noreferrer">
+                    {link.label}
+                  </a>
+                ) : (
+                  renderLink({ href: link.href, className: LINK_CLASS, children: link.label })
+                )}
               </Fragment>
             ))}
           </div>
         ))}
       </div>
-      {barLeft || barRight ? (
+      {barLeft || barRight || barExtra ? (
         <div className="border-t border-on-primary/15">
           <div className="mx-auto flex max-w-[1280px] flex-wrap justify-between gap-4 px-[clamp(18px,4vw,48px)] py-5 text-xs font-semibold text-on-primary/45">
             <span>{barLeft}</span>
-            <span>{barRight}</span>
+            {barExtra ? (
+              <div className="flex flex-wrap items-center gap-4">
+                <span>{barRight}</span>
+                {barExtra}
+              </div>
+            ) : (
+              <span>{barRight}</span>
+            )}
           </div>
         </div>
       ) : null}
