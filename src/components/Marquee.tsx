@@ -1,8 +1,17 @@
 import { type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
 
+/** Logo en la cinta: se muestra en gris uniforme. Conviene PNG o SVG con fondo transparente. */
+export interface MarqueeLogo {
+  src: string;
+  alt: string;
+}
+
+/** Un texto, o un logo. */
+export type MarqueeItem = string | MarqueeLogo;
+
 export interface MarqueeProps extends HTMLAttributes<HTMLDivElement> {
-  items: string[];
+  items: MarqueeItem[];
 }
 
 /**
@@ -59,7 +68,24 @@ export function Marquee({ items, className, ...props }: MarqueeProps) {
                 key={`${copy}-${i}`}
                 className="inline-flex items-center gap-7 px-4 font-display text-[15px] italic text-muted"
               >
-                {item}
+                {typeof item === 'string' ? (
+                  item
+                ) : (
+                  // Alto fijo con ancho tope: los logos muy apaisados quedan
+                  // más bajos y el peso visual se empareja. brightness-0 los
+                  // lleva a negro y la opacidad al gris de la cinta, sea cual
+                  // sea el color de la marca. alt vacío: la cinta es
+                  // decorativa (aria-hidden).
+                  <img
+                    src={item.src}
+                    alt=""
+                    data-logo={item.alt}
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                    className="h-7 w-auto max-w-[150px] object-contain brightness-0 opacity-50"
+                  />
+                )}
                 <Sparkle />
               </span>
             ))}
