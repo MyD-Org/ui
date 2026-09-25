@@ -1,6 +1,7 @@
 import { type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
 import { AccentText } from './AccentText';
 import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
 
@@ -29,6 +30,14 @@ export interface PromoBannerProps extends HTMLAttributes<HTMLElement> {
    * comunes y cada clic recarga la página entera.
    */
   renderLink?: RenderLink;
+  /**
+   * Imagen del framework (ej. `next/image`) para la foto de fondo (`fit: 'cover'`,
+   * sin `priority`: el banner va abajo del fold). Sin esto es un `<img>` con
+   * `loading="lazy"` y `decoding="async"`.
+   */
+  renderImage?: RenderImage;
+  /** `sizes` de la foto de fondo. Default `'100vw'`. */
+  imageSizes?: string;
 }
 
 export function PromoBanner({
@@ -45,6 +54,8 @@ export function PromoBanner({
   imageSrc,
   imageAlt = '',
   renderLink = defaultRenderLink,
+  renderImage = defaultRenderImage,
+  imageSizes = '100vw',
   className,
   ...props
 }: PromoBannerProps) {
@@ -53,7 +64,13 @@ export function PromoBanner({
       className={cn('relative isolate flex min-h-[420px] items-center overflow-hidden rounded-[28px] shadow-2', className)}
       {...props}
     >
-      <img src={imageSrc} alt={imageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover" />
+      {renderImage({
+        src: imageSrc,
+        alt: imageAlt,
+        className: 'absolute inset-0 -z-20 h-full w-full object-cover',
+        sizes: imageSizes,
+        fit: 'cover',
+      })}
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(95deg,rgba(24,17,10,0.78)_0%,rgba(24,17,10,0.45)_45%,transparent_75%)]" />
       {/* Velo pegado a la columna de texto (ver Hero). */}
       <div

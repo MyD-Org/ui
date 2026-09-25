@@ -1,6 +1,8 @@
 import { type HTMLAttributes, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 export interface RoomTile {
   /** Vacío o ausente ⇒ no se muestra. */
@@ -60,6 +62,17 @@ const tile = cva('group relative isolate flex overflow-hidden rounded-[24px]', {
   defaultVariants: { variant: 'mosaic' },
 });
 
+/**
+ * `sizes` por defecto según cuánto ancho ocupa cada tile: `mosaic` es una
+ * columna en mobile y dos desde lg; `grid`, dos columnas en mobile y cuatro
+ * desde lg; `stack`, una por fila.
+ */
+const SIZES_POR_VARIANTE: Record<'mosaic' | 'grid' | 'stack', string> = {
+  mosaic: '(min-width: 1024px) 50vw, 100vw',
+  grid: '(min-width: 1024px) 25vw, 50vw',
+  stack: '100vw',
+};
+
 /** Borde superior de la pila (la franja de la tarjeta más al fondo), en px. */
 const STACK_TOP = 72;
 /** Franja visible de cada tarjeta de atrás, en px. */
@@ -104,6 +117,30 @@ export interface RoomTilesProps
   stackProfundidad?: number;
   /** Texto del call to action de cada tile. */
   ctaLabel?: string;
+  /**
+   * Enlace del framework (ej. `next/link`) para cada tile. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera. Recibe `data-size="big"` en
+   * la destacada del mosaico.
+   */
+  renderLink?: RenderLink;
+  /**
+   * Imagen del framework (ej. `next/image`) para la foto de cada tile
+   * (`fit: 'cover'`, sin `priority`). Sin esto es un `<img>` con
+   * `loading="lazy"` y `decoding="async"`.
+   */
+  renderImage?: RenderImage;
+  /**
+   * `sizes` de las fotos. Default según la variante: mosaic
+   * `(min-width: 1024px) 50vw, 100vw`; grid `(min-width: 1024px) 25vw, 50vw`;
+   * stack `100vw`.
+   */
+  imageSizes?: string;
+}
+
+interface Renderers {
+  renderLink: RenderLink;
+  renderImage: RenderImage;
+  imageSizes: string;
 }
 
 /**
@@ -124,12 +161,22 @@ export function RoomTiles({
   stackSolape = STACK_SOLAPE,
   stackProfundidad = STACK_PROFUNDIDAD,
   ctaLabel = 'Explorar',
+  renderLink = defaultRenderLink,
+  renderImage = defaultRenderImage,
+  imageSizes,
   className,
   ...props
 }: RoomTilesProps) {
+  const variante = variant === 'stack' ? 'stack' : variant === 'grid' ? 'grid' : 'mosaic';
+  const renderers: Renderers = {
+    renderLink,
+    renderImage,
+    imageSizes: imageSizes ?? SIZES_POR_VARIANTE[variante],
+  };
   if (variant === 'stack') {
     return (
       <PilaTiles
+        renderers={renderers}
         items={items}
         stackTop={stackTop}
         stackSolape={stackSolape}
@@ -158,6 +205,7 @@ export function RoomTiles({
           variant={esMosaic ? 'mosaic' : 'grid'}
           destacada={i === 0 && esMosaic}
           ctaLabel={ctaLabel}
+          renderers={renderers}
         />
       ))}
     </div>
@@ -170,6 +218,7 @@ function PilaTiles({
   stackSolape,
   stackProfundidad,
   ctaLabel,
+  renderers,
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement> & {
@@ -178,6 +227,7 @@ function PilaTiles({
   stackSolape: number;
   stackProfundidad: number;
   ctaLabel: string;
+  renderers: Renderers;
 }) {
   const pegue = stackTop + stackProfundidad * stackSolape;
   const wrappers = useRef<(HTMLDivElement | null)[]>([]);
@@ -239,7 +289,7 @@ function PilaTiles({
             data-pila-cara
             className="origin-top will-change-transform motion-reduce:transform-none"
           >
-            <Tile item={item} variant="stack" ctaLabel={ctaLabel} />
+            <Tile item={item} variant="stack" ctaLabel={ctaLabel} renderers={renderers} />
           </div>
         </div>
       ))}
@@ -251,62 +301,68 @@ function Tile({
   item,
   variant,
   ctaLabel,
+  renderers,
   destacada = false,
 }: {
   item: RoomTile;
   variant: 'mosaic' | 'grid' | 'stack';
   ctaLabel: string;
+  renderers: Renderers;
   destacada?: boolean;
 }) {
   const esStack = variant === 'stack';
   const velo = VELOS[item.overlay ?? 'default'] ?? VELOS.default;
-  return (
-    <a
-      href={item.href}
-      data-size={destacada ? 'big' : undefined}
-      className={cn(tile({ variant }), destacada && 'lg:row-span-2 lg:min-h-[460px]')}
-    >
-      <img
-        src={item.imageSrc}
-        alt={item.imageAlt ?? ''}
-        className="absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045]"
-      />
-      <div
-        data-overlay={item.overlay ?? 'default'}
-        className={cn('absolute inset-0 -z-10', esStack ? velo.baseStack : velo.base)}
-      />
-      {/* Velo pegado al bloque de texto (no al alto del tile): se estira
-          96px más allá del texto hacia la foto, así el contraste no depende
-          de la imagen ni de cuánto mide el tile. */}
-      <div
-        className={cn(
-          'relative w-full p-[clamp(22px,2.5vw,34px)] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)]',
-          "before:pointer-events-none before:absolute before:inset-x-0 before:-z-10 before:content-['']",
-          esStack
-            ? cn('before:-bottom-24 before:top-0', velo.textoStack)
-            : cn('before:-top-24 before:bottom-0', velo.texto),
-        )}
-      >
-        {item.eyebrow ? (
-          <small className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.2em] text-highlight">
-            {item.eyebrow}
-          </small>
-        ) : null}
-        {item.title ? (
-          <h3 className="font-display text-[clamp(24px,2.4vw,34px)] font-medium leading-[1.1] text-white">
-            {item.title}
-          </h3>
-        ) : null}
-        {/* Mismo CTA en las tres variantes: antes `grid` y `stack` usaban un
-            círculo con la flecha rotando, que no se parecía al resto de las
-            cards y llamaba más la atención que el título. */}
-        <span
-          data-go
-          className="mt-3.5 inline-flex items-center gap-2 border-b-[1.5px] border-white/50 pb-[3px] text-[13px] font-extrabold text-white transition-[border-color,gap] duration-200 group-hover:border-highlight group-hover:gap-3"
+  return renderers.renderLink({
+    href: item.href,
+    'data-size': destacada ? 'big' : undefined,
+    className: cn(tile({ variant }), destacada && 'lg:row-span-2 lg:min-h-[460px]'),
+    children: (
+      <>
+        {renderers.renderImage({
+          src: item.imageSrc,
+          alt: item.imageAlt ?? '',
+          className:
+            'absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045]',
+          sizes: renderers.imageSizes,
+          fit: 'cover',
+        })}
+        <div
+          data-overlay={item.overlay ?? 'default'}
+          className={cn('absolute inset-0 -z-10', esStack ? velo.baseStack : velo.base)}
+        />
+        {/* Velo pegado al bloque de texto (no al alto del tile): se estira
+            96px más allá del texto hacia la foto, así el contraste no depende
+            de la imagen ni de cuánto mide el tile. */}
+        <div
+          className={cn(
+            'relative w-full p-[clamp(22px,2.5vw,34px)] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)]',
+            "before:pointer-events-none before:absolute before:inset-x-0 before:-z-10 before:content-['']",
+            esStack
+              ? cn('before:-bottom-24 before:top-0', velo.textoStack)
+              : cn('before:-top-24 before:bottom-0', velo.texto),
+          )}
         >
-          {ctaLabel} →
-        </span>
-      </div>
-    </a>
-  );
+          {item.eyebrow ? (
+            <small className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.2em] text-highlight">
+              {item.eyebrow}
+            </small>
+          ) : null}
+          {item.title ? (
+            <h3 className="font-display text-[clamp(24px,2.4vw,34px)] font-medium leading-[1.1] text-white">
+              {item.title}
+            </h3>
+          ) : null}
+          {/* Mismo CTA en las tres variantes: antes `grid` y `stack` usaban un
+              círculo con la flecha rotando, que no se parecía al resto de las
+              cards y llamaba más la atención que el título. */}
+          <span
+            data-go
+            className="mt-3.5 inline-flex items-center gap-2 border-b-[1.5px] border-white/50 pb-[3px] text-[13px] font-extrabold text-white transition-[border-color,gap] duration-200 group-hover:border-highlight group-hover:gap-3"
+          >
+            {ctaLabel} →
+          </span>
+        </div>
+      </>
+    ),
+  });
 }

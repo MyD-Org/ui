@@ -1,5 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Hero } from './Hero';
+import type { RenderImage } from '../lib/renderImage';
+
+/**
+ * Renderer de ejemplo: en una app Next se enchufa `next/image`. Acá deja un
+ * `<img>` con el `sizes` a la vista (pase el mouse) para ver qué recibe.
+ */
+const imagenDeFramework: RenderImage = ({ src, alt, className, sizes, fit, priority, ...data }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    title={`sizes: ${sizes} · fit: ${fit}${priority ? ' · priority' : ''}`}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    {...data}
+  />
+);
 
 const meta: Meta<typeof Hero> = {
   title: 'Components/Hero',
@@ -19,3 +36,8 @@ export default meta;
 type Story = StoryObj<typeof Hero>;
 
 export const Default: Story = {};
+
+export const ConRenderImage: Story = {
+  name: 'Con renderImage (next/image)',
+  args: { renderImage: imagenDeFramework },
+};

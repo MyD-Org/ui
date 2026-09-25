@@ -11,6 +11,8 @@ export interface RenderLinkProps {
   children: ReactNode;
   'aria-label'?: string;
   'aria-current'?: 'page';
+  /** Atributos `data-*` del enlace (ej. `data-size` en el tile de `RoomTiles`). Opcionales: aditivo. */
+  [dataAttr: `data-${string}`]: string | undefined;
 }
 
 export type RenderLink = (props: RenderLinkProps) => ReactNode;

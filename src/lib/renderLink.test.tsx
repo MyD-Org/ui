@@ -15,4 +15,15 @@ describe('defaultRenderLink', () => {
     render(<>{defaultRenderLink({ href: '/y', children: '›', 'aria-label': 'Página siguiente' })}</>);
     expect(screen.getByRole('link', { name: 'Página siguiente' })).toHaveAttribute('href', '/y');
   });
+
+  it('propaga atributos data-* (y omite los undefined)', () => {
+    render(
+      <>
+        {defaultRenderLink({ href: '/a', children: 'A', 'data-size': 'big' })}
+        {defaultRenderLink({ href: '/b', children: 'B', 'data-size': undefined })}
+      </>,
+    );
+    expect(screen.getByRole('link', { name: 'A' })).toHaveAttribute('data-size', 'big');
+    expect(screen.getByRole('link', { name: 'B' })).not.toHaveAttribute('data-size');
+  });
 });

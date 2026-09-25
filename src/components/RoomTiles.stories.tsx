@@ -1,5 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RoomTiles } from './RoomTiles';
+import type { RenderImage } from '../lib/renderImage';
+
+/**
+ * Renderer de ejemplo: en una app Next se enchufa `next/image`. Acá deja un
+ * `<img>` con el `sizes` a la vista (pase el mouse) para ver qué recibe.
+ */
+const imagenDeFramework: RenderImage = ({ src, alt, className, sizes, fit, priority, ...data }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    title={`sizes: ${sizes} · fit: ${fit}${priority ? ' · priority' : ''}`}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    {...data}
+  />
+);
 
 const items = [
   { eyebrow: 'Interior', title: 'Colgantes y lámparas de diseño', imageSrc: 'https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=1200&q=80', href: '#' },
@@ -41,4 +58,9 @@ export const Velos: Story = {
     variant: 'grid',
     items: items.map((it, i) => ({ ...it, overlay: (['soft', 'default', 'strong'] as const)[i] })),
   },
+};
+
+export const ConRenderImage: Story = {
+  name: 'Con renderImage (next/image)',
+  args: { variant: 'grid', renderImage: imagenDeFramework },
 };

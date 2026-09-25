@@ -1,6 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Hero } from './Hero';
+import type { RenderImage } from '../lib/renderImage';
+import type { RenderLink } from '../lib/renderLink';
+
+const imagen: RenderImage = ({ src, alt, className, sizes, fit, priority, ...data }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    data-framework-img
+    data-sizes={sizes}
+    data-fit={fit}
+    data-priority={priority ? 'si' : 'no'}
+    {...data}
+  />
+);
+const enlaceFw: RenderLink = ({ children, ...p }) => (
+  <a {...p} data-framework>
+    {children}
+  </a>
+);
 
 describe('Hero', () => {
   it('renderiza eyebrow, título y acento en itálica', () => {
@@ -105,5 +125,67 @@ describe('Hero', () => {
     );
     expect(screen.getByTestId('escena')).toBeInTheDocument();
     expect(container.querySelector('img')).toBeNull();
+  });
+
+
+  it('sin renderImage la foto es un <img> eager y async, hijo directo del <section>', () => {
+    const { container } = render(<Hero title="t" imageSrc="/h.jpg" imageAlt="Living" />);
+    const img = screen.getByAltText('Living');
+    expect(img.parentElement).toBe(container.querySelector('section'));
+    expect(img).toHaveAttribute('loading', 'eager');
+    expect(img).toHaveAttribute('decoding', 'async');
+    expect(img.className).toBe('absolute inset-0 -z-20 h-full w-full object-cover');
+  });
+
+  it('renderImage recibe src, alt, className, sizes, fit cover y priority; queda hijo directo del <section>', () => {
+    const { container } = render(<Hero title="t" imageSrc="/h.jpg" imageAlt="Living" renderImage={imagen} />);
+    const img = screen.getByAltText('Living');
+    expect(img).toHaveAttribute('data-framework-img');
+    expect(img).toHaveAttribute('src', '/h.jpg');
+    expect(img.className).toBe('absolute inset-0 -z-20 h-full w-full object-cover');
+    expect(img).toHaveAttribute('data-sizes', '100vw');
+    expect(img).toHaveAttribute('data-fit', 'cover');
+    expect(img).toHaveAttribute('data-priority', 'si');
+    expect(img.parentElement).toBe(container.querySelector('section'));
+  });
+
+  it('imageSizes pisa el sizes por defecto', () => {
+    render(<Hero title="t" imageSrc="/h.jpg" imageAlt="L" imageSizes="(min-width: 768px) 60vw, 100vw" renderImage={imagen} />);
+    expect(screen.getByAltText('L')).toHaveAttribute('data-sizes', '(min-width: 768px) 60vw, 100vw');
+  });
+
+  it('con media no llama a renderImage', () => {
+    let llamadas = 0;
+    const contar: RenderImage = (p) => {
+      llamadas++;
+      return imagen(p);
+    };
+    render(<Hero title="t" imageSrc="/h.jpg" media={<div />} renderImage={contar} />);
+    expect(llamadas).toBe(0);
+  });
+
+  it('renderLink reemplaza el <a> de los CTAs con las mismas clases; los USPs siguen siendo <a>', () => {
+    render(
+      <Hero
+        title="t"
+        imageSrc="/h.jpg"
+        ctas={[
+          { label: 'Ver catálogo', href: '/catalogo', visibleOn: 'mobile' },
+          { label: 'Deco', href: '/deco' },
+        ]}
+        usps={[{ label: 'WhatsApp', href: 'https://wa.example/1' }]}
+        renderLink={enlaceFw}
+      />,
+    );
+    const primero = screen.getByRole('link', { name: 'Ver catálogo' });
+    expect(primero).toHaveAttribute('data-framework');
+    expect(primero).toHaveAttribute('href', '/catalogo');
+    expect(primero.className).toContain('bg-primary');
+    expect(primero.className.split(' ')).toContain('md:hidden');
+    expect(screen.getByRole('link', { name: 'Deco' }).className).toContain('border-primary');
+    const usp = screen.getByRole('link', { name: 'WhatsApp' });
+    expect(usp).not.toHaveAttribute('data-framework');
+    expect(usp).toHaveAttribute('target', '_blank');
+    expect(usp).toHaveAttribute('rel', 'noopener noreferrer');
   });
 });
