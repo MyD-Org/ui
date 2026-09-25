@@ -39,7 +39,7 @@ describe('Dialog', () => {
     render(<Dialog open onOpenChange={() => {}} title="Filtros" placement="sheet" />);
     const content = screen.getByRole('dialog');
     expect(content).toHaveAttribute('data-placement', 'sheet');
-    for (const c of ['inset-x-0', 'bottom-0', 'w-full', 'max-w-none', 'rounded-t-lg', 'rounded-b-none', 'max-h-[92vh]']) {
+    for (const c of ['inset-x-0', 'bottom-0', 'w-full', 'max-w-none', 'rounded-t-lg', 'rounded-b-none', 'max-h-[92dvh]']) {
       expect(content.className).toContain(c);
     }
     expect(content.className).not.toContain('-translate-x-1/2');
@@ -65,7 +65,7 @@ describe('Dialog', () => {
       </Dialog>,
     );
     const footer = screen.getByRole('button', { name: 'Ver 24 productos' }).parentElement as HTMLElement;
-    expect(footer.className).toContain('pb-[env(safe-area-inset-bottom)]');
+    expect(footer.className).toContain('pb-[max(0.75rem,env(safe-area-inset-bottom))]');
     expect(screen.getByText('cuerpo').parentElement?.contains(footer)).toBe(false);
   });
 
