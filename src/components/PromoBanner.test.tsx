@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PromoBanner } from './PromoBanner';
 import type { RenderLink } from '../lib/renderLink';
+import type { RenderImage } from '../lib/renderImage';
+
+const imagen: RenderImage = ({ src, alt, className, sizes, fit, priority }) => (
+  <img src={src} alt={alt} className={className} data-framework-img data-sizes={sizes} data-fit={fit} data-priority={priority ? 'si' : 'no'} />
+);
 
 const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
@@ -68,5 +73,31 @@ describe('PromoBanner', () => {
   it('renderLink reemplaza el <a> del CTA', () => {
     render(<PromoBanner cta={{ label: 'Ver', href: '/x' }} imageSrc="/i.jpg" renderLink={enlace} />);
     expect(screen.getByRole('link', { name: 'Ver' })).toHaveAttribute('data-framework');
+  });
+
+
+  it('sin renderImage la foto es un <img> lazy y async con las clases de siempre', () => {
+    render(<PromoBanner title="t" imageSrc="/p.jpg" imageAlt="Patio" />);
+    const img = screen.getByAltText('Patio');
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('decoding', 'async');
+    expect(img.className).toBe('absolute inset-0 -z-20 h-full w-full object-cover');
+  });
+
+  it('renderImage recibe src, alt, className, sizes 100vw, fit cover y sin priority', () => {
+    const { container } = render(<PromoBanner title="t" imageSrc="/p.jpg" imageAlt="Patio" renderImage={imagen} />);
+    const img = screen.getByAltText('Patio');
+    expect(img).toHaveAttribute('data-framework-img');
+    expect(img).toHaveAttribute('src', '/p.jpg');
+    expect(img.className).toBe('absolute inset-0 -z-20 h-full w-full object-cover');
+    expect(img).toHaveAttribute('data-sizes', '100vw');
+    expect(img).toHaveAttribute('data-fit', 'cover');
+    expect(img).toHaveAttribute('data-priority', 'no');
+    expect(img.parentElement).toBe(container.querySelector('section'));
+  });
+
+  it('imageSizes pisa el sizes por defecto', () => {
+    render(<PromoBanner title="t" imageSrc="/p.jpg" imageAlt="P" imageSizes="50vw" renderImage={imagen} />);
+    expect(screen.getByAltText('P')).toHaveAttribute('data-sizes', '50vw');
   });
 });

@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RoomTiles, profundidadesPila } from './RoomTiles';
+import type { RenderImage } from '../lib/renderImage';
+import type { RenderLink } from '../lib/renderLink';
+
+const imagen: RenderImage = ({ src, alt, className, sizes, fit, priority }) => (
+  <img src={src} alt={alt} className={className} data-framework-img data-sizes={sizes} data-fit={fit} data-priority={priority ? 'si' : 'no'} />
+);
+const enlaceFw: RenderLink = ({ children, ...p }) => (
+  <a {...p} data-framework>
+    {children}
+  </a>
+);
 
 const items = [
   { eyebrow: 'Interior', title: 'Colgantes y lámparas', imageSrc: '/a.jpg', href: '/c1' },
@@ -139,5 +150,60 @@ describe('RoomTiles', () => {
     const bloque = container.querySelector('h3')?.parentElement;
     expect(bloque?.className).toContain('before:-top-24');
     expect(bloque?.className).toContain('w-full');
+  });
+
+
+  it('sin renderImage cada foto es un <img> lazy y async con las clases de siempre', () => {
+    const { container } = render(<RoomTiles items={items} />);
+    const imgs = container.querySelectorAll('img');
+    expect(imgs).toHaveLength(3);
+    for (const img of imgs) {
+      expect(img).toHaveAttribute('loading', 'lazy');
+      expect(img).toHaveAttribute('decoding', 'async');
+      expect(img.className).toContain('group-hover:scale-[1.045]');
+    }
+  });
+
+  it('renderImage recibe src, alt, className, fit cover, sin priority y sizes por variante', () => {
+    const esperado = {
+      mosaic: '(min-width: 1024px) 50vw, 100vw',
+      grid: '(min-width: 1024px) 25vw, 50vw',
+      stack: '100vw',
+    } as const;
+    for (const variant of ['mosaic', 'grid', 'stack'] as const) {
+      const { container, unmount } = render(<RoomTiles items={items} variant={variant} renderImage={imagen} />);
+      const imgs = container.querySelectorAll('img[data-framework-img]');
+      expect(imgs).toHaveLength(3);
+      expect(imgs[0]).toHaveAttribute('src', '/a.jpg');
+      expect(imgs[0]).toHaveAttribute('data-sizes', esperado[variant]);
+      expect(imgs[0]).toHaveAttribute('data-fit', 'cover');
+      expect(imgs[0]).toHaveAttribute('data-priority', 'no');
+      expect(imgs[0].className).toContain('object-cover');
+      // Sigue siendo hijo directo del enlace del tile.
+      expect(imgs[0].parentElement?.tagName).toBe('A');
+      unmount();
+    }
+  });
+
+  it('imageSizes pisa el default de la variante', () => {
+    const { container } = render(<RoomTiles items={items} variant="grid" imageSizes="200px" renderImage={imagen} />);
+    expect(container.querySelector('img')).toHaveAttribute('data-sizes', '200px');
+  });
+
+  it('renderLink reemplaza el <a> del tile, con data-size en la destacada', () => {
+    render(<RoomTiles items={items} renderLink={enlaceFw} />);
+    const primero = screen.getByRole('link', { name: /Colgantes/ });
+    expect(primero).toHaveAttribute('data-framework');
+    expect(primero).toHaveAttribute('href', '/c1');
+    expect(primero).toHaveAttribute('data-size', 'big');
+    expect(primero.className).toContain('lg:row-span-2');
+    const segundo = screen.getByRole('link', { name: /Patio/ });
+    expect(segundo).toHaveAttribute('data-framework');
+    expect(segundo).not.toHaveAttribute('data-size');
+  });
+
+  it('renderLink también en la pila', () => {
+    render(<RoomTiles items={items} variant="stack" renderLink={enlaceFw} />);
+    expect(screen.getByRole('link', { name: /Dormitorio/ })).toHaveAttribute('data-framework');
   });
 });

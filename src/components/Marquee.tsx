@@ -1,5 +1,6 @@
 import { type HTMLAttributes } from 'react';
 import { cn } from '../lib/cn';
+import { type RenderImage } from '../lib/renderImage';
 
 /** Logo en la cinta: se muestra en gris uniforme. Conviene PNG o SVG con fondo transparente. */
 export interface MarqueeLogo {
@@ -12,7 +13,15 @@ export type MarqueeItem = string | MarqueeLogo;
 
 export interface MarqueeProps extends HTMLAttributes<HTMLDivElement> {
   items: MarqueeItem[];
+  /**
+   * Imagen del framework (ej. `next/image`) para los logos. Recibe `fit: 'logo'`,
+   * `sizes: '150px'` (el tope de ancho), `alt: ''` (la cinta es decorativa) y
+   * `data-logo` con el nombre. Sin esto cada logo es un `<img>` lazy como hasta ahora.
+   */
+  renderImage?: RenderImage;
 }
+
+const CLASE_LOGO = 'h-7 w-auto max-w-[150px] object-contain brightness-0 opacity-50';
 
 /**
  * Cada mitad de la pista repite `items` hasta llegar a este mínimo. La pista
@@ -34,7 +43,7 @@ function Sparkle() {
   );
 }
 
-export function Marquee({ items, className, ...props }: MarqueeProps) {
+export function Marquee({ items, renderImage, className, ...props }: MarqueeProps) {
   if (items.length === 0) return null;
 
   const repeticiones = Math.max(1, Math.ceil(MIN_ITEMS_POR_MITAD / items.length));
@@ -70,6 +79,15 @@ export function Marquee({ items, className, ...props }: MarqueeProps) {
               >
                 {typeof item === 'string' ? (
                   item
+                ) : renderImage ? (
+                  renderImage({
+                    src: item.src,
+                    alt: '',
+                    className: CLASE_LOGO,
+                    sizes: '150px',
+                    fit: 'logo',
+                    'data-logo': item.alt,
+                  })
                 ) : (
                   // Alto fijo con ancho tope: los logos muy apaisados quedan
                   // más bajos y el peso visual se empareja. brightness-0 los
@@ -83,7 +101,7 @@ export function Marquee({ items, className, ...props }: MarqueeProps) {
                     loading="lazy"
                     decoding="async"
                     draggable={false}
-                    className="h-7 w-auto max-w-[150px] object-contain brightness-0 opacity-50"
+                    className={CLASE_LOGO}
                   />
                 )}
                 <Sparkle />

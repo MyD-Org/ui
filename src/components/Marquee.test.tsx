@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Marquee } from './Marquee';
+import type { RenderImage } from '../lib/renderImage';
 
 function mitades(container: HTMLElement) {
   const pista = container.querySelector('.animate-marquee') as HTMLElement;
@@ -74,5 +75,34 @@ describe('Marquee', () => {
   it('no renderiza nada sin ítems', () => {
     const { container } = render(<Marquee items={[]} />);
     expect(container.firstChild).toBeNull();
+  });
+
+
+  it('sin renderImage el logo conserva el <img> de siempre (lazy, async, sin arrastre)', () => {
+    const { container } = render(<Marquee items={[{ src: '/marcas/acme.png', alt: 'Acme' }]} />);
+    const logo = container.querySelector('img') as HTMLImageElement;
+    expect(logo).toHaveAttribute('loading', 'lazy');
+    expect(logo).toHaveAttribute('decoding', 'async');
+    expect(logo).toHaveAttribute('draggable', 'false');
+    expect(logo).toHaveAttribute('data-logo', 'Acme');
+  });
+
+  it('renderImage recibe los logos con fit logo, sizes 150px, alt vacío y data-logo; los textos no pasan por ahí', () => {
+    const vistos: Parameters<RenderImage>[0][] = [];
+    const imagen: RenderImage = (p) => {
+      vistos.push(p);
+      return <img src={p.src} alt={p.alt} className={p.className} data-framework-img />;
+    };
+    const { container } = render(
+      <Marquee items={['Despacho en 24 h', { src: '/marcas/acme.png', alt: 'Acme' }]} renderImage={imagen} />,
+    );
+    const [mitad] = mitades(container);
+    const logo = mitad.querySelector('img') as HTMLImageElement;
+    expect(logo).toHaveAttribute('data-framework-img');
+    expect(logo.className).toBe('h-7 w-auto max-w-[150px] object-contain brightness-0 opacity-50');
+    expect(vistos.length).toBeGreaterThan(0);
+    expect(vistos.every((p) => p.src === '/marcas/acme.png')).toBe(true);
+    expect(vistos[0]).toMatchObject({ alt: '', sizes: '150px', fit: 'logo', 'data-logo': 'Acme' });
+    expect(vistos[0].priority).toBeUndefined();
   });
 });

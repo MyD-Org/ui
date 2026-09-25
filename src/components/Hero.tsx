@@ -1,7 +1,9 @@
-import { type HTMLAttributes, type ReactNode } from 'react';
+import { Fragment, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import { AccentText } from './AccentText';
 import { visibleOnClass, type VisibleOn } from '../lib/visibleOn';
+import { type RenderImage, defaultRenderImage } from '../lib/renderImage';
+import { type RenderLink, defaultRenderLink } from '../lib/renderLink';
 
 export interface HeroCta {
   label: string;
@@ -47,6 +49,21 @@ export interface HeroProps extends HTMLAttributes<HTMLElement> {
   media?: ReactNode;
   ctas?: HeroCta[];
   usps?: HeroUsp[];
+  /**
+   * Imagen del framework (ej. `next/image`) para la foto de fondo. Recibe
+   * `priority: true` y `fit: 'cover'`; lo que devuelve queda como hijo directo
+   * del `<section>`, igual que el `<img>` por defecto. Sin esto es un `<img>`
+   * con `loading="eager"` y `decoding="async"`.
+   */
+  renderImage?: RenderImage;
+  /** `sizes` de la foto de fondo. Default `'100vw'`. */
+  imageSizes?: string;
+  /**
+   * Enlace del framework (ej. `next/link`) para los `ctas`. Sin esto son `<a>`
+   * comunes y cada clic recarga la página entera. Los `usps` con enlace no pasan
+   * por acá (los http(s) abren en otra pestaña).
+   */
+  renderLink?: RenderLink;
 }
 
 export function Hero({
@@ -64,6 +81,9 @@ export function Hero({
   media,
   ctas,
   usps,
+  renderImage = defaultRenderImage,
+  imageSizes = '100vw',
+  renderLink = defaultRenderLink,
   className,
   ...props
 }: HeroProps) {
@@ -80,7 +100,14 @@ export function Hero({
       {media ? (
         <div className="absolute inset-0 -z-20">{media}</div>
       ) : imageSrc ? (
-        <img src={imageSrc} alt={imageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover" />
+        renderImage({
+          src: imageSrc,
+          alt: imageAlt,
+          className: 'absolute inset-0 -z-20 h-full w-full object-cover',
+          sizes: imageSizes,
+          fit: 'cover',
+          priority: true,
+        })
       ) : null}
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(247,242,234,0.94)_0%,rgba(247,242,234,0.82)_34%,rgba(247,242,234,0.25)_62%,transparent_80%)]" />
       {/* Velo pegado a la columna de texto (a todo el alto y 96px más ancho
@@ -132,18 +159,18 @@ export function Hero({
         {ctas && ctas.length > 0 ? (
           <div className="mt-8 flex flex-wrap gap-3.5">
             {ctas.map((cta, i) => (
-              <a
-                key={cta.href + cta.label}
-                href={cta.href}
-                className={cn(
-                  i === 0
-                    ? 'inline-flex items-center gap-2.5 rounded-full bg-primary px-[30px] py-4 text-sm font-extrabold text-on-primary transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-white'
-                    : 'inline-flex items-center gap-2.5 rounded-full border-[1.5px] border-primary px-[30px] py-4 text-sm font-extrabold text-primary transition-[border-color,color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:text-accent',
-                  visibleOnClass(cta.visibleOn),
-                )}
-              >
-                {cta.label}
-              </a>
+              <Fragment key={cta.href + cta.label}>
+                {renderLink({
+                  href: cta.href,
+                  className: cn(
+                    i === 0
+                      ? 'inline-flex items-center gap-2.5 rounded-full bg-primary px-[30px] py-4 text-sm font-extrabold text-on-primary transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-white'
+                      : 'inline-flex items-center gap-2.5 rounded-full border-[1.5px] border-primary px-[30px] py-4 text-sm font-extrabold text-primary transition-[border-color,color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:text-accent',
+                    visibleOnClass(cta.visibleOn),
+                  ),
+                  children: cta.label,
+                })}
+              </Fragment>
             ))}
           </div>
         ) : null}

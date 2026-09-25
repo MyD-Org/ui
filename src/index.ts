@@ -91,6 +91,7 @@ export { CtaBanner, type CtaBannerProps } from './components/CtaBanner';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader';
 export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter';
 export { type RenderLink, type RenderLinkProps } from './lib/renderLink';
+export { type RenderImage, type RenderImageProps, defaultRenderImage } from './lib/renderImage';
 export { Switch, type SwitchProps } from './components/Switch';
 export { RangeSlider, type RangeSliderProps } from './components/RangeSlider';
 export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItem } from './components/Breadcrumb';
