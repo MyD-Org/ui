@@ -80,7 +80,12 @@ function XIcon() {
   );
 }
 
-function ToastCard({ it, dismiss }: { it: ToastInstance; dismiss: (id: string) => void }) {
+// Sin Radix: acá Presence lo maneja este componente a mano. `closing` pone
+// data-state="closed" (dispara `animate-toast-out`, CSS `animation` para poder
+// esperar el `animationend` antes de sacarlo de la lista) — ver `dismiss`.
+const TOAST_OUT_MS = 160;
+
+function ToastCard({ it, closing, dismiss }: { it: ToastInstance; closing: boolean; dismiss: (id: string) => void }) {
   const tone = it.tone ?? 'neutral';
   const hasBody = it.description != null || it.icon != null;
   const hasAction = it.action != null;
@@ -88,7 +93,8 @@ function ToastCard({ it, dismiss }: { it: ToastInstance; dismiss: (id: string) =
   return (
     <div
       role="status"
-      className="pointer-events-auto w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-2)]"
+      data-state={closing ? 'closed' : 'open'}
+      className="pointer-events-auto w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface shadow-[var(--shadow-2)] data-[state=open]:animate-toast-in data-[state=closed]:animate-toast-out motion-reduce:animate-none"
     >
       {/* Header */}
       <div className={cn('flex items-center gap-2 border-b px-4 py-2.5 text-sm font-semibold', headerTone[tone])}>
@@ -146,15 +152,36 @@ function ToastCard({ it, dismiss }: { it: ToastInstance; dismiss: (id: string) =
 
 export function ToastProvider({ children, defaultDurationMs = 4000 }: ToastProviderProps) {
   const [items, setItems] = useState<ToastInstance[]>([]);
+  const [closingIds, setClosingIds] = useState<Set<string>>(new Set());
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
+  // No sale de la lista de una: primero pasa a `closing` (dispara el
+  // `animate-toast-out` de ToastCard) y recién después de la duración de esa
+  // animación se lo saca de `items`. Con reduced motion no hay animación que
+  // esperar — sale al toque, como antes.
   const dismiss = useCallback((id: string) => {
-    const t = timersRef.current.get(id);
-    if (t) {
-      clearTimeout(t);
+    const pending = timersRef.current.get(id);
+    if (pending) {
+      clearTimeout(pending);
       timersRef.current.delete(id);
     }
-    setItems((prev) => prev.filter((it) => it.id !== id));
+    const reduced =
+      typeof window !== 'undefined' && (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
+    if (reduced) {
+      setItems((prev) => prev.filter((it) => it.id !== id));
+      return;
+    }
+    setClosingIds((prev) => new Set(prev).add(id));
+    const t = setTimeout(() => {
+      setItems((prev) => prev.filter((it) => it.id !== id));
+      setClosingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      timersRef.current.delete(id);
+    }, TOAST_OUT_MS);
+    timersRef.current.set(id, t);
   }, []);
 
   const push = useCallback(
@@ -191,7 +218,7 @@ export function ToastProvider({ children, defaultDurationMs = 4000 }: ToastProvi
         className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2"
       >
         {items.map((it) => (
-          <ToastCard key={it.id} it={it} dismiss={dismiss} />
+          <ToastCard key={it.id} it={it} closing={closingIds.has(it.id)} dismiss={dismiss} />
         ))}
       </div>
     </ToastContext.Provider>

@@ -21,8 +21,10 @@ const button = cva(
       size: {
         sm: 'h-8 px-3 text-sm',
         md: 'h-10 px-4 text-sm',
-        icon: 'h-9 w-9 text-sm',
-        'icon-lg': 'h-10 w-10 text-base',
+        // shrink-0: cuadrado fijo — sin esto, dentro de un flex que se queda corto
+        // de espacio el ícono se achica de ancho y deja de ser cuadrado.
+        icon: 'h-9 w-9 shrink-0 text-sm',
+        'icon-lg': 'h-10 w-10 shrink-0 text-base',
         /** Sin alto ni padding: para links de texto en línea ("Limpiar", "Ver todas"). */
         inline: 'h-auto p-0 text-sm',
       },

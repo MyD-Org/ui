@@ -83,7 +83,10 @@ export function Select({
                 key={o.value}
                 value={o.value}
                 className={cn(
-                  'relative flex cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-3 text-sm outline-none',
+                  // Contenedor rounded-lg + Viewport p-1: el ítem usa el radio "encajado"
+                  // (radio externo − padding) para que su esquina calce con la del menú
+                  // en vez de una curva más chica y descentrada (ver tokens.css).
+                  'relative flex cursor-pointer select-none items-center rounded-inset-1 py-2 pl-8 pr-3 text-sm outline-none',
                   'data-[highlighted]:bg-elevated data-[state=checked]:font-medium data-[disabled]:opacity-50',
                 )}
               >

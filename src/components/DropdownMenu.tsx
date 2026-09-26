@@ -75,7 +75,9 @@ export function DropdownMenu({ items, children, align = 'end', side = 'bottom', 
                 disabled={entry.disabled}
                 onSelect={() => entry.onSelect?.()}
                 className={cn(
-                  'flex cursor-pointer items-center gap-2.5 rounded-sm px-3 py-2 outline-none transition-colors',
+                  // Contenedor rounded-lg + Content p-2: radio "encajado" (radio
+                  // externo − padding), igual que en Select (ver tokens.css).
+                  'flex cursor-pointer items-center gap-2.5 rounded-inset-2 px-3 py-2 outline-none transition-colors',
                   'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
                   itemToneClass[tone],
                 )}

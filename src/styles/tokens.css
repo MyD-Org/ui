@@ -39,6 +39,26 @@
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 18px;
+  /* Equivalencias de la escala de Tailwind (`rounded-md`/`-xl`/`-2xl`) que el DS no
+     definía: caían a los valores de fábrica (6/12/16px) e ignoraban la piel de la
+     app. Interpolan/extrapolan la progresión sm(8)→default(12)→lg(18) (~×1.5 cada
+     salto) para que, si una app usa esas utilidades built-in, sigan la piel en vez
+     de quedar con la única esquina "dura" de la página (ver tokens.test.ts). */
+  --radius-md: 14px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  /*
+   * Radio "encajado": para un ítem que vive pegado al borde de un contenedor con
+   * padding chico (menús, listas de opciones — Select, DropdownMenu, Popover),
+   * si el radio del ítem no es menor al del contenedor menos ese padding, la
+   * esquina del ítem sobresale o no calza con la del contenedor (dos curvas
+   * concéntricas mal alineadas). Regla: radio interno = radio externo − padding.
+   * Van los dos casos que hoy existen en el DS: contenedor `rounded-lg` con
+   * `p-1` (Select.Viewport, 4px) o `p-2` (DropdownMenu.Content, 8px). Usan
+   * `var(--radius-lg)` así que siguen a la piel sin redeclararse por tema.
+   */
+  --radius-inset-1: calc(var(--radius-lg) - 0.25rem);
+  --radius-inset-2: calc(var(--radius-lg) - 0.5rem);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-display: Georgia, "Times New Roman", serif;

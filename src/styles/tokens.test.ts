@@ -65,24 +65,40 @@ describe("tema editorial", () => {
 
 /**
  * Guarda de radios: la escala de formas es un token (`--radius-sm`, `--radius`,
- * `--radius-lg`) y cada piel la redefine — el Shop la sube a 14/20/28, el CRM
- * la deja en 8/12/18. Una utilidad como `rounded-md` NO está mapeada en
- * `tailwind.css`, así que Tailwind cae a sus 6px de fábrica y ese componente
- * deja de obedecer a la piel: queda con la única esquina dura de la página.
+ * `--radius-lg`, y desde la tanda T4 también `--radius-md`, `--radius-xl`,
+ * `--radius-2xl`) y cada piel la redefine — el Shop la sube a 14/20/28, el CRM
+ * la deja en 8/12/18. `rounded-md`/`-xl`/`-2xl` ya están mapeados en
+ * `tailwind.css` con equivalencias de esa misma escala, así que ahora sí
+ * obedecen a la piel. `rounded-3xl`/`-4xl` siguen sin token: caen a los
+ * valores de fábrica de Tailwind y dejan una esquina dura ajena a la piel.
  *
- * Pasó con DropdownMenu, Tooltip y Menu. Esto lo atrapa antes del review.
+ * Pasó con DropdownMenu, Tooltip y Menu (antes de mapear `md`/`xl`/`2xl`).
+ * Esto lo atrapa antes del review.
  */
-describe("radios: sólo la escala de tokens", () => {
-  const FUERA_DE_ESCALA = /\brounded-(?:md|xl|2xl|3xl|4xl)\b/;
+describe("radios: escala de tokens (incluye la extendida)", () => {
+  const FUERA_DE_ESCALA = /\brounded-(?:3xl|4xl)\b/;
 
-  it("`rounded-md` y compañía no están mapeados en tailwind.css", () => {
-    // Si algún día se agregan, esta guarda deja de tener sentido y hay que
-    // actualizarla en vez de borrarla.
-    expect(tailwind).not.toContain("--radius-md:");
-    expect(tailwind).not.toContain("--radius-xl:");
+  it("`--radius-md`, `--radius-xl` y `--radius-2xl` están mapeados en tailwind.css", () => {
+    expect(tailwind).toContain("--radius-md: var(--radius-md);");
+    expect(tailwind).toContain("--radius-xl: var(--radius-xl);");
+    expect(tailwind).toContain("--radius-2xl: var(--radius-2xl);");
   });
 
-  it("ningún componente usa un radio fuera de la escala", async () => {
+  it("la escala extendida existe en el :root default", () => {
+    const root = css.split(".dark")[0];
+    expect(root).toContain("--radius-md:");
+    expect(root).toContain("--radius-xl:");
+    expect(root).toContain("--radius-2xl:");
+  });
+
+  it("`rounded-3xl`/`rounded-4xl` (sin token) no están mapeados en tailwind.css", () => {
+    // Si algún día se agregan, esta guarda deja de tener sentido y hay que
+    // actualizarla en vez de borrarla.
+    expect(tailwind).not.toContain("--radius-3xl:");
+    expect(tailwind).not.toContain("--radius-4xl:");
+  });
+
+  it("ningún componente usa un radio fuera de la escala (3xl/4xl)", async () => {
     const { readdirSync } = await import("node:fs");
     const dir = resolve(fileURLToPath(import.meta.url), "..", "..", "components");
     const infractores = readdirSync(dir)
@@ -92,5 +108,20 @@ describe("radios: sólo la escala de tokens", () => {
         return FUERA_DE_ESCALA.test(texto) ? [`${f}: ${texto.match(FUERA_DE_ESCALA)?.[0]}`] : [];
       });
     expect(infractores, infractores.join("\n")).toEqual([]);
+  });
+});
+
+/**
+ * Guarda del radio "encajado" (Select/DropdownMenu): un ítem pegado al borde de
+ * un contenedor `rounded-lg` con padding chico necesita radio interno = radio
+ * externo − padding, o su esquina no calza con la del contenedor. Ver
+ * tokens.css / tailwind.css.
+ */
+describe("radios: encajado en menús", () => {
+  it("expone rounded-inset-1 (padding p-1) y rounded-inset-2 (padding p-2)", () => {
+    expect(tailwind).toContain("--radius-inset-1: var(--radius-inset-1);");
+    expect(tailwind).toContain("--radius-inset-2: var(--radius-inset-2);");
+    expect(css).toContain("--radius-inset-1: calc(var(--radius-lg) - 0.25rem);");
+    expect(css).toContain("--radius-inset-2: calc(var(--radius-lg) - 0.5rem);");
   });
 });
