@@ -52,7 +52,7 @@ export function DropdownMenu({ items, children, align = 'end', side = 'bottom', 
           side={side}
           sideOffset={6}
           className={cn(
-            'z-50 min-w-[12rem] rounded-lg border border-border bg-surface p-2 text-sm shadow-[var(--shadow-2)]',
+            'z-50 min-w-[12rem] rounded-menu-2 border border-border bg-surface p-2 text-sm shadow-[var(--shadow-2)]',
             'focus-visible:outline-none',
             className,
           )}
@@ -75,6 +75,8 @@ export function DropdownMenu({ items, children, align = 'end', side = 'bottom', 
                 disabled={entry.disabled}
                 onSelect={() => entry.onSelect?.()}
                 className={cn(
+                  // Ítem rounded-sm; el Content (p-2) usa rounded-menu-2 = sm + padding
+                  // para que las dos curvas sean concéntricas (ver tokens.css).
                   'flex cursor-pointer items-center gap-2.5 rounded-sm px-3 py-2 outline-none transition-colors',
                   'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
                   itemToneClass[tone],

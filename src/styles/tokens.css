@@ -39,6 +39,25 @@
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 18px;
+  /* Equivalencias de la escala de Tailwind (`rounded-md`/`-xl`/`-2xl`) que el DS no
+     definía: caían a los valores de fábrica (6/12/16px) e ignoraban la piel de la
+     app. Son alias de la escala del DS, un escalón corrido (md→sm, xl→default,
+     2xl→lg): en la piel base quedan cerca de los valores de fábrica (8/12/18) y en
+     una piel más redondeada suben con ella, sin volver circulares los elementos
+     chicos (ver tokens.test.ts). */
+  --radius-md: var(--radius-sm);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius-lg);
+  /*
+   * Radio de menú: un ítem pegado al borde de un contenedor con padding chico
+   * (Select, DropdownMenu) tiene que ser concéntrico con él: radio externo =
+   * radio interno + padding. Se parte del ítem (`--radius-sm`, el mismo del
+   * trigger y los inputs) y se deriva el contenedor, no al revés: derivar el
+   * ítem desde `--radius-lg` lo volvía una píldora en las pieles redondeadas.
+   * `-1` para padding p-1 (Select.Viewport), `-2` para p-2 (DropdownMenu).
+   */
+  --radius-menu-1: calc(var(--radius-sm) + 0.25rem);
+  --radius-menu-2: calc(var(--radius-sm) + 0.5rem);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-display: Georgia, "Times New Roman", serif;

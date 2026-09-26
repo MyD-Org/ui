@@ -20,11 +20,17 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
   defaultVariants: { variant: 'default', layout: 'grid' },
 });
 
-const imageWrap = cva('relative flex items-center justify-center bg-elevated/50 p-4', {
+// `bg-surface` (no `bg-elevated`): `elevated` es un rol que cada piel tiñe libremente
+// (en el theme azul del Shop es celeste) y detrás de fotos con fondo blanco/transparente
+// se veía como un tinte de color en vez de un fondo neutro. `bg-surface` es el mismo fondo
+// de la card → sin bloque de color detrás; un borde sutil (mismo token que el de la card)
+// es lo que enmarca la foto, en los dos temas: abajo en `grid` (separa foto de texto,
+// apilados) y a la derecha en `list` (van lado a lado).
+const imageWrap = cva('relative flex items-center justify-center bg-surface p-4', {
   variants: {
     layout: {
-      grid: 'aspect-square',
-      list: 'w-32 shrink-0 sm:w-40',
+      grid: 'aspect-square border-b border-border/60',
+      list: 'w-32 shrink-0 border-r border-border/60 sm:w-40',
     },
   },
   defaultVariants: { layout: 'grid' },

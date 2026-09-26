@@ -11,13 +11,17 @@ const content = cva(
   {
     variants: {
       placement: {
-        center: 'left-1/2 top-1/2 max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg',
+        // data-[state] lo pone Radix (open/closed). Animación CSS, no
+        // transition: Presence espera `animationend` para desmontar, y con
+        // `transition` se pierde ese aviso y se desmonta antes de terminar.
+        center:
+          'left-1/2 top-1/2 max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out motion-reduce:animate-none',
         /**
          * Hoja anclada abajo, a todo el ancho (filtros en mobile). `dvh` y no
          * `vh`: en Safari de iOS `vh` cuenta el alto con las barras del
          * navegador escondidas y la hoja tapaba el título y la X.
          */
-        sheet: 'inset-x-0 bottom-0 max-h-[92dvh] w-full max-w-none rounded-t-lg rounded-b-none',
+        sheet: 'inset-x-0 bottom-0 max-h-[92dvh] w-full max-w-none rounded-t-lg rounded-b-none data-[state=open]:animate-sheet-in data-[state=closed]:animate-sheet-out motion-reduce:animate-none',
       },
       size: {
         sm: '',
@@ -178,7 +182,7 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
-        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
+        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-overlay-in data-[state=closed]:animate-overlay-out motion-reduce:animate-none" />
         <RDialog.Content
           ref={setContentEl}
           data-placement={resolvedPlacement}
