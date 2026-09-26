@@ -49,17 +49,15 @@
   --radius-xl: var(--radius);
   --radius-2xl: var(--radius-lg);
   /*
-   * Radio "encajado": para un ítem que vive pegado al borde de un contenedor con
-   * padding chico (menús, listas de opciones — Select, DropdownMenu, Popover),
-   * si el radio del ítem no es menor al del contenedor menos ese padding, la
-   * esquina del ítem sobresale o no calza con la del contenedor (dos curvas
-   * concéntricas mal alineadas). Regla: radio interno = radio externo − padding.
-   * Van los dos casos que hoy existen en el DS: contenedor `rounded-lg` con
-   * `p-1` (Select.Viewport, 4px) o `p-2` (DropdownMenu.Content, 8px). Usan
-   * `var(--radius-lg)` así que siguen a la piel sin redeclararse por tema.
+   * Radio de menú: un ítem pegado al borde de un contenedor con padding chico
+   * (Select, DropdownMenu) tiene que ser concéntrico con él: radio externo =
+   * radio interno + padding. Se parte del ítem (`--radius-sm`, el mismo del
+   * trigger y los inputs) y se deriva el contenedor, no al revés: derivar el
+   * ítem desde `--radius-lg` lo volvía una píldora en las pieles redondeadas.
+   * `-1` para padding p-1 (Select.Viewport), `-2` para p-2 (DropdownMenu).
    */
-  --radius-inset-1: calc(var(--radius-lg) - 0.25rem);
-  --radius-inset-2: calc(var(--radius-lg) - 0.5rem);
+  --radius-menu-1: calc(var(--radius-sm) + 0.25rem);
+  --radius-menu-2: calc(var(--radius-sm) + 0.5rem);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-display: Georgia, "Times New Roman", serif;

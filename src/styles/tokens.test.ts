@@ -112,16 +112,15 @@ describe("radios: escala de tokens (incluye la extendida)", () => {
 });
 
 /**
- * Guarda del radio "encajado" (Select/DropdownMenu): un ítem pegado al borde de
- * un contenedor `rounded-lg` con padding chico necesita radio interno = radio
- * externo − padding, o su esquina no calza con la del contenedor. Ver
- * tokens.css / tailwind.css.
+ * Guarda del radio de menú (Select/DropdownMenu): el ítem va en `rounded-sm` y el
+ * contenedor se deriva de él (radio externo = interno + padding), o las curvas
+ * no son concéntricas. Ver tokens.css / tailwind.css.
  */
-describe("radios: encajado en menús", () => {
-  it("expone rounded-inset-1 (padding p-1) y rounded-inset-2 (padding p-2)", () => {
-    expect(tailwind).toContain("--radius-inset-1: var(--radius-inset-1);");
-    expect(tailwind).toContain("--radius-inset-2: var(--radius-inset-2);");
-    expect(css).toContain("--radius-inset-1: calc(var(--radius-lg) - 0.25rem);");
-    expect(css).toContain("--radius-inset-2: calc(var(--radius-lg) - 0.5rem);");
+describe("radios: menús concéntricos", () => {
+  it("expone rounded-menu-1 (padding p-1) y rounded-menu-2 (padding p-2)", () => {
+    expect(tailwind).toContain("--radius-menu-1: var(--radius-menu-1);");
+    expect(tailwind).toContain("--radius-menu-2: var(--radius-menu-2);");
+    expect(css).toContain("--radius-menu-1: calc(var(--radius-sm) + 0.25rem);");
+    expect(css).toContain("--radius-menu-2: calc(var(--radius-sm) + 0.5rem);");
   });
 });

@@ -36,11 +36,10 @@
   --radius-md: var(--radius-md);
   --radius-xl: var(--radius-xl);
   --radius-2xl: var(--radius-2xl);
-  /* Radios "encajados" para ítems dentro de un contenedor rounded-lg con
-     padding chico (ver tokens.css): `rounded-inset-1` (padding p-1),
-     `rounded-inset-2` (padding p-2). */
-  --radius-inset-1: var(--radius-inset-1);
-  --radius-inset-2: var(--radius-inset-2);
+  /* Radio del contenedor de un menú (ver tokens.css): `rounded-menu-1` (padding
+     p-1), `rounded-menu-2` (padding p-2). El ítem usa `rounded-sm`. */
+  --radius-menu-1: var(--radius-menu-1);
+  --radius-menu-2: var(--radius-menu-2);
   --font-sans: var(--font-sans);
   --color-accent-soft: var(--color-accent-soft);
   --color-highlight: var(--color-highlight);
