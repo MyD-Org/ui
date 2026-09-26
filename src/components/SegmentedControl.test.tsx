@@ -87,28 +87,13 @@ describe('SegmentedControl', () => {
     expect(warn.mock.calls[0][0]).toContain('a');
   });
 
-  it('size sm aplica h-6; md h-7; seleccionado con bg-primary-soft text-primary', () => {
+  it('size sm aplica h-8; md h-9; seleccionado con bg-primary-soft text-primary', () => {
     const { rerender } = render(<SegmentedControl options={options} value="grilla" onValueChange={() => {}} size="sm" />);
     const sel = screen.getByRole('radio', { name: 'Grilla' });
-    expect(sel.className).toContain('h-6');
+    expect(sel.className).toContain('h-8');
     expect(sel.className).toContain('bg-primary-soft');
     expect(sel.className).toContain('text-primary');
     rerender(<SegmentedControl options={options} value="grilla" onValueChange={() => {}} />);
-    expect(screen.getByRole('radio', { name: 'Grilla' }).className).toContain('h-7');
-  });
-
-  it('los segmentos de sólo ícono son cuadrados', () => {
-    render(
-      <SegmentedControl
-        ariaLabel="Vista"
-        options={[
-          { value: 'a', icon: <span />, ariaLabel: 'A' },
-          { value: 'b', icon: <span />, ariaLabel: 'B' },
-        ]}
-        value="a"
-        onValueChange={() => {}}
-      />,
-    );
-    expect(screen.getByRole('radio', { name: 'A' }).className).toContain('w-7');
+    expect(screen.getByRole('radio', { name: 'Grilla' }).className).toContain('h-9');
   });
 });

@@ -24,22 +24,13 @@ export interface SegmentedControlProps {
 }
 
 const segment = cva(
-  'inline-flex items-center justify-center gap-1.5 rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:pointer-events-none disabled:opacity-40',
+  'inline-flex items-center justify-center gap-1.5 rounded-sm px-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:pointer-events-none disabled:opacity-40',
   {
     variants: {
-      // Con el padding (p-1) y el borde del grupo, md mide lo mismo que el
-      // trigger de Select/Input (38px) y puede ir en la misma línea.
-      size: { sm: 'h-6', md: 'h-7' },
-      checked: { true: 'bg-primary-soft text-primary', false: 'text-muted hover:bg-elevated/60 hover:text-text' },
-      // Sólo ícono: segmento cuadrado (ancho = alto) en vez de un rectángulo
-      // con el padding del texto.
-      iconOnly: { true: '', false: 'px-2.5' },
+      size: { sm: 'h-8', md: 'h-9' },
+      checked: { true: 'bg-primary-soft text-primary', false: 'text-muted hover:text-text' },
     },
-    compoundVariants: [
-      { iconOnly: true, size: 'sm', class: 'w-6' },
-      { iconOnly: true, size: 'md', class: 'w-7' },
-    ],
-    defaultVariants: { size: 'md', checked: false, iconOnly: false },
+    defaultVariants: { size: 'md', checked: false },
   },
 );
 
@@ -94,9 +85,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
         ref={ref}
         role="radiogroup"
         aria-label={ariaLabel}
-        // Segmento rounded-sm y grupo rounded-menu-1 (= sm + padding p-1): curvas
-        // concéntricas, igual que el ítem y el contenedor de Select.
-        className={cn('inline-flex gap-0.5 rounded-menu-1 border border-border bg-surface p-1', className)}
+        className={cn('inline-flex rounded-sm border border-border bg-surface p-0.5', className)}
       >
         {options.map((o, i) => {
           const checked = o.value === value;
@@ -114,7 +103,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
               disabled={o.disabled}
               onClick={() => onValueChange(o.value)}
               onKeyDown={(e) => onKeyDown(e, i)}
-              className={segment({ size, checked, iconOnly: Boolean(o.icon && !o.label) })}
+              className={segment({ size, checked })}
             >
               {o.icon && <span className="inline-flex shrink-0 items-center" aria-hidden={o.label ? true : undefined}>{o.icon}</span>}
               {o.label}
