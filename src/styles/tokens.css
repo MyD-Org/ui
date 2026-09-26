@@ -41,12 +41,13 @@
   --radius-lg: 18px;
   /* Equivalencias de la escala de Tailwind (`rounded-md`/`-xl`/`-2xl`) que el DS no
      definía: caían a los valores de fábrica (6/12/16px) e ignoraban la piel de la
-     app. Interpolan/extrapolan la progresión sm(8)→default(12)→lg(18) (~×1.5 cada
-     salto) para que, si una app usa esas utilidades built-in, sigan la piel en vez
-     de quedar con la única esquina "dura" de la página (ver tokens.test.ts). */
-  --radius-md: 14px;
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
+     app. Son alias de la escala del DS, un escalón corrido (md→sm, xl→default,
+     2xl→lg): en la piel base quedan cerca de los valores de fábrica (8/12/18) y en
+     una piel más redondeada suben con ella, sin volver circulares los elementos
+     chicos (ver tokens.test.ts). */
+  --radius-md: var(--radius-sm);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius-lg);
   /*
    * Radio "encajado": para un ítem que vive pegado al borde de un contenedor con
    * padding chico (menús, listas de opciones — Select, DropdownMenu, Popover),
