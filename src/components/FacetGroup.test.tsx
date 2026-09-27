@@ -205,13 +205,16 @@ describe('FacetGroup: árbol plegable', () => {
     expect(screen.getByRole('checkbox', { name: 'Focos led' })).toHaveAttribute('aria-checked', 'mixed');
   });
 
-  it('con la madre tildada, las hijas se ven tildadas y deshabilitadas', async () => {
+  it('con la madre tildada, las hijas se ven tildadas y se pueden destildar', async () => {
     const user = userEvent.setup();
-    render(<FacetGroup title="Categorías" items={arbol(['ilu'])} onToggle={() => {}} />);
+    const onToggle = vi.fn();
+    render(<FacetGroup title="Categorías" items={arbol(['ilu'])} onToggle={onToggle} />);
     await user.click(screen.getByRole('button', { name: 'Ver subcategorías de Iluminación' }));
     const focos = screen.getByRole('checkbox', { name: 'Focos led' });
     expect(focos).toHaveAttribute('aria-checked', 'true');
-    expect(focos).toBeDisabled();
+    expect(focos).toBeEnabled();
+    await user.click(focos);
+    expect(onToggle).toHaveBeenCalledWith('focos', false);
   });
 
   it('el chevron no tilda: onToggle sólo sale de la casilla', async () => {
