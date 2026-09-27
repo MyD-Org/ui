@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { SiteFooter } from './SiteFooter';
 import type { RenderLink } from '../lib/renderLink';
 
@@ -37,11 +37,30 @@ describe('SiteFooter', () => {
     expect(footer?.className).toContain('rounded-t-[32px]');
   });
 
-  it('mobile: columnas de a dos y la marca en la fila entera', () => {
-    const { container } = render(<SiteFooter brandName="Central" description="Casa de iluminación" columns={columns} />);
-    const grilla = container.querySelector('footer > div');
-    expect(grilla?.className).toContain('grid-cols-2');
-    expect(grilla?.firstElementChild?.className).toContain('col-span-2');
+  it('mobile: cada columna es un desplegable cerrado que se abre con su título', () => {
+    render(<SiteFooter brandName="Central" description="Casa de iluminación" columns={columns} />);
+    const boton = screen.getByRole('button', { name: 'Mi cuenta' });
+    expect(boton).toHaveAttribute('aria-expanded', 'false');
+    const panel = document.getElementById(boton.getAttribute('aria-controls')!);
+    expect(panel?.className).toContain('max-lg:hidden');
+    fireEvent.click(boton);
+    expect(boton).toHaveAttribute('aria-expanded', 'true');
+    expect(panel?.className).not.toContain('max-lg:hidden');
+  });
+
+  it('mobile: sin descripción ni barRight; desktop los muestra', () => {
+    render(<SiteFooter brandName="Central" description="Casa de iluminación" columns={[]} barLeft="© 2026" barRight="Horario" />);
+    expect(screen.getByText('Casa de iluminación').className).toContain('max-lg:hidden');
+    expect(screen.getByText('Horario').className).toContain('max-lg:hidden');
+    expect(screen.getByText('© 2026').className).not.toContain('max-lg:hidden');
+  });
+
+  it('desktop: una columna con más de 4 links se reparte en dos', () => {
+    const larga = { title: 'Legales', links: ['a', 'b', 'c', 'd', 'e'].map((l) => ({ label: l, href: `/${l}` })) };
+    render(<SiteFooter brandName="Central" description="d" columns={[larga, columns[1]]} />);
+    const panel = (t: string) => document.getElementById(screen.getByRole('button', { name: t }).getAttribute('aria-controls')!);
+    expect(panel('Legales')?.className).toContain('lg:grid-cols-2');
+    expect(panel('Mi cuenta')?.className).not.toContain('lg:grid-cols-2');
   });
 
   it('renderLink reemplaza los <a> de las columnas', () => {
@@ -105,14 +124,5 @@ describe('SiteFooter', () => {
       <SiteFooter brandName="Central" description="d" columns={[]} barExtra={<span>extra</span>} />,
     );
     expect(container.querySelector('footer > div.border-t')).toContainElement(screen.getByText('extra'));
-  });
-
-  it('compatibilidad: sin barExtra la barra conserva el mismo markup', () => {
-    const { container } = render(
-      <SiteFooter brandName="B" description="d" columns={[]} barLeft="© 2026 Comercio" barRight="Hecho en Misiones" />,
-    );
-    expect(container.querySelector('footer > div.border-t')?.innerHTML).toBe(
-      '<div class="mx-auto flex max-w-[1280px] flex-wrap justify-between gap-4 px-[clamp(18px,4vw,48px)] py-5 text-xs font-semibold text-on-primary/45"><span>© 2026 Comercio</span><span>Hecho en Misiones</span></div>',
-    );
   });
 });
