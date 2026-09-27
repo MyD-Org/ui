@@ -107,3 +107,4 @@ export {
   type ToggleIconButtonProps,
   type ToggleIconButtonTone,
 } from './components/ToggleIconButton.js';
+export { Board, type BoardProps, type BoardColumn } from './components/Board.js';
