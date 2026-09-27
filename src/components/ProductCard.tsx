@@ -16,7 +16,9 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
        * casi invisible. Padding de 8 px para que la foto quede como un tile dentro de la card
        * (radio 18 afuera, 10 adentro: concéntricos).
        */
-      soft: 'cursor-pointer rounded-[18px] bg-surface p-2 ring-1 ring-border/40 hover:shadow-2',
+      // Hover suave: en una grilla de 24 la card no "se levanta" (shadow-2 es la elevación de
+      // un popover); se refuerza el filo y aparece una sombra mínima.
+      soft: 'cursor-pointer rounded-[18px] bg-surface p-2 ring-1 ring-border/40 hover:shadow-1 hover:ring-border',
     },
     layout: {
       grid: 'flex-col',
