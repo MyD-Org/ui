@@ -1,6 +1,6 @@
 'use client';
 
-import { type HTMLAttributes, type ReactNode, forwardRef } from 'react';
+import { type HTMLAttributes, type ReactNode, forwardRef, useRef, useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn.js';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
@@ -82,6 +82,16 @@ export type ProductCardActionPlacement = 'inline' | 'below';
 
 export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof card> {
   image?: ReactNode;
+  /**
+   * Todas las fotos del producto, ya armadas (p. ej. `next/image`). Con más de una, la imagen
+   * pasa a ser una galería que se desliza con el dedo (scroll-snap nativo) y, desde md, con
+   * flechas al pasar el mouse. Reemplaza a `image`. La 2.ª foto en adelante no se monta hasta
+   * que la persona se acerca a la card (hover, toque o foco): la grilla no baja todas las fotos
+   * de todos los productos.
+   */
+  images?: ReactNode[];
+  /** Textos de la galería para lectores de pantalla. */
+  imagesLabels?: { prev: string; next: string };
   badge?: ReactNode;
   brand?: string;
   name: string;
@@ -136,6 +146,8 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
   (
     {
       image,
+      images,
+      imagesLabels,
       badge,
       brand,
       name,
@@ -164,6 +176,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     ref,
   ) => {
     const resolvedLayout: ProductCardLayout = layout ?? 'grid';
+    const galeria = images != null && images.length > 1;
     // Enteros limpios ($14.990) pero con centavos completos ($713.028,80): con
     // minimumFractionDigits: 0 a secas, Intl imprime "$713.028,8".
     const fmt = (n: number) => {
@@ -183,9 +196,13 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
         className={cn(card({ variant, layout: resolvedLayout }), className)}
         {...props}
       >
-        <div className={imageWrap({ layout: resolvedLayout })}>
-          {badge && <div className="absolute left-2 top-2">{badge}</div>}
-          {image}
+        <div className={cn(imageWrap({ layout: resolvedLayout }), galeria && 'p-0')}>
+          {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+          {galeria ? (
+            <Galeria fotos={images} href={href} renderLink={renderLink} labels={imagesLabels} />
+          ) : (
+            (images?.[0] ?? image)
+          )}
           {cornerAction && <div className="absolute right-2 top-2 z-10">{cornerAction}</div>}
         </div>
 
@@ -255,6 +272,122 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
   },
 );
 ProductCard.displayName = 'ProductCard';
+
+/**
+ * Galería de la card. Scroll nativo con `scroll-snap` (como `Carousel`): el arrastre usa la
+ * inercia del sistema y no pasa por el hilo principal.
+ *
+ * La pista va por encima del enlace estirado (`z-[1]`), si no el dedo agarraría el `<a>` y no
+ * se podría deslizar. Para que tocar la foto siga abriendo la ficha, cada foto va envuelta en
+ * su propio enlace, fuera del tab y del lector: el enlace real sigue siendo el nombre.
+ */
+function Galeria({
+  fotos,
+  href,
+  renderLink,
+  labels = { prev: 'Foto anterior', next: 'Foto siguiente' },
+}: {
+  fotos: ReactNode[];
+  href?: string;
+  renderLink: RenderLink;
+  labels?: { prev: string; next: string };
+}) {
+  const pistaRef = useRef<HTMLDivElement>(null);
+  const [activa, setActiva] = useState(0);
+  // Hasta qué foto está montada. Arranca en la primera; al acercarse se precarga la siguiente.
+  const [montadas, setMontadas] = useState(0);
+  const precargar = (hasta: number) => setMontadas((m) => Math.max(m, Math.min(hasta, fotos.length - 1)));
+
+  function alScrollear() {
+    const el = pistaRef.current;
+    if (!el || el.clientWidth === 0) return;
+    const i = Math.round(el.scrollLeft / el.clientWidth);
+    setActiva(i);
+    precargar(i + 1);
+  }
+
+  function ir(i: number) {
+    const el = pistaRef.current;
+    if (!el) return;
+    precargar(i + 1);
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+  }
+
+  return (
+    <div
+      className="absolute inset-0 z-[1]"
+      data-galeria=""
+      onPointerEnter={() => precargar(1)}
+      onTouchStart={() => precargar(1)}
+      onFocus={() => precargar(1)}
+    >
+      <div
+        ref={pistaRef}
+        onScroll={alScrollear}
+        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {fotos.map((foto, i) => {
+          const contenido = i <= montadas ? foto : null;
+          // `relative`: `next/image` con `fill` se posiciona contra la foto, no contra la card.
+          const clase = 'relative flex h-full w-full items-center justify-center p-4';
+          return (
+            <div key={i} data-foto={i} className="h-full w-full shrink-0 snap-center">
+              {href
+                ? renderLink({ href, className: clase, children: contenido, tabIndex: -1, 'aria-hidden': true })
+                : <div className={clase}>{contenido}</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      <FlechaFoto hacia="prev" label={labels.prev} oculta={activa === 0} onClick={() => ir(activa - 1)} />
+      <FlechaFoto hacia="next" label={labels.next} oculta={activa >= fotos.length - 1} onClick={() => ir(activa + 1)} />
+
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-2 z-[2] flex justify-center gap-1">
+        {fotos.map((_, i) => (
+          <span
+            key={i}
+            data-activo={i === activa ? '' : undefined}
+            className={cn(
+              'h-1.5 rounded-full transition-[width,background-color] duration-200 ease-out',
+              i === activa ? 'w-3 bg-text/70' : 'w-1.5 bg-text/25',
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FlechaFoto({
+  hacia,
+  label,
+  oculta,
+  onClick,
+}: {
+  hacia: 'prev' | 'next';
+  label: string;
+  oculta: boolean;
+  onClick: () => void;
+}) {
+  if (oculta) return null;
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      // Sólo desde md y al pasar el mouse: en touch se desliza con el dedo.
+      className={cn(
+        'absolute top-1/2 z-[2] hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface text-text shadow-2 opacity-0 transition-[opacity,scale] duration-150 ease-out focus-visible:opacity-100 active:scale-95 group-hover:opacity-100 md:flex',
+        hacia === 'prev' ? 'left-2' : 'right-2',
+      )}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {hacia === 'prev' ? <path d="m15 18-6-6 6-6" /> : <path d="m9 18 6-6-6-6" />}
+      </svg>
+    </button>
+  );
+}
 
 export interface ProductCardSkeletonProps {
   layout?: ProductCardLayout;

@@ -241,3 +241,20 @@ export const Skeleton: Story = {
     </div>
   ),
 };
+
+/** Varias fotos: se desliza con el dedo; desde md, flechas al pasar el mouse. */
+export const ConVariasFotos: Story = {
+  args: {
+    brand: 'Macroled',
+    name: 'Panel LED 48W 60×60 embutir',
+    price: 14990,
+    href: '#',
+    images: ['💡', '🔦', '🕯️'].map((e) => (
+      <div key={e} className="text-5xl">
+        {e}
+      </div>
+    )),
+    action: agregar,
+  },
+  decorators: [(S) => <div style={{ width: 260 }}><S /></div>],
+};
