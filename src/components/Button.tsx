@@ -17,10 +17,14 @@ const button = cva(
         link: 'bg-transparent text-primary hover:underline',
         /** Acción secundaria con borde ("Volver a comprar", "Descargar PDF"). */
         outline: 'border border-border bg-surface text-text hover:bg-elevated',
+        /** Acción de compra que no pesa en una grilla ("Agregar" en ProductCard `soft`). Mismo fondo que QuantityStepper `tone="soft"`. */
+        soft: 'bg-accent-soft text-accent hover:bg-accent/15',
       },
       size: {
         sm: 'h-8 px-3 text-sm',
         md: 'h-10 px-4 text-sm',
+        /** 48 px: acción principal de una ficha. Mismo alto que QuantityStepper `size="lg"`. */
+        lg: 'h-12 px-5 text-base',
         // shrink-0: cuadrado fijo — sin esto, dentro de un flex que se queda corto
         // de espacio el ícono se achica de ancho y deja de ser cuadrado.
         icon: 'h-9 w-9 shrink-0 text-sm',

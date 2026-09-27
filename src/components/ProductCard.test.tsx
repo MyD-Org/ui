@@ -291,3 +291,64 @@ describe('images (galería)', () => {
     expect(screen.getByRole('button', { name: 'Foto siguiente' })).toBeInTheDocument();
   });
 });
+
+describe('variant soft (0.37.0)', () => {
+  it('card sin borde (filo de ring muy tenue) y la foto sobre un fondo neutro derivado del texto', () => {
+    const { container } = render(<ProductCard variant="soft" name="Amplificador RGB" price={16395.11} image={<img alt="" />} />);
+    const raiz = container.firstElementChild as HTMLElement;
+    expect(raiz.className).not.toMatch(/(^|\s)border(\s|$)/);
+    expect(raiz.className).toContain('ring-1');
+    const foto = raiz.firstElementChild as HTMLElement;
+    // No bg-elevated: en temas de color ese rol es un tinte (ver comentario de imageWrap).
+    expect(foto.className).toContain('bg-text/[0.045]');
+    expect(foto.className).not.toContain('border-b');
+  });
+
+  it('la marca va como texto normal, sin mayúsculas sostenidas', () => {
+    render(<ProductCard variant="soft" name="Amplificador RGB" brand="Macroled" price={100} />);
+    expect(screen.getByText('Macroled').className).not.toContain('uppercase');
+  });
+
+  it('precio con centavos chicos; el lector de pantalla lee el precio entero', () => {
+    const { container } = render(<ProductCard variant="soft" name="AR111" price={15373.2} />);
+    const visible = container.querySelector('[data-precio]') as HTMLElement;
+    expect(visible).toHaveAttribute('aria-hidden', 'true');
+    expect(visible.querySelector('[data-centavos]')!.textContent).toBe('20');
+    expect(screen.getByText((c, el) => el?.className.includes('sr-only') === true && c.includes('15.373,20'))).toBeInTheDocument();
+  });
+
+  it('precio redondo: sin centavos', () => {
+    const { container } = render(<ProductCard variant="soft" name="AR111" price={14990} />);
+    expect(container.querySelector('[data-centavos]')).toBeNull();
+  });
+
+  it('el stock va en la fila del precio desde sm; en mobile, arriba del precio (los precios de una fila quedan alineados)', () => {
+    render(<ProductCard variant="soft" name="AR111" price={100} stock="low" stockLabel="Quedan 3" />);
+    const [arriba, enFila] = screen.getAllByText('Quedan 3');
+    expect(arriba.closest('[data-fila-precio]')).toBeNull();
+    expect(arriba.parentElement!.className).toContain('sm:hidden');
+    expect(enFila.closest('[data-fila-precio]')).not.toBeNull();
+    expect(enFila.parentElement!.className).toContain('hidden sm:inline');
+  });
+
+  it('la acción va abajo y a todo el ancho', () => {
+    render(<ProductCard variant="soft" name="AR111" price={100} action={<button>Agregar</button>} />);
+    const accion = screen.getByRole('button', { name: 'Agregar' }).parentElement!;
+    expect(accion.className).toContain('w-full');
+  });
+
+  it('layout list: la foto se estira al alto de la fila, con un mínimo', () => {
+    const { container } = render(<ProductCard variant="soft" layout="list" name="AR111" price={100} image={<img alt="" />} />);
+    const foto = container.firstElementChild!.firstElementChild as HTMLElement;
+    expect(foto.className).toContain('self-stretch');
+    expect(foto.className).toContain('min-h-26');
+    expect(foto.className).not.toContain('aspect-square');
+  });
+
+  it('editorial no cambia (regresión)', () => {
+    const { container } = render(<ProductCard variant="editorial" name="AR111" brand="Macroled" price={15373.2} />);
+    expect(container.firstElementChild!.className).toContain('rounded-[20px]');
+    expect(screen.getByText('Macroled').className).toContain('uppercase');
+    expect(container.querySelector('[data-precio]')).toBeNull();
+  });
+});

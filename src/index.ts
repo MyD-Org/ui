@@ -43,7 +43,12 @@ export { EmptyState, type EmptyStateProps } from './components/EmptyState.js';
 export { SideNav, type SideNavProps, type SideNavItem, type SideNavUser } from './components/SideNav.js';
 export { Menu, type MenuProps, type MenuItem } from './components/Menu.js';
 export { Chip, type ChipProps, type ChipVariant } from './components/Chip.js';
-export { QuantityStepper, type QuantityStepperProps } from './components/QuantityStepper.js';
+export {
+  QuantityStepper,
+  type QuantityStepperProps,
+  type QuantityStepperSize,
+  type QuantityStepperTone,
+} from './components/QuantityStepper.js';
 export { Rating, type RatingProps } from './components/Rating.js';
 export { PriceTier, type PriceTierProps, type PriceTierItem } from './components/PriceTier.js';
 export { CategoryTile, type CategoryTileProps } from './components/CategoryTile.js';
