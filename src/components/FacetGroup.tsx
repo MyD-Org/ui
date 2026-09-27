@@ -100,10 +100,13 @@ const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCas
  * Árbol: si algún ítem tiene hijas (`depth` mayor justo debajo), las ramas se
  * pliegan. Arrancan cerradas salvo las que tienen algo tildado adentro, que se
  * abren solas; el chevron de cada madre las abre y cierra. Tildar una madre
- * cubre a toda su rama: sus hijas se muestran tildadas y deshabilitadas, y una
- * madre con sólo algunas hijas tildadas se muestra en estado intermedio. El
- * componente sólo lo dibuja: qué valores quedan en el filtro lo decide quien
- * recibe `onToggle` (p. ej. quitar las hijas al tildar la madre).
+ * cubre a toda su rama: sus hijas se muestran tildadas, y una madre con sólo
+ * algunas hijas tildadas se muestra en estado intermedio. Una hija cubierta
+ * sigue siendo clicable: destildarla llama a `onToggle(hija, false)` aunque la
+ * hija no esté en `checked`, y quien lo recibe decide qué queda (p. ej. sacar
+ * la madre y dejar tildadas las demás hermanas). El componente sólo lo dibuja:
+ * qué valores quedan en el filtro lo decide quien recibe `onToggle` (p. ej.
+ * quitar las hijas al tildar la madre).
  */
 export function FacetGroup({
   title,
@@ -212,7 +215,8 @@ export function FacetGroup({
           {visible.map(({ it, i }) => {
             const rowId = `${id}-${it.value}`;
             const nodo = arbol[i];
-            // Cubierta por una madre tildada: se ve tildada, pero se destilda desde la madre.
+            // Cubierta por una madre tildada: se ve tildada y se puede destildar
+            // (onToggle(valor, false)); qué queda lo decide quien recibe onToggle.
             const incluida = nodo.madres.some((m) => items[m].checked);
             const parcial = !it.checked && !incluida && conTildadaAdentro.has(i);
             const conChevron = esArbol && !searching && nodo.tieneHijas;
@@ -220,13 +224,13 @@ export function FacetGroup({
               <li key={it.value} className={cn('flex items-center gap-1 pointer-coarse:min-h-10', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
                 <label
                   htmlFor={rowId}
-                  className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', (it.disabled || incluida) && 'cursor-not-allowed', it.disabled && 'opacity-50')}
+                  className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', it.disabled && 'cursor-not-allowed opacity-50')}
                 >
                   <Checkbox
                     id={rowId}
                     checked={it.checked || incluida}
                     indeterminate={parcial}
-                    disabled={it.disabled || incluida}
+                    disabled={it.disabled}
                     aria-label={it.label}
                     onCheckedChange={(checked) => onToggle(it.value, checked)}
                   />
