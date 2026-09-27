@@ -14,6 +14,12 @@ const tailwind = readFileSync(
 );
 
 describe("mapeo tailwind", () => {
+  it("los botones habilitados muestran la manito (Tailwind v4 los deja en cursor: default)", () => {
+    const base = tailwind.split("@layer base")[1] ?? "";
+    expect(base).toMatch(/button:not\(:disabled\)[^{]*\{\s*cursor: pointer;/);
+    expect(base).toContain('[role="button"]:not(:disabled)');
+  });
+
   it("expone la utilidad scroll-fino, con los colores de la piel", () => {
     expect(tailwind).toContain("@utility scroll-fino");
     expect(tailwind).toContain("scrollbar-color: var(--color-border-strong) transparent;");

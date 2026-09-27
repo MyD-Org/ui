@@ -1,5 +1,19 @@
 @import "./tokens.css";
 
+/*
+ * Manito sobre los botones. Tailwind v4 pasó los <button> a `cursor: default`
+ * (el del sistema); en una tienda eso hace que "Agregar", el contador o el
+ * corazón no parezcan clicables. Una regla en `base` cubre los botones del DS
+ * y los propios de cada app, sin sumar `cursor-pointer` componente por
+ * componente. Los deshabilitados quedan con el cursor por defecto.
+ */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);

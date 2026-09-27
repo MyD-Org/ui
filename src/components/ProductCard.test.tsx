@@ -345,6 +345,14 @@ describe('variant soft (0.37.0)', () => {
     expect(foto.className).not.toContain('aspect-square');
   });
 
+  it('hover suave: refuerza el filo y una sombra mínima, sin la elevación de shadow-2', () => {
+    const { container } = render(<ProductCard variant="soft" name="AR111" price={100} />);
+    const raiz = container.firstElementChild as HTMLElement;
+    expect(raiz.className).not.toContain('hover:shadow-2');
+    expect(raiz.className).toContain('hover:shadow-1');
+    expect(raiz.className).toContain('hover:ring-border');
+  });
+
   it('editorial no cambia (regresión)', () => {
     const { container } = render(<ProductCard variant="editorial" name="AR111" brand="Macroled" price={15373.2} />);
     expect(container.firstElementChild!.className).toContain('rounded-[20px]');
