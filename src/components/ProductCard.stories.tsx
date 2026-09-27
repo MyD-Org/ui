@@ -258,3 +258,37 @@ export const ConVariasFotos: Story = {
   },
   decorators: [(S) => <div style={{ width: 260 }}><S /></div>],
 };
+
+const fotoSoft = (
+  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true" style={{ color: 'var(--color-muted)' }}>
+    <path d="M9 18h6" /><path d="M10 22h4" /><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+  </svg>
+);
+
+/** `variant="soft"`: sin borde, foto en tile neutro, centavos chicos, stock junto al precio y "Agregar" a lo ancho. */
+export const Soft: Story = {
+  render: () => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 24, maxWidth: 1180 }}>
+      <ProductCard variant="soft" href="#" brand="Macroled" name="AR111 11W GU10 SMD DIM AC100-240V FP>0.9 calido 2700K 24º" code="AR111-DIM-FC-11W-24DWW-MCL" price={15373.2} showStock={false} image={fotoSoft}
+        installments="6 cuotas sin interés de $ 2.562,20" action={<Button variant="soft" className="w-full">Agregar</Button>} />
+      <ProductCard variant="soft" href="#" brand="Macroled" name="AR111 10W GU10 SMD no DIM AC100-240V FP>0.9 neutro 4000K" code="AR111-FC-10W-24DNW-MCL" price={12203.77} stock="low" stockLabel="Quedan 3" image={fotoSoft}
+        installments="6 cuotas sin interés de $ 2.033,96" action={<Button variant="soft" className="w-full">Agregar</Button>} />
+      <ProductCard variant="soft" href="#" brand="Macroled" name="Amplificador RGB" code="AMP-RGB-12A-MCL" price={16395.11} showStock={false} image={fotoSoft}
+        action={<Button variant="soft" className="w-full">Agregar</Button>} />
+      <ProductCard variant="soft" href="#" brand="Akai" name="Akai 1200" price={7049.75} showStock={false} image={fotoSoft}
+        action={<Button variant="soft" className="w-full">Agregar</Button>} />
+    </div>
+  ),
+};
+
+/** `variant="soft" layout="list"`: la foto se estira al alto de la fila; desde md, datos · precio · acción en columnas. */
+export const SoftLista: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 960 }}>
+      <ProductCard variant="soft" layout="list" href="#" brand="Macroled" name="AR111 10W GU10 SMD no DIM AC100-240V FP>0.9 neutro 4000K" code="AR111-FC-10W-24DNW-MCL" price={12203.77} stock="low" stockLabel="Quedan 3" image={fotoSoft}
+        installments="6 cuotas sin interés de $ 2.033,96" action={<Button variant="soft" className="w-full">Agregar</Button>} />
+      <ProductCard variant="soft" layout="list" href="#" brand="Akai" name="Akai 1200" price={7049.75} showStock={false} image={fotoSoft}
+        action={<Button variant="soft" className="w-full">Agregar</Button>} />
+    </div>
+  ),
+};

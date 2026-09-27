@@ -11,12 +11,19 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
     variant: {
       default: 'cursor-default rounded-lg border border-border bg-surface hover:shadow-2',
       editorial: 'cursor-pointer rounded-[20px] border border-border/50 bg-surface hover:shadow-2',
+      /**
+       * Sin borde: la separación la da el `surface` sobre el fondo de la página, más un filo
+       * casi invisible. Padding de 8 px para que la foto quede como un tile dentro de la card
+       * (radio 18 afuera, 10 adentro: concéntricos).
+       */
+      soft: 'cursor-pointer rounded-[18px] bg-surface p-2 ring-1 ring-border/40 hover:shadow-2',
     },
     layout: {
       grid: 'flex-col',
       list: 'flex-row items-stretch',
     },
   },
+  compoundVariants: [{ variant: 'soft', layout: 'list', className: 'gap-3 md:gap-6' }],
   defaultVariants: { variant: 'default', layout: 'grid' },
 });
 
@@ -36,11 +43,25 @@ const imageWrap = cva('relative flex items-center justify-center bg-surface p-4'
   defaultVariants: { layout: 'grid' },
 });
 
+// Tile de la foto en `soft`. El fondo es un 4,5 % del color del texto: neutro con cualquier
+// piel y en modo oscuro (no `bg-elevated`, ver arriba). En `list` la foto se estira al alto de
+// la fila (con un mínimo) en vez de quedar un cuadrado con espacio libre abajo.
+const imageWrapSoft = cva('relative flex items-center justify-center overflow-hidden rounded-[10px] bg-text/[0.045]', {
+  variants: {
+    layout: {
+      grid: 'aspect-[5/4] p-3 sm:aspect-square sm:p-5',
+      list: 'w-26 min-h-26 shrink-0 self-stretch p-2 md:w-34 md:min-h-34',
+    },
+  },
+  defaultVariants: { layout: 'grid' },
+});
+
 const priceText = cva('', {
   variants: {
     variant: {
       default: 'text-lg font-bold text-text',
       editorial: 'font-display text-xl font-semibold tracking-tight text-text md:text-2xl',
+      soft: 'font-display text-lg font-semibold tracking-tight text-text sm:text-xl',
     },
   },
   defaultVariants: { variant: 'default' },
@@ -139,6 +160,29 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   cornerAction?: ReactNode;
 }
 
+/**
+ * Precio con los centavos chicos y en alto ("$ 15.373²⁰"): la parte entera se lee primero. Lo
+ * visible es `aria-hidden` y el lector de pantalla lee el precio completo.
+ */
+function PrecioPartido({ n, fmt, className }: { n: number; fmt: Intl.NumberFormat; className?: string }) {
+  const partes = fmt.formatToParts(n);
+  const centavos = partes.find((p) => p.type === 'fraction')?.value;
+  const entero = partes.filter((p) => p.type !== 'fraction' && p.type !== 'decimal').map((p) => p.value).join('');
+  return (
+    <span className={className}>
+      <span data-precio="" aria-hidden="true" className="whitespace-nowrap">
+        {entero}
+        {centavos && (
+          <span data-centavos="" className="ml-px align-[0.55em] text-[0.55em]">
+            {centavos}
+          </span>
+        )}
+      </span>
+      <span className="sr-only">{fmt.format(n)}</span>
+    </span>
+  );
+}
+
 const nameLink =
   'after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]';
 
@@ -179,15 +223,28 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     const galeria = images != null && images.length > 1;
     // Enteros limpios ($14.990) pero con centavos completos ($713.028,80): con
     // minimumFractionDigits: 0 a secas, Intl imprime "$713.028,8".
-    const fmt = (n: number) => {
+    const formatter = (n: number) => {
       const hasCents = Math.round(n * 100) % 100 !== 0;
       return new Intl.NumberFormat(locale, {
         style: 'currency',
         currency,
         minimumFractionDigits: hasCents ? 2 : 0,
         maximumFractionDigits: 2,
-      }).format(n);
+      });
     };
+    const fmt = (n: number) => formatter(n).format(n);
+    if (variant === 'soft') {
+      return (
+        <SoftCard
+          ref={ref}
+          layout={resolvedLayout}
+          galeria={galeria}
+          className={className}
+          {...{ images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock, price, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
+          {...props}
+        />
+      );
+    }
 
     return (
       <div
@@ -272,6 +329,115 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
   },
 );
 ProductCard.displayName = 'ProductCard';
+
+type SoftCardProps = Omit<ProductCardProps, 'variant' | 'layout' | 'actionPlacement' | 'currency' | 'locale'> & {
+  layout: ProductCardLayout;
+  galeria: boolean;
+  codeLabel: string;
+  stock: ProductStock;
+  showStock: boolean;
+  renderLink: RenderLink;
+  fmt: (n: number) => string;
+  formatter: (n: number) => Intl.NumberFormat;
+};
+
+/**
+ * `variant="soft"`. Grilla: foto en tile, marca, nombre (2 líneas), código (desde `sm`), fila
+ * de precio con el stock al costado, cuotas y la acción abajo a todo el ancho. Lista: foto a
+ * la izquierda estirada al alto de la fila; desde `md`, datos · precio · acción en columnas
+ * fijas para comparar precios de arriba abajo.
+ */
+const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
+  (
+    {
+      layout, galeria, images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock,
+      price, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter,
+      className, ...props
+    },
+    ref,
+  ) => {
+    const lista = layout === 'list';
+    const stockTexto = showStock && (
+      <span className={cn('whitespace-nowrap text-xs font-semibold', stock === 'out' ? 'text-danger' : stock === 'low' ? 'text-warning' : 'text-success')}>
+        {stockLabel ?? stockLabels[stock]}
+      </span>
+    );
+    const precio = (
+      <div className={cn('flex flex-col gap-0.5', lista && 'md:items-end md:text-right')}>
+        <div data-fila-precio="" className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <PrecioPartido n={price} fmt={formatter(price)} className={priceText({ variant: 'soft' })} />
+            {oldPrice != null && <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>}
+            {discount && (
+              <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">{discount}</span>
+            )}
+          </div>
+          {/* En mobile el precio largo empuja el stock a otra línea y desalinea los precios de
+              una fila: ahí va arriba, junto al nombre (ver más abajo). */}
+          {!lista && stockTexto && <span className="hidden sm:inline">{stockTexto}</span>}
+        </div>
+        {priceNote && <div className="text-[11px] leading-snug text-muted">{priceNote}</div>}
+        {installments && <div className="text-xs leading-snug text-success">{installments}</div>}
+      </div>
+    );
+
+    return (
+      <div
+        ref={ref}
+        data-layout={layout}
+        className={cn(card({ variant: 'soft', layout }), className)}
+        {...props}
+      >
+        <div className={cn(imageWrapSoft({ layout }), galeria && 'p-0')}>
+          {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+          {galeria ? (
+            <Galeria fotos={images!} href={href} renderLink={renderLink} labels={imagesLabels} />
+          ) : (
+            (images?.[0] ?? image)
+          )}
+          {cornerAction && <div className="absolute right-1 top-1 z-10">{cornerAction}</div>}
+        </div>
+
+        <div
+          className={cn(
+            'flex min-w-0 flex-1 flex-col',
+            lista
+              ? 'gap-2 py-1 pr-1 md:grid md:grid-cols-[minmax(0,1fr)_auto_11rem] md:items-center md:gap-6 md:pr-3'
+              : 'gap-0.5 px-1 pb-1 pt-2.5 sm:px-2 sm:pt-3',
+          )}
+        >
+          <div className="flex min-w-0 flex-col gap-0.5">
+            {brand && <span className="text-xs text-muted">{brand}</span>}
+            <h3
+              className={cn(
+                'line-clamp-2 text-sm font-semibold leading-snug text-text sm:text-[15px]',
+                !lista && 'min-h-[2.75em]',
+              )}
+            >
+              {href ? renderLink({ href, className: nameLink, children: name }) : name}
+            </h3>
+            {!lista && stockTexto && <span className="sm:hidden">{stockTexto}</span>}
+            {(code || (lista && showStock)) && (
+              <div className={cn('flex min-w-0 items-center gap-3', !lista && 'hidden sm:flex')}>
+                {code && (
+                  <span className={cn('truncate text-xs text-muted', lista && 'hidden md:inline')}>
+                    {codeLabel} {code}
+                  </span>
+                )}
+                {lista && stockTexto}
+              </div>
+            )}
+          </div>
+
+          <div className={cn(!lista && 'mt-auto pt-2')}>{precio}</div>
+
+          {action && <div className={cn('relative z-10 w-full', !lista && 'pt-3')}>{action}</div>}
+        </div>
+      </div>
+    );
+  },
+);
+SoftCard.displayName = 'ProductCard';
 
 /**
  * Galería de la card. Scroll nativo con `scroll-snap` (como `Carousel`): el arrastre usa la

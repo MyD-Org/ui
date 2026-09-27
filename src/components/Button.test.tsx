@@ -139,3 +139,17 @@ describe('Button con href', () => {
     expect(screen.queryByRole('link')).toBeNull();
   });
 });
+
+describe('variant soft y size lg (0.37.0)', () => {
+  it('soft: fondo accent-soft y texto accent (acción de compra que no pesa en una grilla)', () => {
+    render(<Button variant="soft">Agregar</Button>);
+    const b = screen.getByRole('button', { name: 'Agregar' });
+    expect(b.className).toContain('bg-accent-soft');
+    expect(b.className).toContain('text-accent');
+  });
+
+  it('lg: 48 px de alto, el mismo que QuantityStepper size="lg"', () => {
+    render(<Button size="lg">Agregar al carrito</Button>);
+    expect(screen.getByRole('button').className).toContain('h-12');
+  });
+});
