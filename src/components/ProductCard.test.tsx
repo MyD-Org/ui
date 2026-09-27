@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ProductCard, ProductCardSkeleton } from './ProductCard';
 
 describe('ProductCard', () => {
@@ -251,5 +251,43 @@ describe('fila de precio y acción', () => {
     expect(fila.className).toContain('flex-col');
     expect(fila.className).not.toContain('flex-wrap');
     expect(accion.className).toContain('self-end');
+  });
+});
+
+describe('images (galería)', () => {
+  const fotos = [<img key="a" alt="Foto 1" />, <img key="b" alt="Foto 2" />, <img key="c" alt="Foto 3" />];
+
+  it('con una sola foto no arma galería', () => {
+    const { container } = render(<ProductCard name="Test" price={100} images={[<img key="a" alt="Única" />]} />);
+    expect(screen.getByAltText('Única')).toBeInTheDocument();
+    expect(container.querySelector('[data-galeria]')).toBeNull();
+  });
+
+  it('monta sólo la primera foto hasta que la persona se acerca a la card', () => {
+    const { container } = render(<ProductCard name="Test" price={100} images={fotos} />);
+    expect(container.querySelectorAll('[data-foto]')).toHaveLength(3);
+    expect(screen.getByAltText('Foto 1')).toBeInTheDocument();
+    expect(screen.queryByAltText('Foto 2')).toBeNull();
+    fireEvent.pointerEnter(container.querySelector('[data-galeria]') as HTMLElement);
+    expect(screen.getByAltText('Foto 2')).toBeInTheDocument();
+    expect(screen.queryByAltText('Foto 3')).toBeNull();
+  });
+
+  it('con href cada foto abre la ficha, fuera del tab y del lector; el enlace accesible sigue siendo el nombre', () => {
+    const { container } = render(<ProductCard name="Lámpara" price={100} href="/producto/1" images={fotos} />);
+    const enlacesFoto = container.querySelectorAll('[data-foto] a');
+    expect(enlacesFoto).toHaveLength(3);
+    enlacesFoto.forEach((a) => {
+      expect(a).toHaveAttribute('href', '/producto/1');
+      expect(a).toHaveAttribute('tabindex', '-1');
+      expect(a).toHaveAttribute('aria-hidden', 'true');
+    });
+    expect(screen.getAllByRole('link')).toHaveLength(1);
+  });
+
+  it('en la primera foto no hay flecha "anterior" y sí "siguiente"', () => {
+    render(<ProductCard name="Test" price={100} images={fotos} />);
+    expect(screen.queryByRole('button', { name: 'Foto anterior' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Foto siguiente' })).toBeInTheDocument();
   });
 });

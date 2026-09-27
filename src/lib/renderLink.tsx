@@ -11,6 +11,9 @@ export interface RenderLinkProps {
   children: ReactNode;
   'aria-label'?: string;
   'aria-current'?: 'page';
+  /** Enlaces duplicados (p. ej. cada foto de la galería de `ProductCard`): fuera del tab y del lector. */
+  'aria-hidden'?: boolean;
+  tabIndex?: number;
   /** Atributos `data-*` del enlace (ej. `data-size` en el tile de `RoomTiles`). Opcionales: aditivo. */
   [dataAttr: `data-${string}`]: string | undefined;
 }
