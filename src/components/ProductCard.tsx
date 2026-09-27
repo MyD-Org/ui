@@ -13,19 +13,18 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
       editorial: 'cursor-pointer rounded-[20px] border border-border/50 bg-surface hover:shadow-2',
       /**
        * Sin borde: la separación la da el `surface` sobre el fondo de la página, más un filo
-       * casi invisible. Padding de 8 px para que la foto quede como un tile dentro de la card
-       * (radio 18 afuera, 10 adentro: concéntricos).
+       * casi invisible. La foto va a sangre (sin padding en la card): con un tile adentro
+       * quedaba un marco blanco alrededor de la foto. `overflow-hidden` recorta sus esquinas.
        */
       // Hover suave: en una grilla de 24 la card no "se levanta" (shadow-2 es la elevación de
       // un popover); se refuerza el filo y aparece una sombra mínima.
-      soft: 'cursor-pointer rounded-[18px] bg-surface p-2 ring-1 ring-border/40 hover:shadow-1 hover:ring-border',
+      soft: 'cursor-pointer overflow-hidden rounded-[18px] bg-surface ring-1 ring-border/40 hover:shadow-1 hover:ring-border',
     },
     layout: {
       grid: 'flex-col',
       list: 'flex-row items-stretch',
     },
   },
-  compoundVariants: [{ variant: 'soft', layout: 'list', className: 'gap-3 md:gap-6' }],
   defaultVariants: { variant: 'default', layout: 'grid' },
 });
 
@@ -45,10 +44,11 @@ const imageWrap = cva('relative flex items-center justify-center bg-surface p-4'
   defaultVariants: { layout: 'grid' },
 });
 
-// Tile de la foto en `soft`. El fondo es un 4,5 % del color del texto: neutro con cualquier
-// piel y en modo oscuro (no `bg-elevated`, ver arriba). En `list` la foto se estira al alto de
-// la fila (con un mínimo) en vez de quedar un cuadrado con espacio libre abajo.
-const imageWrapSoft = cva('relative flex items-center justify-center overflow-hidden rounded-[10px] bg-text/[0.045]', {
+// Foto de `soft`, a sangre. El fondo es un 3 % del color del texto: apenas separa la foto del
+// texto, neutro con cualquier piel y en modo oscuro (no `bg-elevated`, ver arriba). En `list`
+// la foto se estira al alto de la fila (con un mínimo) en vez de quedar un cuadrado con
+// espacio libre abajo.
+const imageWrapSoft = cva('relative flex items-center justify-center overflow-hidden bg-text/[0.03]', {
   variants: {
     layout: {
       grid: 'aspect-[5/4] p-3 sm:aspect-square sm:p-5',
@@ -397,25 +397,22 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
           ) : (
             (images?.[0] ?? image)
           )}
-          {cornerAction && <div className="absolute right-1 top-1 z-10">{cornerAction}</div>}
+          {cornerAction && <div className="absolute right-2 top-2 z-10">{cornerAction}</div>}
         </div>
 
         <div
           className={cn(
             'flex min-w-0 flex-1 flex-col',
             lista
-              ? 'gap-2 py-1 pr-1 md:grid md:grid-cols-[minmax(0,1fr)_auto_11rem] md:items-center md:gap-6 md:pr-3'
-              : 'gap-0.5 px-1 pb-1 pt-2.5 sm:px-2 sm:pt-3',
+              ? 'gap-2 p-3 md:grid md:grid-cols-[minmax(0,1fr)_auto_11rem] md:items-center md:gap-6 md:py-3 md:pl-5 md:pr-4'
+              : 'gap-0.5 px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3',
           )}
         >
           <div className="flex min-w-0 flex-col gap-0.5">
             {brand && <span className="text-xs text-muted">{brand}</span>}
-            <h3
-              className={cn(
-                'line-clamp-2 text-sm font-semibold leading-snug text-text sm:text-[15px]',
-                !lista && 'min-h-[2.75em]',
-              )}
-            >
+            {/* Sin reservar dos líneas: el precio y la acción van anclados abajo (`mt-auto`), así
+                que un nombre corto no desalinea la fila y la card no crece por nada. */}
+            <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-text sm:text-[15px]">
               {href ? renderLink({ href, className: nameLink, children: name }) : name}
             </h3>
             {!lista && stockTexto && <span className="sm:hidden">{stockTexto}</span>}
@@ -433,7 +430,7 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
 
           <div className={cn(!lista && 'mt-auto pt-2')}>{precio}</div>
 
-          {action && <div className={cn('relative z-10 w-full', !lista && 'pt-3')}>{action}</div>}
+          {action && <div className={cn('relative z-10 w-full', !lista && 'pt-2.5 sm:pt-3')}>{action}</div>}
         </div>
       </div>
     );
