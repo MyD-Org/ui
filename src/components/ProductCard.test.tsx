@@ -293,15 +293,25 @@ describe('images (galería)', () => {
 });
 
 describe('variant soft (0.37.0)', () => {
-  it('card sin borde (filo de ring muy tenue) y la foto sobre un fondo neutro derivado del texto', () => {
+  it('card sin borde (filo de ring muy tenue) y la foto a sangre sobre un fondo neutro sutil', () => {
     const { container } = render(<ProductCard variant="soft" name="Amplificador RGB" price={16395.11} image={<img alt="" />} />);
     const raiz = container.firstElementChild as HTMLElement;
     expect(raiz.className).not.toMatch(/(^|\s)border(\s|$)/);
     expect(raiz.className).toContain('ring-1');
+    // A sangre: sin padding en la card (quedaba un marco blanco alrededor de la foto) y la
+    // card recorta las esquinas de la foto.
+    expect(raiz.className).not.toMatch(/(^|\s)p-2(\s|$)/);
+    expect(raiz.className).toContain('overflow-hidden');
     const foto = raiz.firstElementChild as HTMLElement;
     // No bg-elevated: en temas de color ese rol es un tinte (ver comentario de imageWrap).
-    expect(foto.className).toContain('bg-text/[0.045]');
+    expect(foto.className).toContain('bg-text/[0.03]');
+    expect(foto.className).not.toMatch(/rounded-\[/);
     expect(foto.className).not.toContain('border-b');
+  });
+
+  it('el nombre no reserva dos líneas: el precio ya se alinea desde abajo', () => {
+    render(<ProductCard variant="soft" name="Aceitera: 500ml" price={100} />);
+    expect(screen.getByRole('heading').className).not.toContain('min-h');
   });
 
   it('la marca va como texto normal, sin mayúsculas sostenidas', () => {
