@@ -236,5 +236,25 @@ describe('SectionNav', () => {
       expect(externa.className).toContain('md:flex-col');
     });
   });
+  it('difumina el borde con ítems escondidos (sólo en la fila horizontal)', () => {
+    const medidas = { scrollWidth: 600, clientWidth: 300, scrollLeft: 0 };
+    const restaurar = Object.entries(medidas).map(([k, v]) => {
+      Object.defineProperty(HTMLElement.prototype, k, { configurable: true, get: () => v, set: () => {} });
+      return k;
+    });
+    try {
+      render(<SectionNav items={items} />);
+      const lista = screen.getByRole('navigation').querySelector('ul')!;
+      expect(lista.className).toContain('mask-image');
+      expect(lista.className).toContain('max-md:');
+    } finally {
+      restaurar.forEach((k) => delete (HTMLElement.prototype as unknown as Record<string, unknown>)[k]);
+    }
+  });
+
+  it('sin ítems escondidos no hay difuminado', () => {
+    render(<SectionNav items={items} />);
+    expect(screen.getByRole('navigation').querySelector('ul')!.className).not.toContain('mask-image');
+  });
 });
 
