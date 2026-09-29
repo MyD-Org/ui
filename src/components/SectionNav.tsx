@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, Fragment, useId } from 'react';
+import { type ReactNode, Fragment, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '../lib/cn.js';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
 
@@ -67,7 +67,46 @@ function itemClass({ active, tone, disabled }: SectionNavItem) {
   );
 }
 
-const listClass = 'flex gap-1 overflow-x-auto md:flex-col md:overflow-visible';
+const listClass =
+  'flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-col md:overflow-visible';
+
+// Difuminado de 24px en el borde con ítems escondidos (sólo en la fila horizontal, bajo `md`).
+const fadeClass = {
+  start: 'max-md:[mask-image:linear-gradient(to_right,transparent,black_24px)]',
+  end: 'max-md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]',
+  both: 'max-md:[mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]',
+};
+
+/** `<ul>` raíz: en la fila horizontal se difumina el borde que tiene ítems fuera de vista. */
+function ListaDesplazable({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLUListElement>(null);
+  const [masAtras, setMasAtras] = useState(false);
+  const [masAdelante, setMasAdelante] = useState(false);
+
+  const medir = () => {
+    const el = ref.current;
+    if (!el) return;
+    setMasAtras(el.scrollLeft > 1);
+    setMasAdelante(el.scrollWidth - el.scrollLeft - el.clientWidth > 1);
+  };
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    medir();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const fade = masAtras && masAdelante ? fadeClass.both : masAdelante ? fadeClass.end : masAtras ? fadeClass.start : undefined;
+  return (
+    <ul ref={ref} onScroll={medir} className={cn(listClass, fade)}>
+      {children}
+    </ul>
+  );
+}
 const MAX_BADGE = 99;
 
 function ItemControl({ item, renderLink, badgeLabel }: { item: SectionNavItem; renderLink: RenderLink; badgeLabel: string }) {
@@ -150,7 +189,7 @@ export function SectionNav({
   if (!groups) {
     return (
       <nav aria-label={ariaLabel} className={cn('min-w-0', className)}>
-        <ul className={listClass}>{renderItems(items, renderLink, badgeLabel)}</ul>
+        <ListaDesplazable>{renderItems(items, renderLink, badgeLabel)}</ListaDesplazable>
       </nav>
     );
   }
@@ -158,7 +197,7 @@ export function SectionNav({
   const visibles = groups.filter((group) => group.items.length > 0);
   return (
     <nav aria-label={ariaLabel} className={cn('min-w-0', className)}>
-      <ul className={listClass}>
+      <ListaDesplazable>
         {visibles.map((group, i) => {
           const titleId = `${baseId}-${group.id}`;
           return (
@@ -178,7 +217,7 @@ export function SectionNav({
         })}
         {items.length > 0 && visibles.length > 0 && <MobileSeparator />}
         {renderItems(items, renderLink, badgeLabel)}
-      </ul>
+      </ListaDesplazable>
     </nav>
   );
 }
