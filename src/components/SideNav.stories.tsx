@@ -78,3 +78,23 @@ export const CollapsibleRail: Story = {
     children: <div style={{ padding: 24 }}>Contenido — rail colapsado por default</div>,
   },
 };
+
+const groupedItems = [
+  { href: '/inbox', label: 'Mensajes', group: 'Operación', active: true },
+  { href: '/pedidos', label: 'Pedidos', group: 'Operación' },
+  { href: '/comprobantes', label: 'Comprobantes', group: 'Operación' },
+  { href: '/catalogo', label: 'Catálogo', group: 'Datos' },
+  { href: '/sucursales', label: 'Sucursales', group: 'Datos' },
+  { href: '/horarios', label: 'Horarios', group: 'Datos' },
+  { href: '/usuarios', label: 'Usuarios', group: 'Administración' },
+];
+
+export const Grouped: Story = {
+  args: {
+    logo: <div style={{ fontWeight: 700, fontSize: 14 }}>Central LED</div>,
+    items: groupedItems,
+    user: { name: 'Dalila', subtitle: 'Superadmin', onLogout: () => alert('logout') },
+    collapsedMode: 'rail',
+    children: <div style={{ padding: 24 }}>Ítems agrupados: colapsar a rail cambia los títulos por separadores</div>,
+  },
+};
