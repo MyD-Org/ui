@@ -47,6 +47,13 @@ export interface SideNavItem {
   label: string;
   icon?: ReactNode;
   active?: boolean;
+  /**
+   * Grupo al que pertenece el ítem (ej. "Operación", "Datos"). Los ítems consecutivos con el
+   * mismo grupo van juntos bajo un título en mayúsculas chicas; en rail el título se reemplaza
+   * por un separador. Si todos los ítems visibles caen en un solo grupo no se muestra título:
+   * no hay nada que distinguir. Sin `group`, el sidebar es la lista plana de siempre.
+   */
+  group?: string;
 }
 
 export interface SideNavUser {
@@ -168,6 +175,8 @@ export function SideNav({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isRail = collapsible && collapsed && collapsedMode === 'rail';
+  // Títulos de grupo sólo si hay al menos dos grupos distintos entre los ítems que llegaron.
+  const hayGrupos = new Set(items.map((i) => i.group).filter((g) => g !== undefined)).size > 1;
   const isHiddenCollapsed = collapsible && collapsed && collapsedMode === 'hidden';
 
   function renderItem(item: SideNavItem, rail: boolean) {
@@ -356,11 +365,29 @@ export function SideNav({
           )}
           aria-label="Navegación principal"
         >
-          {items.map((item) => (
-            <div key={item.href} onClick={() => setMobileOpen(false)}>
-              {renderItem(item, isRail && !mobileOpen)}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const rail = isRail && !mobileOpen;
+            const empiezaGrupo = hayGrupos && item.group !== undefined && (i === 0 || items[i - 1].group !== item.group);
+            return (
+              <div key={item.href} onClick={() => setMobileOpen(false)}>
+                {empiezaGrupo &&
+                  (rail ? (
+                    i > 0 && <div data-slot="group-divider" className="my-1.5 border-t border-border" aria-hidden="true" />
+                  ) : (
+                    <p
+                      data-slot="group-title"
+                      className={cn(
+                        'px-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-subtle',
+                        i > 0 ? 'pt-4' : 'pt-0',
+                      )}
+                    >
+                      {item.group}
+                    </p>
+                  ))}
+                {renderItem(item, rail)}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Footer: toggle de colapso (desktop) + slot opcional + bloque de usuario.

@@ -129,3 +129,40 @@ describe('SideNav', () => {
     expect(screen.queryByLabelText('Mostrar menú')).toBeNull();
   });
 });
+
+describe('SideNav — grupos', () => {
+  const agrupados = [
+    { href: '/inbox', label: 'Inbox', group: 'Operación' },
+    { href: '/pedidos', label: 'Pedidos', group: 'Operación' },
+    { href: '/catalogo', label: 'Catálogo', group: 'Datos' },
+    { href: '/usuarios', label: 'Usuarios', group: 'Administración' },
+  ];
+
+  it('muestra el título de cada grupo una sola vez, antes de su primer ítem', () => {
+    render(<SideNav items={agrupados} />);
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+    const textos = Array.from(nav.querySelectorAll('p, span'))
+      .map((el) => el.textContent)
+      .filter((t) => ['Operación', 'Datos', 'Administración', 'Inbox', 'Pedidos', 'Catálogo', 'Usuarios'].includes(t ?? ''));
+    expect(textos).toEqual(['Operación', 'Inbox', 'Pedidos', 'Datos', 'Catálogo', 'Administración', 'Usuarios']);
+  });
+
+  it('con un solo grupo no muestra título: no hay nada que distinguir', () => {
+    render(<SideNav items={agrupados.filter((i) => i.group === 'Operación')} />);
+    expect(screen.queryByText('Operación')).toBeNull();
+  });
+
+  it('sin grupos no agrega títulos ni separadores', () => {
+    render(<SideNav items={items} />);
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(nav.querySelector('[data-slot="group-title"]')).toBeNull();
+    expect(nav.querySelector('[data-slot="group-divider"]')).toBeNull();
+  });
+
+  it('en rail reemplaza los títulos por separadores entre grupos', () => {
+    render(<SideNav items={agrupados} collapsedMode="rail" defaultCollapsed />);
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(nav.querySelectorAll('[data-slot="group-title"]').length).toBe(0);
+    expect(nav.querySelectorAll('[data-slot="group-divider"]').length).toBe(2);
+  });
+});
