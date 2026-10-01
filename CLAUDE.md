@@ -138,6 +138,7 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **`RoomTiles` (visible)**: `grid` y `stack` usan el mismo call to action que `mosaic` (link subrayado "Explorar →", texto configurable con `ctaLabel`). Antes `grid` tenía un círculo con la flecha rotando en hover: no se parecía al resto de las cards y pesaba más que el título.
 - **`SiteHeader`**: `brandPlacement="start"` (marca a la izquierda y búsqueda al centro desde `lg`; default `center`, sin cambios) y `compactOnScroll` — el header se va con el scroll y lo reemplaza una barra compacta fija (marca + nav + búsqueda + acciones), con `compactSearch`/`compactActions` para los slots que no convenga montar dos veces y `onCompactChange` para saber cuál de las dos instancias está a la vista. La barra plegada es `inert` + `aria-hidden`.
 - **`Marquee` (fix)**: recortaba con `overflow-hidden` y, como la pista mide miles de px, era un **contenedor scrolleable**: al hacer clic adentro el navegador la tomaba como scroll activo y la página dejaba de responder al teclado. Ahora usa `overflow-clip` y, por decorativa, `select-none` + `pointer-events-none`.
+- **`SiteHeader.brandExtra`**: slot opcional bajo la marca (debajo del descriptor desde `lg`, debajo del nombre en mobile, misma fila que las acciones), fuera del enlace de la marca.
 - Sin dependencias nuevas. `SiteHeader` y `Carousel` usan hooks: montalos desde un componente cliente (el repo no marca `'use client'`, lo hace el consumidor).
 
 ### Changelog 0.13.0 (aditivo: los defaults no cambian)
