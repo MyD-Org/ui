@@ -33,6 +33,12 @@ export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
    * casos quedan igual: marca y acciones en una fila, búsqueda en la de abajo.
    */
   brandPlacement?: 'center' | 'start';
+  /**
+   * Slot opcional bajo la marca (ej. la localidad del visitante). Va debajo del descriptor desde lg y
+   * debajo del nombre en pantallas chicas, en la misma fila que las acciones. Queda FUERA del
+   * enlace de la marca, así que puede llevar botones u otros controles. Sin esto, nada cambia.
+   */
+  brandExtra?: ReactNode;
   /** Zona de búsqueda (slot): el consumidor pasa su autocomplete. */
   search?: ReactNode;
   /** Zona de acciones (slot): cuenta, carrito, etc. */
@@ -77,6 +83,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
       brandAccent,
       brandSub,
       brandPlacement = 'center',
+      brandExtra,
       search,
       actions,
       nav,
@@ -177,14 +184,23 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             >
               {search}
             </div>
-            {renderLink({
-              href: '/',
-              className: cn(
-                'leading-none max-lg:order-1 max-lg:text-left',
-                alInicio ? 'text-left lg:order-1' : 'text-center',
-              ),
-              children: marcaLarga,
-            })}
+            <div
+              className={cn(
+                'flex min-w-0 flex-col max-lg:order-1 max-lg:items-start',
+                alInicio ? 'items-start lg:order-1' : 'items-center',
+              )}
+            >
+              {renderLink({
+                href: '/',
+                className: cn('leading-none max-lg:text-left', alInicio ? 'text-left' : 'text-center'),
+                children: marcaLarga,
+              })}
+              {brandExtra ? (
+                <div data-slot="brand-extra" className="mt-1.5 max-w-full">
+                  {brandExtra}
+                </div>
+              ) : null}
+            </div>
             <div
               className={cn(
                 'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:order-2 max-lg:gap-3.5',

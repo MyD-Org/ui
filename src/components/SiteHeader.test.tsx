@@ -6,6 +6,17 @@ import type { RenderLink } from '../lib/renderLink';
 const enlace: RenderLink = ({ children, ...p }) => <a {...p} data-framework>{children}</a>;
 
 describe('SiteHeader', () => {
+  it('brandExtra va bajo la marca, fuera del enlace, y sin él no hay slot', () => {
+    const { container, rerender } = render(
+      <SiteHeader brandName="Central" brandSub="s" brandExtra={<button>Posadas</button>} />,
+    );
+    const boton = screen.getByRole('button', { name: 'Posadas' });
+    expect(boton.closest('a')).toBeNull();
+    expect(container.querySelector('[data-slot="brand-extra"]')).toContainElement(boton);
+    rerender(<SiteHeader brandName="Central" brandSub="s" />);
+    expect(container.querySelector('[data-slot="brand-extra"]')).toBeNull();
+  });
+
   it('renderiza marca con acento itálico y descriptor', () => {
     render(<SiteHeader brandName="Central" brandAccent="Led" brandSub="Iluminación · Electricidad" />);
     const marca = screen.getByRole('link', { name: /central/i });
@@ -57,7 +68,7 @@ describe('SiteHeader', () => {
     const fila = container.querySelector('header > div') as HTMLElement;
     expect(fila.className).toContain('grid-cols-[auto_1fr_auto]');
     const marca = screen.getByRole('link', { name: /central/i });
-    expect(marca.className).toContain('lg:order-1');
+    expect(marca.parentElement?.className).toContain('lg:order-1');
     expect(marca.className).toContain('text-left');
   });
 

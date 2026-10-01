@@ -27,6 +27,18 @@ export const Default: Story = {};
 /** Marca a la izquierda y búsqueda al centro (desde lg). */
 export const MarcaALaIzquierda: Story = { args: { brandPlacement: 'start' } };
 
+/** Slot bajo la marca (ej. la localidad del visitante): fuera del enlace, puede llevar un botón. */
+export const ConExtraBajoLaMarca: Story = {
+  args: {
+    brandPlacement: 'start',
+    brandExtra: (
+      <button type="button" className="text-xs text-muted">
+        Posadas
+      </button>
+    ),
+  },
+};
+
 /**
  * El header completo se va con el scroll y lo reemplaza una barra compacta
  * fija. Hay que scrollear el canvas para que aparezca.
