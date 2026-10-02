@@ -103,7 +103,7 @@ export function Stepper({
               <span className={dot({ state: step.state, size })}>{step.state === 'done' && <Check />}</span>
               <span data-connector className={connector(step.state === 'done', last)} />
             </span>
-            <span className={cn(label({ state: step.state, size }), vertical && 'py-1')}>
+            <span className={cn(label({ state: step.state, size }), vertical ? 'py-1' : 'px-1.5')}>
               {step.label}
               <span className="sr-only">, {labels[step.state]}</span>
             </span>
