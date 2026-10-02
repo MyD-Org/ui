@@ -102,6 +102,7 @@ export { RangeSlider, type RangeSliderProps } from './components/RangeSlider.js'
 export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItem } from './components/Breadcrumb.js';
 export { Pagination, paginationWindow, type PaginationProps, type PaginationLabels } from './components/Pagination.js';
 export { SegmentedControl, type SegmentedControlProps, type SegmentedOption } from './components/SegmentedControl.js';
+export { Radio, RadioGroup, type RadioProps, type RadioGroupProps, type RadioOption, type RadioAction, type RadioBadge } from './components/RadioGroup.js';
 export { FacetGroup, type FacetGroupProps, type FacetItem } from './components/FacetGroup.js';
 export { SectionNav, type SectionNavProps, type SectionNavItem, type SectionNavGroup } from './components/SectionNav.js';
 export { DocumentViewer, type DocumentViewerProps } from './components/DocumentViewer.js';
