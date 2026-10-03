@@ -40,6 +40,19 @@ export const ConExtraBajoLaMarca: Story = {
 };
 
 /**
+ * Debajo de lg: cuenta a la izquierda, marca centrada y carrito a la derecha. Achicar el canvas
+ * para verlo; desde lg la cuenta vive en `actions`.
+ */
+export const CuentaALaIzquierdaEnMobile: Story = {
+  args: {
+    brandPlacement: 'start',
+    mobileStart: (
+      <button type="button" aria-label="Cuenta" className="h-7 w-7 rounded-full border border-border bg-surface" />
+    ),
+  },
+};
+
+/**
  * El header completo se va con el scroll y lo reemplaza una barra compacta
  * fija. Hay que scrollear el canvas para que aparezca.
  */
