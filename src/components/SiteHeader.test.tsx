@@ -17,6 +17,19 @@ describe('SiteHeader', () => {
     expect(container.querySelector('[data-slot="brand-extra"]')).toBeNull();
   });
 
+  it('mobileStart va antes de la marca, sólo debajo de lg, y centra la marca; sin él no hay slot', () => {
+    const { container, rerender } = render(
+      <SiteHeader brandName="Central" brandSub="s" mobileStart={<button>Cuenta</button>} />,
+    );
+    const slot = container.querySelector('[data-slot="mobile-start"]');
+    expect(slot).toContainElement(screen.getByRole('button', { name: 'Cuenta' }));
+    expect(slot).toHaveClass('lg:hidden', 'max-lg:order-1');
+    expect(screen.getByRole('link', { name: /central/i })).toHaveClass('max-lg:text-center');
+    rerender(<SiteHeader brandName="Central" brandSub="s" />);
+    expect(container.querySelector('[data-slot="mobile-start"]')).toBeNull();
+    expect(screen.getByRole('link', { name: /central/i })).toHaveClass('max-lg:text-left');
+  });
+
   it('renderiza marca con acento itálico y descriptor', () => {
     render(<SiteHeader brandName="Central" brandAccent="Led" brandSub="Iluminación · Electricidad" />);
     const marca = screen.getByRole('link', { name: /central/i });

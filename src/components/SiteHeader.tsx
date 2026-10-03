@@ -43,6 +43,13 @@ export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
   search?: ReactNode;
   /** Zona de acciones (slot): cuenta, carrito, etc. */
   actions?: ReactNode;
+  /**
+   * Slot opcional a la izquierda de la marca, sólo debajo de lg (ej. la cuenta). Con él la primera
+   * fila de mobile queda en tres columnas: `mobileStart` a la izquierda, la marca centrada y
+   * `actions` a la derecha. Desde lg no se muestra: lo que vaya acá suele ir también en `actions`
+   * (y el consumidor lo oculta ahí debajo de lg). Sin esto, nada cambia.
+   */
+  mobileStart?: ReactNode;
   nav?: SiteNavItem[];
   /**
    * Con `true` el header deja de estar pegado arriba y se va con el scroll;
@@ -86,6 +93,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
       brandExtra,
       search,
       actions,
+      mobileStart,
       nav,
       compactOnScroll = false,
       compactSearch,
@@ -98,6 +106,7 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
     ref,
   ) => {
     const propio = useRef<HTMLElement | null>(null);
+    const conInicioMobile = mobileStart != null && mobileStart !== false;
     const barraRef = useRef<HTMLDivElement | null>(null);
     const avisar = useRef(onCompactChange);
     avisar.current = onCompactChange;
@@ -172,13 +181,20 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
               // primera fila y la búsqueda ocupa la segunda a todo el ancho.
               // Apiladas de a tres el header se comía 243px de alto en un
               // teléfono de 812; así son 182.
-              'mx-auto grid h-[78px] max-w-[1280px] items-center gap-5 px-[clamp(18px,4vw,48px)] max-lg:h-auto max-lg:grid-cols-[1fr_auto] max-lg:py-3.5',
+              'mx-auto grid h-[78px] max-w-[1280px] items-center gap-5 px-[clamp(18px,4vw,48px)] max-lg:h-auto max-lg:py-3.5',
+              // Con `mobileStart`, tres: inicio | marca centrada | acciones.
+              conInicioMobile ? 'max-lg:grid-cols-[1fr_auto_1fr] max-lg:gap-x-3' : 'max-lg:grid-cols-[1fr_auto]',
               alInicio ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[1fr_auto_1fr]',
             )}
           >
+            {conInicioMobile ? (
+              <div data-slot="mobile-start" className="flex min-w-0 items-center justify-start max-lg:order-1 lg:hidden">
+                {mobileStart}
+              </div>
+            ) : null}
             <div
               className={cn(
-                'flex max-lg:order-3 max-lg:w-full max-lg:col-span-full',
+                'flex max-lg:order-4 max-lg:w-full max-lg:col-span-full',
                 alInicio && 'lg:order-2',
               )}
             >
@@ -186,13 +202,18 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             </div>
             <div
               className={cn(
-                'flex min-w-0 flex-col max-lg:order-1 max-lg:items-start',
+                'flex min-w-0 flex-col',
+                conInicioMobile ? 'max-lg:order-2 max-lg:items-center' : 'max-lg:order-1 max-lg:items-start',
                 alInicio ? 'items-start lg:order-1' : 'items-center',
               )}
             >
               {renderLink({
                 href: '/',
-                className: cn('leading-none max-lg:text-left', alInicio ? 'text-left' : 'text-center'),
+                className: cn(
+                  'leading-none',
+                  conInicioMobile ? 'max-lg:text-center' : 'max-lg:text-left',
+                  alInicio ? 'text-left' : 'text-center',
+                ),
                 children: marcaLarga,
               })}
               {brandExtra ? (
@@ -203,7 +224,8 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
             </div>
             <div
               className={cn(
-                'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:order-2 max-lg:gap-3.5',
+                'flex items-center justify-end gap-6 text-[13.5px] font-bold text-text max-lg:gap-3.5',
+                conInicioMobile ? 'max-lg:order-3' : 'max-lg:order-2',
                 alInicio && 'lg:order-3',
               )}
             >
