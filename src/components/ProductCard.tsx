@@ -58,15 +58,20 @@ const imageWrapSoft = cva('relative flex items-center justify-center overflow-hi
   defaultVariants: { layout: 'grid' },
 });
 
-const priceText = cva('', {
+const priceText = cva('text-text', {
   variants: {
-    variant: {
-      default: 'text-lg font-bold text-text',
-      editorial: 'font-display text-xl font-semibold tracking-tight text-text md:text-2xl',
-      soft: 'font-display text-lg font-semibold tracking-tight text-text sm:text-xl',
-    },
+    variant: { default: '', editorial: '', soft: '' },
+    priceSize: { md: '', sm: '' },
   },
-  defaultVariants: { variant: 'default' },
+  compoundVariants: [
+    { variant: 'default', priceSize: 'md', className: 'text-lg font-bold' },
+    { variant: 'editorial', priceSize: 'md', className: 'font-display text-xl font-semibold tracking-tight md:text-2xl' },
+    { variant: 'soft', priceSize: 'md', className: 'font-display text-lg font-semibold tracking-tight sm:text-xl' },
+    { variant: 'default', priceSize: 'sm', className: 'text-sm font-semibold' },
+    { variant: 'editorial', priceSize: 'sm', className: 'font-display text-base font-medium tracking-tight' },
+    { variant: 'soft', priceSize: 'sm', className: 'font-display text-sm font-medium tracking-tight sm:text-base' },
+  ],
+  defaultVariants: { variant: 'default', priceSize: 'md' },
 });
 
 const stockIndicator = cva('inline-flex items-center gap-1.5 text-xs font-medium', {
@@ -127,6 +132,11 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   /** Default true (desde 0.12.0 también en `variant="editorial"`). */
   showStock?: boolean;
   price: number;
+  /**
+   * Tamaño del precio. Default 'md'. 'sm' lo baja a secundario cuando otro precio manda
+   * (p. ej. "$X con Transferencia" en `installments`).
+   */
+  priceSize?: 'md' | 'sm';
   oldPrice?: number;
   discount?: string;
   currency?: string;
@@ -203,6 +213,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       stockLabel,
       showStock = true,
       price,
+      priceSize = 'md',
       oldPrice,
       discount,
       currency = 'ARS',
@@ -242,7 +253,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           layout={resolvedLayout}
           galeria={galeria}
           className={className}
-          {...{ images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock, price, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
+          {...{ images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock, price, priceSize, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
           {...props}
         />
       );
@@ -302,7 +313,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           >
             <div className="flex flex-1 flex-col gap-y-0.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className={priceText({ variant })}>{fmt(price)}</span>
+                <span className={priceText({ variant, priceSize })}>{fmt(price)}</span>
                 {oldPrice != null && (
                   <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>
                 )}
@@ -353,7 +364,7 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
   (
     {
       layout, galeria, images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock,
-      price, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter,
+      price, priceSize, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter,
       className, ...props
     },
     ref,
@@ -368,7 +379,7 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
       <div className={cn('flex flex-col gap-0.5', lista && 'md:items-end md:text-right')}>
         <div data-fila-precio="" className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
           <div className="flex flex-wrap items-baseline gap-x-2">
-            <PrecioPartido n={price} fmt={formatter(price)} className={priceText({ variant: 'soft' })} />
+            <PrecioPartido n={price} fmt={formatter(price)} className={priceText({ variant: 'soft', priceSize })} />
             {oldPrice != null && <span className="text-sm text-muted line-through">{fmt(oldPrice)}</span>}
             {discount && (
               <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">{discount}</span>

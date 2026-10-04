@@ -21,6 +21,18 @@ describe('ProductCard', () => {
     expect(screen.getByText('-16%')).toBeDefined();
   });
 
+  it('priceSize="sm" baja el precio a secundario (default y soft)', () => {
+    const { container, rerender } = render(<ProductCard name="Test" price={14990} />);
+    expect(screen.getByText((c) => c.includes('14.990')).className).toContain('text-lg');
+    rerender(<ProductCard name="Test" price={14990} priceSize="sm" />);
+    expect(screen.getByText((c) => c.includes('14.990')).className).toContain('text-sm');
+    expect(screen.getByText((c) => c.includes('14.990')).className).not.toContain('text-lg');
+    rerender(<ProductCard name="Test" price={14990} variant="soft" priceSize="sm" />);
+    const soft = container.querySelector('[data-precio]')?.parentElement;
+    expect(soft?.className).toContain('text-sm');
+    expect(soft?.className).not.toContain('text-lg');
+  });
+
   it('renders badge slot', () => {
     render(<ProductCard name="Test" price={100} badge={<span data-testid="badge">OFERTA</span>} />);
     expect(screen.getByTestId('badge')).toBeDefined();
