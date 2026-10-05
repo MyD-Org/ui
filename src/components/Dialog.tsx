@@ -56,6 +56,13 @@ export interface DialogProps extends VariantProps<typeof content> {
    * que lo anuncia. Default `true`.
    */
   dragToClose?: boolean;
+  /**
+   * `false`: el diálogo sólo se cierra con la X o con los botones del pie
+   * (que llaman a `onOpenChange`). Un toque afuera, Escape o arrastrar la hoja
+   * no lo cierran. Para formularios, donde cerrarlo sin querer pierde lo que
+   * se completó. Default `true`.
+   */
+  dismissible?: boolean;
   className?: string;
 }
 
@@ -168,9 +175,9 @@ function useSheetDrag(
   }, [content, header, body]);
 }
 
-export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, dragToClose = true, size, placement, className }: DialogProps) {
+export function Dialog({ open, onOpenChange, title, description, footer, children, headerBorder = true, dragToClose = true, dismissible = true, size, placement, className }: DialogProps) {
   const resolvedPlacement: DialogPlacement = placement ?? 'center';
-  const draggable = resolvedPlacement === 'sheet' && dragToClose;
+  const draggable = resolvedPlacement === 'sheet' && dragToClose && dismissible;
   const [contentEl, setContentEl] = useState<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -195,6 +202,8 @@ export function Dialog({ open, onOpenChange, title, description, footer, childre
             event.preventDefault();
             opener.current.focus();
           }}
+          onInteractOutside={dismissible ? undefined : (event) => event.preventDefault()}
+          onEscapeKeyDown={dismissible ? undefined : (event) => event.preventDefault()}
         >
           <div ref={headerRef} className={cn('flex flex-col', headerBorder && 'border-b border-border')}>
           {/* Manija de la hoja: avisa que se puede arrastrar para cerrar. Es parte del encabezado, así que arrastrar desde ella mueve la hoja. */}

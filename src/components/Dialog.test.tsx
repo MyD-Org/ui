@@ -152,4 +152,50 @@ describe('Dialog', () => {
       expect(onOpenChange).not.toHaveBeenCalled();
     });
   });
+
+  describe('dismissible={false}', () => {
+    it('no se cierra con un toque afuera', async () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Formulario" dismissible={false} />);
+      // Radix arma el listener de "afuera" en un setTimeout: sin esta espera el test pasaría solo.
+      await new Promise((r) => setTimeout(r, 10));
+      fireEvent.pointerDown(document.body);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('no se cierra con Escape', () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Formulario" dismissible={false} />);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('sigue cerrándose con el botón Cerrar', async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Formulario" dismissible={false} />);
+      await user.click(screen.getByRole('button', { name: 'Cerrar' }));
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('por defecto (dismissible) un toque afuera cierra', async () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Detalle" />);
+      await new Promise((r) => setTimeout(r, 10));
+      fireEvent.pointerDown(document.body);
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('por defecto (dismissible) Escape cierra', () => {
+      const onOpenChange = vi.fn();
+      render(<Dialog open onOpenChange={onOpenChange} title="Detalle" />);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('la hoja no muestra la manija de arrastre', () => {
+      render(<Dialog open onOpenChange={() => {}} title="Formulario" placement="sheet" dismissible={false} />);
+      expect(document.querySelector('[data-sheet-handle]')).toBeNull();
+    });
+  });
 });

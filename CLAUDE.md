@@ -56,6 +56,9 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard`, `SectionNav`, `SiteHeader`, `SiteFooter`, `PromoBanner`, `CtaBanner`, `Hero` (ctas) y `RoomTiles`. Acepta atributos `data-*` opcionales (ej. `data-size` del tile). (`SideNav` conserva su firma posicional vieja.)
 - **`renderImage`** (`src/lib/renderImage.tsx`): escape hatch gemelo para imágenes: `{ src, alt, className?, sizes, fit: 'cover' | 'logo', priority?, data-*? }` → nodo, para enchufar `next/image` sin reconstruir clases. El componente decide `sizes` según su layout (se pisa con `imageSizes`) y el nodo va en el mismo lugar del árbol que el `<img>` (sin envolverlo). `defaultRenderImage` = `<img loading={priority ? 'eager' : 'lazy'} decoding="async">`, sin `fetchPriority` (cambia de nombre entre React 18 y 19). Lo usan `Hero`, `PromoBanner`, `RoomTiles` y `Marquee`.
 
+### Changelog 0.44.0 (aditivo: el default no cambia)
+- **`Dialog.dismissible`** (default `true`): con `false` el diálogo sólo se cierra con la X o con los botones del pie; un toque afuera, Escape o arrastrar la hoja no lo cierran (y la hoja no muestra la manija). Para formularios, donde cerrarlo sin querer pierde lo completado. Story `Components/Dialog → Con formulario`.
+
 ### Changelog 0.43.0 (aditivo: el default no cambia)
 - **`ProductCard.priceSize`** (`'md' | 'sm'`, default `'md'`): `'sm'` baja el precio a secundario en las tres variantes (`soft`: `text-sm sm:text-base font-medium`), para cuando otro precio manda en `installments` (ej. "$X con Transferencia").
 
