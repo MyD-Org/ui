@@ -2,6 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { Dialog } from './Dialog';
 import { Button } from './Button';
+import { Select } from './Select';
+import { DateRangeField } from './DateRangeField';
+import { Input } from './Input';
 
 const meta: Meta<typeof Dialog> = {
   title: 'Components/Dialog',
@@ -71,3 +74,43 @@ export const Sheet: Story = {
   },
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 };
+
+const TIPOS = [
+  { value: 'a', label: 'Factura A (0001)' },
+  { value: 'b', label: 'Facturas de venta tipo B (00001)' },
+  { value: 'c', label: 'Factura C (0003)' },
+  { value: 'x', label: 'Presupuesto X' },
+];
+
+function FormDemo() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Abrir formulario</Button>
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+        dismissible={false}
+        title="Emitir factura"
+        description="Lo que se completa se pierde si el diálogo se cierra."
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => setOpen(false)}>Emitir</Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Select aria-label="Tipo de comprobante" options={TIPOS} defaultValue="b" />
+          <DateRangeField label="Período" />
+          <Input aria-label="Observaciones" placeholder="Observaciones" />
+        </div>
+      </Dialog>
+    </>
+  );
+}
+
+/** Formulario: `dismissible={false}`, sólo se cierra con Cancelar, Emitir o la X. */
+export const ConFormulario: Story = { render: () => <FormDemo /> };
