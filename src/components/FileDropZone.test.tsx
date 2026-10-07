@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FileDropZone } from './FileDropZone';
+import { FileDropZone, tamanoLegible } from './FileDropZone';
 
 const getInput = (container: HTMLElement) => container.querySelector('input[type="file"]') as HTMLInputElement;
 
@@ -102,5 +102,21 @@ describe('FileDropZone', () => {
     const zona = screen.getByRole('button');
     expect(zona.className).toContain('py-2.5');
     expect(zona.className).not.toContain('py-8');
+  });
+
+  it('con archivo elegido se nota: borde lleno de éxito, tamaño y "Cambiar archivo"', () => {
+    const file = new File(['x'.repeat(2048)], 'comprobante.pdf', { type: 'application/pdf' });
+    render(<FileDropZone file={file} onChange={() => {}} />);
+    const zona = screen.getByRole('button', { name: /comprobante\.pdf/ });
+    expect(zona.className).toMatch(/border-success/);
+    expect(zona.className).toMatch(/bg-success-soft/);
+    expect(screen.getByText(/2 KB/)).toBeInTheDocument();
+    expect(screen.getByText('Cambiar archivo')).toBeInTheDocument();
+  });
+
+  it('tamanoLegible', () => {
+    expect(tamanoLegible(300)).toBe('1 KB');
+    expect(tamanoLegible(350 * 1024)).toBe('350 KB');
+    expect(tamanoLegible(2.4 * 1024 * 1024)).toBe('2,4 MB');
   });
 });
