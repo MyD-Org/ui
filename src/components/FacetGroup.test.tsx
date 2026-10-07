@@ -264,4 +264,80 @@ describe('FacetGroup: árbol plegable', () => {
     expect(screen.queryByRole('button', { name: /subcategorías/ })).toBeNull();
     expect(container.querySelector('li > span[aria-hidden="true"]')).toBeNull();
   });
+
+  describe('collapsible', () => {
+    const sinTildar = marcas.map((m) => ({ ...m, checked: false }));
+
+    it('sin collapsible el grupo no tiene botón de título y siempre muestra las casillas', () => {
+      render(<FacetGroup title="Marcas" items={sinTildar} onToggle={() => {}} />);
+      expect(screen.queryByRole('button', { name: /Marcas/ })).toBeNull();
+      expect(filas()).toHaveLength(3);
+    });
+
+    it('arranca cerrado: sólo el título, con aria-expanded=false y sin casillas', () => {
+      render(<FacetGroup title="Tensión" items={sinTildar} onToggle={() => {}} searchable collapsible />);
+      const boton = screen.getByRole('button', { name: 'Tensión' });
+      expect(boton).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+      expect(screen.getByPlaceholderText('Buscar…')).not.toBeVisible();
+      expect(screen.getByRole('heading', { level: 3 })).toContainElement(boton);
+    });
+
+    it('abre y cierra con click; aria-controls apunta al contenido', async () => {
+      render(<FacetGroup title="Tensión" items={sinTildar} onToggle={() => {}} collapsible />);
+      const boton = screen.getByRole('button', { name: 'Tensión' });
+      await userEvent.click(boton);
+      expect(boton).toHaveAttribute('aria-expanded', 'true');
+      expect(filas()).toHaveLength(3);
+      expect(document.getElementById(boton.getAttribute('aria-controls')!)).toContainElement(filas()[0]);
+      await userEvent.click(boton);
+      expect(boton).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+
+    it('abre con el teclado (Enter y espacio)', async () => {
+      render(<FacetGroup title="Tensión" items={sinTildar} onToggle={() => {}} collapsible />);
+      const boton = screen.getByRole('button', { name: 'Tensión' });
+      await userEvent.tab();
+      expect(boton).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+      expect(boton).toHaveAttribute('aria-expanded', 'true');
+      await userEvent.keyboard(' ');
+      expect(boton).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('defaultOpen abre el grupo desde el inicio', () => {
+      render(<FacetGroup title="Tensión" items={sinTildar} onToggle={() => {}} collapsible defaultOpen />);
+      expect(screen.getByRole('button', { name: 'Tensión' })).toHaveAttribute('aria-expanded', 'true');
+      expect(filas()).toHaveLength(3);
+    });
+
+    it('con algún ítem tildado arranca abierto aunque defaultOpen sea false', () => {
+      render(<FacetGroup title="Marcas" items={marcas} onToggle={() => {}} collapsible defaultOpen={false} />);
+      expect(screen.getByRole('button', { name: /Marcas/ })).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('checkbox', { name: 'MACROLED' })).toBeInTheDocument();
+    });
+
+    it('cerrado con tildados muestra el contador; abierto no', async () => {
+      const dos = marcas.map((m) => ({ ...m, checked: m.value !== 'INDICO' }));
+      render(<FacetGroup title="Marcas" items={dos} onToggle={() => {}} onClear={() => {}} collapsible />);
+      const boton = screen.getByRole('button', { name: /Marcas/ });
+      // Arranca abierto (hay tildados): se cierra a mano.
+      expect(screen.queryByText('(2)')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Limpiar' })).toBeInTheDocument();
+      await userEvent.click(boton);
+      expect(screen.getByText('(2)')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Limpiar' })).toBeNull();
+    });
+
+    it('conserva lo escrito en la búsqueda al cerrar y reabrir', async () => {
+      render(<FacetGroup title="Marcas" items={sinTildar} onToggle={() => {}} searchable collapsible defaultOpen />);
+      await userEvent.type(screen.getByPlaceholderText('Buscar…'), 'gen');
+      const boton = screen.getByRole('button', { name: 'Marcas' });
+      await userEvent.click(boton);
+      await userEvent.click(boton);
+      expect(screen.getByPlaceholderText('Buscar…')).toHaveValue('gen');
+      expect(filas()).toHaveLength(1);
+    });
+  });
 });

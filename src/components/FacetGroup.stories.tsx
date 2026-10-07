@@ -105,3 +105,29 @@ export const EnPanelDeFiltros: Story = {
     </Card>
   ),
 };
+
+const tension: FacetItem[] = [
+  { value: '12V', label: '12 V', count: 140, checked: false },
+  { value: '24V', label: '24 V', count: 62, checked: false },
+  { value: '220V', label: '220 V', count: 1890, checked: false },
+  { value: '380V', label: '380 V', count: 75, checked: false },
+];
+
+const colores: FacetItem[] = [
+  { value: 'CALIDA', label: 'Cálida', count: 820, checked: false },
+  { value: 'NEUTRA', label: 'Neutra', count: 410, checked: false },
+  { value: 'FRIA', label: 'Fría', count: 960, checked: false },
+];
+
+/** Cada grupo es un desplegable cerrado; al tildar algo muestra el contador y, si se recarga con filtros, arranca abierto. */
+export const Plegables: Story = {
+  render: () => (
+    <Card title="Características">
+      <Demo title="Tensión" items={tension} collapsible />
+      <Divider className="my-2" />
+      <Demo title="Temperatura de color" items={colores} collapsible />
+      <Divider className="my-2" />
+      <Demo title="Marcas" items={marcas} searchable searchPlaceholder="Buscar marca…" initialVisible={6} collapsible />
+    </Card>
+  ),
+};
