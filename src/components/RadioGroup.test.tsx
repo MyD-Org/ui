@@ -142,4 +142,20 @@ describe('RadioGroup', () => {
     await user.click(screen.getByText('Efectivo'));
     expect(document.querySelector('[data-slot="radio-content"]')).toBeNull();
   });
+
+  it('la fila abierta queda blanca con halo; sin contenido conserva el fondo de la elegida', () => {
+    render(
+      <RadioGroup
+        legend="x"
+        value="a"
+        options={[
+          { value: 'a', label: 'Con contenido', content: <p>Formulario</p> },
+          { value: 'b', label: 'Sin contenido' },
+        ]}
+      />,
+    );
+    const fila = screen.getByRole('radio', { name: /Con contenido/ }).closest('[data-slot="radio-row"]') as HTMLElement;
+    expect(fila.className).toMatch(/ring-4/);
+    expect(fila.innerHTML).not.toMatch(/bg-primary-soft/);
+  });
 });
