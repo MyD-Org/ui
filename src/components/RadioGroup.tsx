@@ -76,6 +76,8 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
           'rounded-md border bg-surface transition-colors duration-150',
           'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-[var(--color-ring)]',
           checked ? 'border-primary' : 'border-border hover:border-border-strong',
+          // Abierta (con contenido): blanca, con un halo suave alrededor en vez del fondo de la cabecera.
+          abierta && 'ring-4 ring-primary-soft',
           disabled && 'pointer-events-none opacity-50',
           className,
         )}
@@ -84,7 +86,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
           className={cn(
             'flex items-center gap-3 px-4 py-3 transition-colors duration-150',
             abierta ? 'rounded-t-[inherit]' : 'rounded-[inherit]',
-            checked && 'bg-primary-soft',
+            checked && !abierta && 'bg-primary-soft',
           )}
         >
         <label htmlFor={base} className="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
