@@ -29,6 +29,11 @@ export interface RadioOption {
   action?: RadioAction;
   /** Ícono o ilustración opcional antes del texto. */
   icon?: ReactNode;
+  /**
+   * Contenido que se muestra dentro de la fila, debajo del título, sólo mientras la opción
+   * está elegida (ej. el formulario de ese medio de pago).
+   */
+  content?: ReactNode;
   disabled?: boolean;
 }
 
@@ -43,6 +48,8 @@ export interface RadioProps {
   badge?: RadioBadge;
   action?: RadioAction;
   icon?: ReactNode;
+  /** Ver `RadioOption.content`: se muestra sólo con `checked`. */
+  content?: ReactNode;
   disabled?: boolean;
   id?: string;
   className?: string;
@@ -51,26 +58,35 @@ export interface RadioProps {
 /**
  * Una fila de opción: `<input type="radio">` nativo (teclado, foco y formularios gratis)
  * oculto visualmente, un punto dibujado con tokens y, opcionalmente, descripción, badge y
- * una acción final. Para un grupo usar `RadioGroup`.
+ * una acción final. Con `content`, la fila elegida se abre y lo muestra debajo del título.
+ * Para un grupo usar `RadioGroup`.
  */
 export const Radio = forwardRef<HTMLInputElement, RadioProps>(
-  ({ name, value, checked, onChange, label, description, badge, action, icon, disabled, id, className }, ref) => {
+  ({ name, value, checked, onChange, label, description, badge, action, icon, content, disabled, id, className }, ref) => {
     const auto = useId();
     const base = id ?? auto;
     const labelId = `${base}-label`;
     const descId = `${base}-desc`;
+    const abierta = checked && content != null;
     return (
       <div
         data-slot="radio-row"
         data-checked={checked ? 'true' : undefined}
         className={cn(
-          'flex items-center gap-3 rounded-md border bg-surface px-4 py-3 transition-colors duration-150',
+          'rounded-md border bg-surface transition-colors duration-150',
           'has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-[var(--color-ring)]',
-          checked ? 'border-primary bg-primary-soft' : 'border-border hover:border-border-strong',
+          checked ? 'border-primary' : 'border-border hover:border-border-strong',
           disabled && 'pointer-events-none opacity-50',
           className,
         )}
       >
+        <div
+          className={cn(
+            'flex items-center gap-3 px-4 py-3 transition-colors duration-150',
+            abierta ? 'rounded-t-[inherit]' : 'rounded-[inherit]',
+            checked && 'bg-primary-soft',
+          )}
+        >
         <label htmlFor={base} className="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
           <input
             ref={ref}
@@ -117,6 +133,12 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
           >
             {action.label}
           </button>
+        )}
+        </div>
+        {abierta && (
+          <div data-slot="radio-content" className="border-t border-border px-4 py-4">
+            {content}
+          </div>
         )}
       </div>
     );
@@ -169,6 +191,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
               badge={o.badge}
               action={o.action}
               icon={o.icon}
+              content={o.content}
               disabled={disabled || o.disabled}
             />
           ))}
