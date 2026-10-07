@@ -130,3 +130,14 @@ describe("radios: menús concéntricos", () => {
     expect(css).toContain("--radius-menu-2: calc(var(--radius-sm) + 0.5rem);");
   });
 });
+
+describe("animación del Dialog centrado", () => {
+  it("no anima translate: el centrado ya lo hace la propiedad translate de Tailwind 4", () => {
+    for (const nombre of ["dialog-in", "dialog-out"]) {
+      const bloque = tailwind.slice(tailwind.indexOf(`@keyframes ${nombre}`));
+      const cuerpo = bloque.slice(0, bloque.indexOf("\n  }"));
+      expect(cuerpo).not.toMatch(/translate/);
+      expect(cuerpo).toMatch(/scale/);
+    }
+  });
+});
