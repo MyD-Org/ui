@@ -112,4 +112,34 @@ describe('RadioGroup', () => {
     const fila = screen.getByRole('radio', { name: /Calle Falsa/ }).closest('[data-slot="radio-row"]');
     expect(fila?.className).toMatch(/focus-visible/);
   });
+
+  it('muestra el contenido sólo de la opción elegida, dentro de su fila', async () => {
+    const user = userEvent.setup();
+    function Medios() {
+      const [v, setV] = useState('credito');
+      return (
+        <RadioGroup
+          legend="Cómo pagar"
+          value={v}
+          onValueChange={setV}
+          options={[
+            { value: 'credito', label: 'Tarjeta de crédito', content: <p>Formulario de crédito</p> },
+            { value: 'cuenta', label: 'Cuenta', content: <p>Ir a la cuenta</p> },
+            { value: 'efectivo', label: 'Efectivo' },
+          ]}
+        />
+      );
+    }
+    render(<Medios />);
+    const fila = screen.getByRole('radio', { name: /crédito/ }).closest('[data-slot="radio-row"]') as HTMLElement;
+    expect(within(fila).getByText('Formulario de crédito')).toBeInTheDocument();
+    expect(screen.queryByText('Ir a la cuenta')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Cuenta'));
+    expect(screen.queryByText('Formulario de crédito')).not.toBeInTheDocument();
+    expect(screen.getByText('Ir a la cuenta')).toBeInTheDocument();
+
+    await user.click(screen.getByText('Efectivo'));
+    expect(document.querySelector('[data-slot="radio-content"]')).toBeNull();
+  });
 });

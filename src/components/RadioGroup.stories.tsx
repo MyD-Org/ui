@@ -55,3 +55,30 @@ export const LeyendaOculta: Story = {
 export const Deshabilitado: Story = {
   args: { legend: 'Forma de entrega', options: SIMPLES, defaultValue: 'a', disabled: true },
 };
+
+export const ConContenido: Story = {
+  render: function Render() {
+    const [v, setV] = useState('credito');
+    const opciones: RadioOption[] = [
+      {
+        value: 'credito',
+        label: 'Tarjeta de crédito',
+        description: 'Visa, Mastercard, American Express',
+        badge: { label: '6 cuotas sin interés', tone: 'success' },
+        content: <p className="text-sm text-muted">Acá va el formulario de la tarjeta.</p>,
+      },
+      {
+        value: 'cuenta',
+        label: 'Cuenta de Mercado Pago',
+        description: 'Dinero disponible o tarjetas guardadas',
+        content: <p className="text-sm text-muted">Lo llevamos a Mercado Pago para completar el pago.</p>,
+      },
+      { value: 'debito', label: 'Tarjeta de débito', description: 'Sólo en un pago', disabled: true },
+    ];
+    return (
+      <div className="max-w-md">
+        <RadioGroup legend="¿Cómo quiere pagar?" options={opciones} value={v} onValueChange={setV} />
+      </div>
+    );
+  },
+};
