@@ -36,6 +36,37 @@ function ChevronIcon() {
   );
 }
 
+/**
+ * Texto de la fila. Una línea con elipsis (`truncate`); con puntero táctil,
+ * hasta dos (`pointer-coarse:line-clamp-2`), porque ahí no hay hover y la fila
+ * ya mide 40 px: entran las dos líneas sin agrandarla. Si el texto igual queda
+ * cortado, `title` trae la etiqueta completa (hover del mouse); si entra
+ * entero, no hay `title`. Se mide con ResizeObserver: el ancho del panel cambia.
+ */
+function EtiquetaFila({ label }: { label: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [cortada, setCortada] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const medir = () => setCortada(el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight);
+    medir();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [label]);
+  return (
+    <span
+      ref={ref}
+      title={cortada ? label : undefined}
+      className="min-w-0 flex-1 truncate pointer-coarse:line-clamp-2 pointer-coarse:whitespace-normal pointer-coarse:break-words"
+    >
+      {label}
+    </span>
+  );
+}
+
 interface Nodo {
   depth: number;
   /** Índices de las madres, de la raíz hacia abajo. */
@@ -281,7 +312,7 @@ export function FacetGroup({
                       aria-label={it.label}
                       onCheckedChange={(checked) => onToggle(it.value, checked)}
                     />
-                    <span className="min-w-0 flex-1 truncate">{it.label}</span>
+                    <EtiquetaFila label={it.label} />
                     {it.count != null && <span className="text-xs tabular-nums text-muted">{it.count}</span>}
                   </label>
                   {/*

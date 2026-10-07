@@ -131,3 +131,12 @@ export const Plegables: Story = {
     </Card>
   ),
 };
+
+const largas: FacetItem[] = [
+  { value: 'A', label: 'Herramientas manuales y accesorios de medición', count: 412, checked: false },
+  { value: 'B', label: 'Herramientas mecánicas y eléctricas profesionales', count: 268, checked: false },
+  { value: 'C', label: 'Seguridad', count: 31, checked: false },
+];
+
+/** Etiquetas más largas que la fila: con mouse, `title` con el texto completo; táctil, hasta dos líneas. */
+export const EtiquetasLargas: Story = { render: () => <Demo title="Categorías" items={largas} /> };
