@@ -88,6 +88,22 @@ export interface FacetGroupProps {
   expandLabel?: string;
   /** Nombre del chevron que cierra una rama. Default 'Ocultar subcategorías de {label}'. */
   collapseLabel?: string;
+  /**
+   * Default false. El grupo es un desplegable: el título pasa a ser un botón
+   * (toda la fila, con chevron, `aria-expanded` y `aria-controls`) que abre y
+   * cierra el contenido —búsqueda, lista, "Ver todas" y el texto de vacío—.
+   * Cerrado, muestra a la derecha cuántos ítems hay tildados, y oculta
+   * `onClear`. Es independiente de `initialVisible` ("Ver todas"), que acorta
+   * la lista de un grupo abierto.
+   */
+  collapsible?: boolean;
+  /**
+   * Sólo con `collapsible`: si arranca abierto. Default false. Un grupo con
+   * algún ítem tildado arranca abierto igual, para que un filtro aplicado se
+   * vea. Es sólo el valor inicial (estado interno, no controlado): cambiarlo
+   * después no abre ni cierra un grupo ya montado; para eso, cambiar su `key`.
+   */
+  defaultOpen?: boolean;
   className?: string;
 }
 
@@ -123,10 +139,16 @@ export function FacetGroup({
   searchEmptyText = 'Sin resultados',
   expandLabel = 'Ver subcategorías de {label}',
   collapseLabel = 'Ocultar subcategorías de {label}',
+  collapsible: plegable = false,
+  defaultOpen,
   className,
 }: FacetGroupProps) {
   const id = useId();
   const titleId = `${id}-title`;
+  const contentId = `${id}-content`;
+  // Valor inicial nada más (ver `defaultOpen`). Sin `collapsible` siempre abierto.
+  const [abierto, setAbierto] = useState(() => !plegable || (defaultOpen ?? false) || items.some((it) => it.checked));
+  const visibleContenido = !plegable || abierto;
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
 
@@ -162,7 +184,8 @@ export function FacetGroup({
     return filas.filter(({ it }) => it.checked || unchecked++ < initialVisible);
   }, [filas, collapsible, expanded, initialVisible]);
 
-  const anyChecked = items.some((it) => it.checked);
+  const tildados = items.reduce((n, it) => n + (it.checked ? 1 : 0), 0);
+  const anyChecked = tildados > 0;
 
   // Alto de la lista colapsada, medido cada vez que se la ve colapsada (cambia
   // si se tilda algo: los tildados se suman a los n visibles). Se mide en vez
@@ -172,110 +195,135 @@ export function FacetGroup({
   const [altoColapsada, setAltoColapsada] = useState(0);
   const colapsada = collapsible && !expanded;
   useLayoutEffect(() => {
-    if (colapsada && listaRef.current) setAltoColapsada(listaRef.current.offsetHeight);
-  }, [colapsada, visible.length]);
+    // Con el grupo plegado la lista está oculta y mediría 0.
+    if (visibleContenido && colapsada && listaRef.current) setAltoColapsada(listaRef.current.offsetHeight);
+  }, [visibleContenido, colapsada, visible.length]);
   const conTope = altoColapsada > 0 && (expanded || searching) && initialVisible !== Infinity;
 
   return (
     <div role="group" aria-labelledby={titleId} className={cn('flex flex-col gap-2', className)}>
       <div className="flex items-center justify-between gap-2">
-        <h3 id={titleId} className="text-xs font-semibold uppercase tracking-wide text-muted">
-          {title}
-        </h3>
-        {onClear && anyChecked && (
+        {plegable ? (
+          <h3 id={titleId} className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-wide text-muted">
+            <button
+              type="button"
+              aria-expanded={abierto}
+              aria-controls={contentId}
+              onClick={() => setAbierto((o) => !o)}
+              className="-mx-1 flex w-[calc(100%+0.5rem)] cursor-pointer items-center justify-between gap-2 rounded-sm px-1 py-1 text-left uppercase tracking-wide hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] pointer-coarse:min-h-10"
+            >
+              <span className="min-w-0 truncate">{title}</span>
+              <span className="flex shrink-0 items-center gap-1.5">
+                {!abierto && tildados > 0 && (
+                  <span className="text-xs font-normal normal-case tabular-nums tracking-normal text-primary">({tildados})</span>
+                )}
+                <span className={cn('inline-flex transition-transform duration-150 motion-reduce:transition-none', abierto && 'rotate-180')}>
+                  <ChevronIcon />
+                </span>
+              </span>
+            </button>
+          </h3>
+        ) : (
+          <h3 id={titleId} className="text-xs font-semibold uppercase tracking-wide text-muted">
+            {title}
+          </h3>
+        )}
+        {onClear && anyChecked && visibleContenido && (
           <Button variant="link" size="inline" onClick={onClear}>
             {clearLabel}
           </Button>
         )}
       </div>
 
-      {searchable && items.length > 0 && (
-        <SearchInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="w-full" />
-      )}
+      <div id={contentId} hidden={!visibleContenido} className={visibleContenido ? 'flex flex-col gap-2' : 'hidden'}>
+        {searchable && items.length > 0 && (
+          <SearchInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="w-full" />
+        )}
 
-      {items.length === 0 ? (
-        <p className="text-sm text-muted">{emptyText}</p>
-      ) : visible.length === 0 ? (
-        <p className="text-sm text-muted">{searchEmptyText}</p>
-      ) : (
-        <ul
-          ref={listaRef}
-          // `-mx-1 px-1`: aire para el anillo de foco del checkbox, que el
-          // `overflow` recortaría contra el borde cuando la lista scrollea.
-          //
-          // Con tope, barra `scroll-fino` (ver tailwind.css): la nativa es un
-          // control gris de sistema en medio del panel. `pr-3` la separa de los
-          // conteos, que si no quedan pegados a ella.
-          className={cn(
-            '-mx-1 flex flex-col gap-1.5 px-1',
-            conTope && 'scroll-fino overflow-y-auto overscroll-contain pr-3',
-          )}
-          style={conTope ? { maxHeight: altoColapsada } : undefined}
-        >
-          {visible.map(({ it, i }) => {
-            const rowId = `${id}-${it.value}`;
-            const nodo = arbol[i];
-            // Cubierta por una madre tildada: se ve tildada y se puede destildar
-            // (onToggle(valor, false)); qué queda lo decide quien recibe onToggle.
-            const incluida = nodo.madres.some((m) => items[m].checked);
-            const parcial = !it.checked && !incluida && conTildadaAdentro.has(i);
-            const conChevron = esArbol && !searching && nodo.tieneHijas;
-            return (
-              <li key={it.value} className={cn('flex items-center gap-1 pointer-coarse:min-h-10', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
-                <label
-                  htmlFor={rowId}
-                  className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', it.disabled && 'cursor-not-allowed opacity-50')}
-                >
-                  <Checkbox
-                    id={rowId}
-                    checked={it.checked || incluida}
-                    indeterminate={parcial}
-                    disabled={it.disabled}
-                    aria-label={it.label}
-                    onCheckedChange={(checked) => onToggle(it.value, checked)}
-                  />
-                  <span className="min-w-0 flex-1 truncate">{it.label}</span>
-                  {it.count != null && <span className="text-xs tabular-nums text-muted">{it.count}</span>}
-                </label>
-                {/*
-                  El chevron va a la derecha, después del conteo: a la
-                  izquierda obligaba a correr todas las raíces por su ancho,
-                  tengan hijas o no, y la lista quedaba desalineada del título
-                  y de los otros grupos. El hueco de las filas sin hijas
-                  mantiene los conteos en columna.
-
-                  Con puntero táctil (`pointer-coarse:`) el chevron mide 40 px
-                  y las filas también, parejas: a 20 px era lo único tocable a
-                  la derecha de la fila y costaba acertarle con el dedo.
-                */}
-                {conChevron ? (
-                  <button
-                    type="button"
-                    aria-expanded={abierta(i)}
-                    aria-label={(abierta(i) ? collapseLabel : expandLabel).replace('{label}', it.label)}
-                    onClick={() => setRamas((r) => ({ ...r, [it.value]: !abierta(i) }))}
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] pointer-coarse:h-10 pointer-coarse:w-10"
+        {items.length === 0 ? (
+          <p className="text-sm text-muted">{emptyText}</p>
+        ) : visible.length === 0 ? (
+          <p className="text-sm text-muted">{searchEmptyText}</p>
+        ) : (
+          <ul
+            ref={listaRef}
+            // `-mx-1 px-1`: aire para el anillo de foco del checkbox, que el
+            // `overflow` recortaría contra el borde cuando la lista scrollea.
+            //
+            // Con tope, barra `scroll-fino` (ver tailwind.css): la nativa es un
+            // control gris de sistema en medio del panel. `pr-3` la separa de los
+            // conteos, que si no quedan pegados a ella.
+            className={cn(
+              '-mx-1 flex flex-col gap-1.5 px-1',
+              conTope && 'scroll-fino overflow-y-auto overscroll-contain pr-3',
+            )}
+            style={conTope ? { maxHeight: altoColapsada } : undefined}
+          >
+            {visible.map(({ it, i }) => {
+              const rowId = `${id}-${it.value}`;
+              const nodo = arbol[i];
+              // Cubierta por una madre tildada: se ve tildada y se puede destildar
+              // (onToggle(valor, false)); qué queda lo decide quien recibe onToggle.
+              const incluida = nodo.madres.some((m) => items[m].checked);
+              const parcial = !it.checked && !incluida && conTildadaAdentro.has(i);
+              const conChevron = esArbol && !searching && nodo.tieneHijas;
+              return (
+                <li key={it.value} className={cn('flex items-center gap-1 pointer-coarse:min-h-10', sangria[Math.min(nodo.depth, sangria.length - 1)])}>
+                  <label
+                    htmlFor={rowId}
+                    className={cn('flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text', it.disabled && 'cursor-not-allowed opacity-50')}
                   >
-                    <span className={cn('transition-transform duration-150', abierta(i) && 'rotate-180')}>
-                      <ChevronIcon />
-                    </span>
-                  </button>
-                ) : (
-                  esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0 pointer-coarse:w-10" />
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    <Checkbox
+                      id={rowId}
+                      checked={it.checked || incluida}
+                      indeterminate={parcial}
+                      disabled={it.disabled}
+                      aria-label={it.label}
+                      onCheckedChange={(checked) => onToggle(it.value, checked)}
+                    />
+                    <span className="min-w-0 flex-1 truncate">{it.label}</span>
+                    {it.count != null && <span className="text-xs tabular-nums text-muted">{it.count}</span>}
+                  </label>
+                  {/*
+                    El chevron va a la derecha, después del conteo: a la
+                    izquierda obligaba a correr todas las raíces por su ancho,
+                    tengan hijas o no, y la lista quedaba desalineada del título
+                    y de los otros grupos. El hueco de las filas sin hijas
+                    mantiene los conteos en columna.
 
-      {collapsible && (
-        <div>
-          <Button variant="link" size="inline" onClick={() => setExpanded((e) => !e)}>
-            {expanded ? lessLabel : moreLabel.replace('{n}', String(filas.length))}
-          </Button>
-        </div>
-      )}
+                    Con puntero táctil (`pointer-coarse:`) el chevron mide 40 px
+                    y las filas también, parejas: a 20 px era lo único tocable a
+                    la derecha de la fila y costaba acertarle con el dedo.
+                  */}
+                  {conChevron ? (
+                    <button
+                      type="button"
+                      aria-expanded={abierta(i)}
+                      aria-label={(abierta(i) ? collapseLabel : expandLabel).replace('{label}', it.label)}
+                      onClick={() => setRamas((r) => ({ ...r, [it.value]: !abierta(i) }))}
+                      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] pointer-coarse:h-10 pointer-coarse:w-10"
+                    >
+                      <span className={cn('transition-transform duration-150', abierta(i) && 'rotate-180')}>
+                        <ChevronIcon />
+                      </span>
+                    </button>
+                  ) : (
+                    esArbol && !searching && <span aria-hidden="true" className="w-5 shrink-0 pointer-coarse:w-10" />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {collapsible && (
+          <div>
+            <Button variant="link" size="inline" onClick={() => setExpanded((e) => !e)}>
+              {expanded ? lessLabel : moreLabel.replace('{n}', String(filas.length))}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
