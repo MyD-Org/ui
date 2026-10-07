@@ -21,9 +21,17 @@ export interface FileDropZoneProps {
   disabled?: boolean;
   /** `id` del elemento enfocable (p. ej. para un `<label htmlFor>` externo). */
   id?: string;
+  /** Con archivo elegido: acción para reemplazarlo (el click abre el selector). Default: "Cambiar archivo". */
+  changeLabel?: string;
   /** `sm`: una fila compacta con el ícono al costado, para formularios con varias imágenes. Default `md`. */
   size?: 'md' | 'sm';
   className?: string;
+}
+
+/** "350 KB", "2,4 MB": el tamaño del archivo elegido. */
+export function tamanoLegible(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toLocaleString('es-AR', { maximumFractionDigits: 1 })} MB`;
 }
 
 export const FileDropZone = ({
@@ -34,6 +42,7 @@ export const FileDropZone = ({
   title = 'Arrastre su archivo aquí',
   orLabel = 'o',
   browseLabel = 'selecciónelo desde su equipo',
+  changeLabel = 'Cambiar archivo',
   error,
   disabled = false,
   id,
@@ -47,7 +56,8 @@ export const FileDropZone = ({
   const labelId = `${baseId}-label`;
   const hintId = `${baseId}-hint`;
   const errorId = `${baseId}-error`;
-  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
+  const fileId = `${baseId}-file`;
+  const describedBy = [file ? fileId : null, hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
 
   const openPicker = useCallback(() => {
     if (!disabled) inputRef.current?.click();
@@ -97,7 +107,10 @@ export const FileDropZone = ({
           ? 'border-danger bg-bg'
           : dragging
             ? 'border-primary bg-primary-soft'
-            : cn('border-border-strong bg-bg', !disabled && 'hover:border-primary'),
+            : file
+              ? // Elegido: se nota de un vistazo que ya hay un archivo (borde lleno y fondo de éxito).
+                cn('border-solid border-success bg-success-soft', !disabled && 'hover:border-primary')
+              : cn('border-border-strong bg-bg', !disabled && 'hover:border-primary'),
         className,
       )}
     >
@@ -114,20 +127,33 @@ export const FileDropZone = ({
       />
       <div
         className={cn(
-          'flex items-center justify-center rounded-sm bg-primary-soft',
+          'flex items-center justify-center rounded-sm',
+          file && !error ? 'bg-surface' : 'bg-primary-soft',
           sm ? 'h-8 w-8 shrink-0' : 'mx-auto mb-3 h-10 w-10',
         )}
       >
+        {file && !error ? (
+          <svg width={sm ? 16 : 18} height={sm ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-success" aria-hidden="true">
+            <path d="m5 12 5 5 9-10" />
+          </svg>
+        ) : (
         <svg width={sm ? 16 : 18} height={sm ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-primary" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
+        )}
       </div>
       <div className={sm ? 'min-w-0 flex-1' : undefined}>
-        <div id={labelId}>
+        <div id={file ? undefined : labelId}>
           {file ? (
-            <p className="text-sm font-medium text-text">{file.name}</p>
+            <>
+              {/* El nombre accesible es sólo el del archivo; tamaño y acción se leen como descripción. */}
+              <p id={labelId} className="break-all text-sm font-medium text-text">{file.name}</p>
+              <p id={fileId} className={cn('text-xs text-muted', !sm && 'mt-1')}>
+                {tamanoLegible(file.size)} · <span className="text-primary">{changeLabel}</span>
+              </p>
+            </>
           ) : (
             <>
               <p className="text-sm font-medium text-text">{title}</p>
