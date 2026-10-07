@@ -114,3 +114,4 @@ export {
   type ToggleIconButtonTone,
 } from './components/ToggleIconButton.js';
 export { Board, type BoardProps, type BoardColumn } from './components/Board.js';
+export { FadeScroll, type FadeScrollProps, type FadeScrollAs, type FadeScrollFrom } from './components/FadeScroll.js';
