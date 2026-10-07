@@ -341,3 +341,40 @@ describe('FacetGroup: árbol plegable', () => {
     });
   });
 });
+
+describe('FacetGroup: etiqueta cortada', () => {
+  // jsdom no hace layout: se simulan los anchos del texto de la fila.
+  const medidas = (scrollWidth: number, clientWidth: number) => {
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(scrollWidth);
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(clientWidth);
+  };
+  afterEach(() => vi.restoreAllMocks());
+
+  const items: FacetItem[] = [{ value: 'H', label: 'Herramientas manuales y eléctricas', count: 4, checked: false }];
+
+  it('cortada: el texto lleva title con la etiqueta completa', () => {
+    medidas(300, 120);
+    render(<FacetGroup title="Categorías" items={items} onToggle={() => {}} />);
+    expect(screen.getByText('Herramientas manuales y eléctricas')).toHaveAttribute('title', 'Herramientas manuales y eléctricas');
+  });
+
+  it('entra entera: sin title', () => {
+    medidas(100, 120);
+    render(<FacetGroup title="Categorías" items={items} onToggle={() => {}} />);
+    expect(screen.getByText('Herramientas manuales y eléctricas')).not.toHaveAttribute('title');
+  });
+
+  it('el nombre accesible de la casilla es la etiqueta completa, cortada o no', () => {
+    medidas(300, 120);
+    render(<FacetGroup title="Categorías" items={items} onToggle={() => {}} />);
+    expect(screen.getByRole('checkbox', { name: 'Herramientas manuales y eléctricas' })).toBeInTheDocument();
+  });
+
+  it('con puntero táctil admite dos líneas', () => {
+    medidas(100, 120);
+    render(<FacetGroup title="Categorías" items={items} onToggle={() => {}} />);
+    const cls = screen.getByText('Herramientas manuales y eléctricas').className;
+    expect(cls).toContain('truncate');
+    expect(cls).toContain('pointer-coarse:line-clamp-2');
+  });
+});
