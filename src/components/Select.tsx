@@ -69,7 +69,9 @@ export function Select({
           className,
         )}
       >
-        <RSelect.Value placeholder={placeholder} />
+        <span className="flex min-w-0 flex-1 text-left">
+          <RSelect.Value placeholder={placeholder} />
+        </span>
         <RSelect.Icon className="shrink-0 text-muted">
           <ChevronIcon />
         </RSelect.Icon>
@@ -98,9 +100,12 @@ export function Select({
                 </RSelect.ItemIndicator>
                 <RSelect.ItemText>
                   {o.badge ? (
-                    <span className="inline-flex items-center gap-2">
-                      {o.label}
-                      <Badge tone={o.badge.tone}>{o.badge.label}</Badge>
+                    // Una sola línea: el texto se recorta si no entra y la etiqueta no se parte.
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate">{o.label}</span>
+                      <Badge tone={o.badge.tone} className="shrink-0 whitespace-nowrap">
+                        {o.badge.label}
+                      </Badge>
                     </span>
                   ) : (
                     o.label
