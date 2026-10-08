@@ -34,7 +34,8 @@ const roleByTone: Record<AlertTone, 'alert' | 'status'> = {
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(
   ({ className, tone, title, children, ...props }, ref) => (
     <div ref={ref} role={roleByTone[tone ?? 'neutral']} className={cn(alert({ tone }), className)} {...props}>
-      {title && <p className="font-medium">{title}</p>}
+      {/* El título va en el color del texto (más oscuro que el del tono) para que se lea primero. */}
+      {title && <p className="font-semibold text-text">{title}</p>}
       {children != null && <div className={cn(title && 'mt-1')}>{children}</div>}
     </div>
   ),
