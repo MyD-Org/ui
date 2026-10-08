@@ -158,4 +158,18 @@ describe('RadioGroup', () => {
     expect(fila.className).toMatch(/ring-4/);
     expect(fila.innerHTML).not.toMatch(/bg-primary-soft/);
   });
+  it('muestra `media` bajo el título, aunque la opción no esté elegida', () => {
+    render(
+      <RadioGroup
+        legend="Pago"
+        value="b"
+        onValueChange={() => {}}
+        options={[
+          { value: 'a', label: 'Tarjeta', media: <span>logos-tarjeta</span> },
+          { value: 'b', label: 'Transferencia' },
+        ]}
+      />,
+    );
+    expect(screen.getByText('logos-tarjeta')).toBeInTheDocument();
+  });
 });

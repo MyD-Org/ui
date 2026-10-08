@@ -3,6 +3,7 @@
 import { Fragment, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib/cn.js';
 import { type RenderLink, defaultRenderLink } from '../lib/renderLink.js';
+import { PaymentLogos, type PaymentLogo } from './PaymentLogos.js';
 
 export interface SiteFooterLink {
   label: string;
@@ -29,6 +30,11 @@ export interface SiteFooterProps extends HTMLAttributes<HTMLElement> {
   /** Contenido extra de la barra inferior, a la derecha (p. ej. el QR de Data Fiscal). */
   barExtra?: ReactNode;
   /**
+   * Medios de pago aceptados: una fila con el título y los logos (`PaymentLogos`), entre las columnas y la
+   * barra inferior. Sin logos no se muestra.
+   */
+  payments?: { title: string; logos: PaymentLogo[] };
+  /**
    * Enlace del framework (ej. `next/link`) para los links de las columnas. Sin esto son `<a>`
    * comunes y cada clic recarga la página entera.
    */
@@ -48,7 +54,7 @@ const MAX_LINKS_UNA_COLUMNA = 4;
  * - Desktop: una sola fila, con la descripción recortada a dos líneas.
  * Los links están siempre en el DOM (en mobile, ocultos con CSS hasta abrir).
  */
-export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, barExtra, renderLink = defaultRenderLink, className, ...props }: SiteFooterProps) {
+export function SiteFooter({ brandName, brandAccent, description, columns, barLeft, barRight, barExtra, payments, renderLink = defaultRenderLink, className, ...props }: SiteFooterProps) {
   return (
     <footer className={cn('mt-2 rounded-t-[32px] bg-primary text-on-primary', className)} {...props}>
       <div className="mx-auto max-w-[1280px] px-[clamp(18px,4vw,48px)] pt-6 pb-2 lg:flex lg:items-start lg:gap-12 lg:py-8">
@@ -63,6 +69,14 @@ export function SiteFooter({ brandName, brandAccent, description, columns, barLe
           <FooterColumn key={col.title} column={col} renderLink={renderLink} />
         ))}
       </div>
+      {payments && payments.logos.length > 0 ? (
+        <div className="border-t border-on-primary/15">
+          <div className="mx-auto flex max-w-[1280px] flex-col gap-2 px-[clamp(18px,4vw,48px)] py-3 lg:flex-row lg:items-center lg:gap-4">
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-on-primary/45">{payments.title}</span>
+            <PaymentLogos logos={payments.logos} />
+          </div>
+        </div>
+      ) : null}
       {barLeft || barRight || barExtra ? (
         <div className="border-t border-on-primary/15">
           <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-[clamp(18px,4vw,48px)] py-3 text-xs font-semibold text-on-primary/45">

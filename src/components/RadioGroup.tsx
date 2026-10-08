@@ -23,6 +23,8 @@ export interface RadioOption {
   label: string;
   /** Segunda línea (secundaria, `text-muted`). */
   description?: string;
+  /** Contenido visual bajo el título, siempre visible (ej. los logos de las tarjetas que acepta un medio). */
+  media?: ReactNode;
   /** Etiqueta junto al título (ej. "Predeterminada"). */
   badge?: RadioBadge;
   /** Acción final de la fila (ej. "Editar"). Es un botón aparte: no cambia la selección. */
@@ -45,6 +47,7 @@ export interface RadioProps {
   onChange: (value: string) => void;
   label: string;
   description?: string;
+  media?: ReactNode;
   badge?: RadioBadge;
   action?: RadioAction;
   icon?: ReactNode;
@@ -62,7 +65,7 @@ export interface RadioProps {
  * Para un grupo usar `RadioGroup`.
  */
 export const Radio = forwardRef<HTMLInputElement, RadioProps>(
-  ({ name, value, checked, onChange, label, description, badge, action, icon, content, disabled, id, className }, ref) => {
+  ({ name, value, checked, onChange, label, description, media, badge, action, icon, content, disabled, id, className }, ref) => {
     const auto = useId();
     const base = id ?? auto;
     const labelId = `${base}-label`;
@@ -123,6 +126,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
             {description && (
               <span id={descId} className="text-sm text-muted">{description}</span>
             )}
+            {media && <span className="mt-1.5 block">{media}</span>}
           </span>
         </label>
         {action && (
@@ -190,6 +194,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
               onChange={elegir}
               label={o.label}
               description={o.description}
+              media={o.media}
               badge={o.badge}
               action={o.action}
               icon={o.icon}

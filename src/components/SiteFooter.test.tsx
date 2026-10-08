@@ -125,4 +125,18 @@ describe('SiteFooter', () => {
     );
     expect(container.querySelector('footer > div.border-t')).toContainElement(screen.getByText('extra'));
   });
+  it('muestra la fila de medios de pago con sus logos; sin logos, nada', () => {
+    const { rerender } = render(
+      <SiteFooter
+        brandName="Central"
+        description="d"
+        columns={columns}
+        payments={{ title: 'Medios de pago', logos: [{ name: 'Visa', src: 'https://cdn.example/visa.png' }] }}
+      />,
+    );
+    expect(screen.getByText('Medios de pago')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Visa' })).toHaveAttribute('src', 'https://cdn.example/visa.png');
+    rerender(<SiteFooter brandName="Central" description="d" columns={columns} payments={{ title: 'Medios de pago', logos: [] }} />);
+    expect(screen.queryByText('Medios de pago')).not.toBeInTheDocument();
+  });
 });
