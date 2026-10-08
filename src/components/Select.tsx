@@ -2,10 +2,13 @@
 
 import * as RSelect from '@radix-ui/react-select';
 import { cn } from '../lib/cn.js';
+import { Badge, type BadgeTone } from './Badge.js';
 
 export interface SelectOption {
   label: string;
   value: string;
+  /** Etiqueta junto al texto (ej. "Sin interés"). Se ve en la lista y en el campo cuando está elegida. */
+  badge?: { label: string; tone?: BadgeTone };
 }
 
 export interface SelectProps {
@@ -93,7 +96,16 @@ export function Select({
                 <RSelect.ItemIndicator className="absolute left-2 inline-flex items-center text-primary">
                   <CheckIcon />
                 </RSelect.ItemIndicator>
-                <RSelect.ItemText>{o.label}</RSelect.ItemText>
+                <RSelect.ItemText>
+                  {o.badge ? (
+                    <span className="inline-flex items-center gap-2">
+                      {o.label}
+                      <Badge tone={o.badge.tone}>{o.badge.label}</Badge>
+                    </span>
+                  ) : (
+                    o.label
+                  )}
+                </RSelect.ItemText>
               </RSelect.Item>
             ))}
           </RSelect.Viewport>
