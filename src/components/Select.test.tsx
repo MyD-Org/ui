@@ -16,6 +16,21 @@ describe('Select', () => {
     render(<Select options={options} defaultValue="claude-haiku-4-5" aria-label="modelo" />);
     expect(screen.getByLabelText('modelo')).toHaveTextContent('Haiku');
   });
+  it('muestra la etiqueta (badge) de la opción elegida en el campo', () => {
+    render(
+      <Select
+        options={[
+          { label: '1 pago de $ 100', value: '1' },
+          { label: '6 cuotas de $ 20', value: '6', badge: { label: 'Sin interés', tone: 'success' } },
+        ]}
+        defaultValue="6"
+        aria-label="cuotas"
+      />,
+    );
+    const campo = screen.getByLabelText('cuotas');
+    expect(campo).toHaveTextContent('6 cuotas de $ 20');
+    expect(campo).toHaveTextContent('Sin interés');
+  });
   it('el trigger es un combobox accesible', () => {
     render(<Select options={options} aria-label="modelo" />);
     expect(screen.getByRole('combobox', { name: 'modelo' })).toBeInTheDocument();
