@@ -95,6 +95,7 @@ export { PromoBanner, type PromoBannerProps } from './components/PromoBanner.js'
 export { CtaBanner, type CtaBannerProps } from './components/CtaBanner.js';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader.js';
 export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter.js';
+export { PaymentLogos, type PaymentLogosProps, type PaymentLogo } from './components/PaymentLogos.js';
 export { type RenderLink, type RenderLinkProps } from './lib/renderLink.js';
 export { type RenderImage, type RenderImageProps, defaultRenderImage } from './lib/renderImage.js';
 export { Switch, type SwitchProps } from './components/Switch.js';
