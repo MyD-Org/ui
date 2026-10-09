@@ -39,6 +39,15 @@ export interface SiteHeaderProps extends HTMLAttributes<HTMLElement> {
    * enlace de la marca, así que puede llevar botones u otros controles. Sin esto, nada cambia.
    */
   brandExtra?: ReactNode;
+  /**
+   * Logo (imagen) en lugar de la marca de texto. Reemplaza nombre, acento y descriptor en el
+   * header; `brandName` queda como nombre accesible si el logo no trae el suyo. El alto lo
+   * decide el consumidor (y si quiere otra versión debajo de lg, la alterna él). Sin esto,
+   * nada cambia.
+   */
+  brandLogo?: ReactNode;
+  /** Logo de la barra compacta. Sin esto reusa `brandLogo`. */
+  compactBrandLogo?: ReactNode;
   /** Zona de búsqueda (slot): el consumidor pasa su autocomplete. */
   search?: ReactNode;
   /** Zona de acciones (slot): cuenta, carrito, etc. */
@@ -91,6 +100,8 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
       brandSub,
       brandPlacement = 'center',
       brandExtra,
+      brandLogo,
+      compactBrandLogo,
       search,
       actions,
       mobileStart,
@@ -142,7 +153,12 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
 
     const alInicio = brandPlacement === 'start';
 
-    const marcaLarga = (
+    const conLogo = brandLogo != null && brandLogo !== false;
+    const logoCompacto = compactBrandLogo ?? brandLogo;
+
+    const marcaLarga = conLogo ? (
+      brandLogo
+    ) : (
       <>
         <span className="font-display text-[26px] font-semibold tracking-tight text-text">
           {brandName}
@@ -278,7 +294,9 @@ export const SiteHeader = forwardRef<HTMLElement, SiteHeaderProps>(
               {renderLink({
                 href: '/',
                 className: 'hidden shrink-0 font-display text-lg font-semibold leading-none tracking-tight text-text lg:block',
-                children: (
+                children: conLogo ? (
+                  logoCompacto
+                ) : (
                   <>
                     {brandName}
                     {brandAccent ? (

@@ -37,6 +37,30 @@ describe('SiteHeader', () => {
     expect(screen.getByText('Iluminación · Electricidad')).toBeInTheDocument();
   });
 
+  it('brandLogo reemplaza la marca de texto, también en la barra compacta', () => {
+    const { container } = render(
+      <SiteHeader
+        brandName="Central"
+        brandAccent="Led"
+        brandSub="Iluminación · Electricidad"
+        brandLogo={<img src="/logo.png" alt="Central Led" />}
+        compactBrandLogo={<img src="/logo-chico.png" alt="Central Led" />}
+        compactOnScroll
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Central Led' })).toContainElement(screen.getByRole('img'));
+    expect(screen.queryByText('Iluminación · Electricidad')).toBeNull();
+    expect(container.querySelector('em')).toBeNull();
+    expect(container.querySelector('img[src="/logo-chico.png"]')).not.toBeNull();
+  });
+
+  it('sin compactBrandLogo la barra compacta reusa brandLogo', () => {
+    const { container } = render(
+      <SiteHeader brandName="Central" brandSub="s" brandLogo={<img src="/logo.png" alt="Central" />} compactOnScroll />,
+    );
+    expect(container.querySelectorAll('img[src="/logo.png"]')).toHaveLength(2);
+  });
+
   it('renderiza nav con badge cuando el item la tiene', () => {
     render(
       <SiteHeader
