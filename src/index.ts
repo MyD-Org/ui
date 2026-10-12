@@ -78,6 +78,7 @@ export {
   type DateRangeValue,
 } from './components/DateRangeField.js';
 export { KpiCardSkeleton, ChartSkeleton, TableSkeleton, type ChartSkeletonProps } from './components/WidgetSkeletons.js';
+export { VariantSelector, type VariantSelectorProps, type VariantOption, type VariantSelectorSize } from './components/VariantSelector.js';
 export { ChipRow, type ChipRowProps, type ChipRowItem } from './components/ChipRow.js';
 export { ServiceCard, type ServiceCardProps } from './components/ServiceCard.js';
 export { Marquee, type MarqueeProps, type MarqueeItem, type MarqueeLogo } from './components/Marquee.js';
