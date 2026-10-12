@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 /**
  * Escape hatch para que el consumidor reemplace el `<a>` por su enlace de framework
@@ -14,6 +14,8 @@ export interface RenderLinkProps {
   /** Enlaces duplicados (p. ej. cada foto de la galería de `ProductCard`): fuera del tab y del lector. */
   'aria-hidden'?: boolean;
   tabIndex?: number;
+  /** Clic en el enlace (ej. `VariantSelector` avisa la opción elegida). Opcional: aditivo. */
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
   /** Atributos `data-*` del enlace (ej. `data-size` en el tile de `RoomTiles`). Opcionales: aditivo. */
   [dataAttr: `data-${string}`]: string | undefined;
 }
