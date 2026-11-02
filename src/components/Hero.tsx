@@ -166,7 +166,12 @@ export function Hero({
                   href: cta.href,
                   className: cn(
                     i === 0
-                      ? 'inline-flex items-center gap-2.5 rounded-full bg-primary px-[30px] py-4 text-sm font-extrabold text-on-primary transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-white'
+                      ? cn(
+                          'relative isolate inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-primary px-8 py-4 text-base font-extrabold text-on-primary transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-white',
+                          'shadow-[0_10px_24px_-8px_color-mix(in_srgb,var(--color-primary)_65%,transparent)] hover:shadow-[0_14px_28px_-8px_color-mix(in_srgb,var(--color-accent)_70%,transparent)]',
+                          // Brillo que cruza cada tanto; se apaga con movimiento reducido.
+                          'after:pointer-events-none after:absolute after:inset-y-0 after:left-0 after:w-2/5 after:-skew-x-20 after:bg-linear-to-r after:from-transparent after:via-white/45 after:to-transparent after:animate-shine motion-reduce:after:hidden',
+                        )
                       : 'inline-flex items-center gap-2.5 rounded-full border-[1.5px] border-primary px-[30px] py-4 text-sm font-extrabold text-primary transition-[border-color,color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:text-accent',
                     visibleOnClass(cta.visibleOn),
                   ),

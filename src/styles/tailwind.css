@@ -59,6 +59,13 @@
   --color-highlight: var(--color-highlight);
   --font-display: var(--font-display);
   --animate-marquee: marquee 32s linear infinite;
+  /* Brillo que cruza el CTA principal del Hero cada tanto (pausa ~60% del ciclo). */
+  --animate-shine: shine 3.2s ease-in-out infinite;
+
+  @keyframes shine {
+    0%, 60% { translate: -150% 0; }
+    100% { translate: 300% 0; }
+  }
 
   @keyframes marquee {
     to {
