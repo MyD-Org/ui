@@ -188,4 +188,14 @@ describe('Hero', () => {
     expect(usp).toHaveAttribute('target', '_blank');
     expect(usp).toHaveAttribute('rel', 'noopener noreferrer');
   });
+
+  it('compacto: sin alto mínimo y con menos aire', () => {
+    const { container, rerender } = render(<Hero title="Hola" lead="Bajada" />);
+    const seccion = () => container.querySelector('section')!;
+    expect(seccion().className).toContain('min-h-[clamp(480px,72vh,680px)]');
+    rerender(<Hero title="Hola" lead="Bajada" size="compact" />);
+    expect(seccion().className).not.toContain('min-h-');
+    expect(screen.getByRole('heading', { level: 1 }).className).toContain('text-[clamp(30px,3.4vw,50px)]');
+    expect(screen.getByText('Bajada').closest('p')!.className).toContain('mt-3');
+  });
 });

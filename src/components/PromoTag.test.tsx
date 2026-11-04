@@ -5,7 +5,7 @@ import { PromoTag } from './PromoTag';
 describe('PromoTag', () => {
   it('lee "Hasta", el número y el título en orden', () => {
     const { container } = render(<PromoTag eyebrow="Hasta" value="6" title="cuotas sin interés" text="Con tarjeta de crédito." />);
-    expect(container.querySelector('p')?.textContent).toBe('Hasta 6cuotas sin interés');
+    expect(container.textContent).toBe('Hasta 6cuotas sin interésCon tarjeta de crédito.');
     expect(screen.getByText('Con tarjeta de crédito.')).toBeInTheDocument();
   });
 
@@ -17,6 +17,7 @@ describe('PromoTag', () => {
   it('sin texto ni valor no deja elementos vacíos', () => {
     const { container } = render(<PromoTag title="Envío gratis" />);
     expect(container.querySelectorAll('p')).toHaveLength(1);
+    expect(container.querySelector('.text-muted')).toBeNull();
     expect(container.querySelector('.text-accent')).toBeNull();
   });
 
