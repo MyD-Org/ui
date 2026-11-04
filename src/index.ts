@@ -89,7 +89,7 @@ export {
   type AccentTextProps,
   type AccentSegment,
 } from './components/AccentText.js';
-export { Hero, type HeroProps, type HeroCta, type HeroUsp } from './components/Hero.js';
+export { Hero, type HeroProps, type HeroCta, type HeroUsp, type HeroSize } from './components/Hero.js';
 export { RoomTiles, type RoomTilesProps, type RoomTile, type RoomTileOverlay } from './components/RoomTiles.js';
 export { Carousel, type CarouselProps } from './components/Carousel.js';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner.js';

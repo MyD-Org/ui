@@ -66,7 +66,15 @@ export interface HeroProps extends HTMLAttributes<HTMLElement> {
    * por acá (los http(s) abren en otra pestaña).
    */
   renderLink?: RenderLink;
+  /**
+   * `compact`: sin alto mínimo y con menos aire, para que el hero y lo que va
+   * debajo (ej. avisos de promociones) entren en la primera pantalla.
+   * Default `default`.
+   */
+  size?: HeroSize;
 }
+
+export type HeroSize = 'default' | 'compact';
 
 export function Hero({
   eyebrow,
@@ -86,13 +94,17 @@ export function Hero({
   renderImage = defaultRenderImage,
   imageSizes = '100vw',
   renderLink = defaultRenderLink,
+  size = 'default',
   className,
   ...props
 }: HeroProps) {
+  const compact = size === 'compact';
   return (
     <section
       className={cn(
-        'relative isolate flex min-h-[clamp(480px,72vh,680px)] items-center overflow-hidden rounded-[28px] shadow-2',
+        // Compacto: alto según el contenido.
+        'relative isolate flex items-center overflow-hidden rounded-[28px] shadow-2',
+        compact ? null : 'min-h-[clamp(480px,72vh,680px)]',
         className,
       )}
       {...props}
@@ -117,7 +129,9 @@ export function Hero({
           pantalla. */}
       <div
         className={cn(
-          'relative flex max-w-[600px] flex-col items-start justify-center self-stretch p-[clamp(28px,5vw,72px)]',
+          compact
+            ? 'relative flex max-w-[640px] flex-col items-start justify-center self-stretch px-[clamp(24px,5vw,72px)] py-[clamp(24px,3.2vw,44px)]'
+            : 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch p-[clamp(28px,5vw,72px)]',
           "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:-right-24 before:-z-10 before:content-['']",
           'before:bg-[linear-gradient(to_right,rgba(247,242,234,0.9)_0%,rgba(247,242,234,0.78)_70%,transparent_100%)]',
         )}
@@ -125,7 +139,8 @@ export function Hero({
         {eyebrow ? (
           <span
             className={cn(
-              "mb-5 inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent-strong before:h-[1.5px] before:w-[26px] before:bg-accent-strong before:content-['']",
+              compact ? 'mb-3' : 'mb-5',
+              "inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent-strong before:h-[1.5px] before:w-[26px] before:bg-accent-strong before:content-['']",
               visibleOnClass(eyebrowVisibleOn),
             )}
           >
@@ -135,7 +150,8 @@ export function Hero({
         {title || titleMobile || accent ? (
           <h1
             className={cn(
-              'font-display text-[clamp(38px,4.6vw,64px)] font-medium leading-[1.06] tracking-tight text-text',
+              compact ? 'text-[clamp(30px,3.4vw,50px)] leading-[1.05]' : 'text-[clamp(38px,4.6vw,64px)] leading-[1.06]',
+              'font-display font-medium tracking-tight text-text',
               visibleOnClass(titleVisibleOn),
             )}
           >
@@ -151,7 +167,10 @@ export function Hero({
         {lead || leadMobile ? (
           <p
             className={cn(
-              'mt-5 max-w-[42ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.65] text-muted',
+              compact
+                ? 'mt-3 max-w-[46ch] text-[clamp(14px,1.2vw,16.5px)] leading-[1.55]'
+                : 'mt-5 max-w-[42ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.65]',
+              'text-muted',
               visibleOnClass(leadVisibleOn),
             )}
           >
@@ -159,7 +178,7 @@ export function Hero({
           </p>
         ) : null}
         {ctas && ctas.length > 0 ? (
-          <div className="mt-8 flex flex-wrap gap-3.5">
+          <div className={cn(compact ? 'mt-5' : 'mt-8', 'flex flex-wrap gap-3.5')}>
             {ctas.map((cta, i) => (
               <Fragment key={cta.href + cta.label}>
                 {renderLink({
@@ -182,7 +201,12 @@ export function Hero({
           </div>
         ) : null}
         {usps && usps.length > 0 ? (
-          <div className="mt-9 flex flex-wrap gap-8 text-[13px] font-bold text-muted [&_svg]:h-[17px] [&_svg]:w-[17px] [&_svg]:text-accent">
+          <div
+            className={cn(
+              compact ? 'mt-5 gap-x-6 gap-y-2 [&>*]:whitespace-nowrap' : 'mt-9 gap-8',
+              'flex flex-wrap text-[13px] font-bold text-muted [&_svg]:h-[17px] [&_svg]:w-[17px] [&_svg]:text-accent',
+            )}
+          >
             {usps.map((usp) =>
               usp.href ? (
                 <a
