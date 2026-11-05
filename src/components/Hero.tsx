@@ -139,6 +139,7 @@ export function Hero({
           que el texto): el contraste no depende de la foto ni del ancho de
           pantalla. */}
       <div
+        data-hero-content=""
         className={cn(
           conPie && 'flex-1',
           compact
@@ -251,7 +252,16 @@ export function Hero({
       </div>
       {conPie ? (
         // Vacío (ej. un hueco que no trajo nada) ⇒ `empty:hidden`, no deja aire.
-        <div className="relative px-3 pb-3 empty:hidden sm:px-[clamp(16px,2.2vw,32px)] sm:pb-[clamp(16px,2.2vw,32px)] md:max-w-[min(720px,100%)] md:self-start">
+        <div
+          data-hero-footer=""
+          className={cn(
+            'relative px-3 pb-3 empty:hidden sm:px-[clamp(16px,2.2vw,32px)] sm:pb-[clamp(16px,2.2vw,32px)] md:max-w-[min(720px,100%)] md:self-start',
+            // Mobile: el velo de la columna de texto sigue por debajo del pie; si no, la foto queda
+            // partida en dos (lavada arriba, cruda abajo) justo donde empieza la barra.
+            "max-md:before:pointer-events-none max-md:before:absolute max-md:before:inset-y-0 max-md:before:left-0 max-md:before:-right-24 max-md:before:-z-10 max-md:before:content-['']",
+            'max-md:before:bg-[linear-gradient(to_right,rgba(247,242,234,0.9)_0%,rgba(247,242,234,0.78)_70%,transparent_100%)]',
+          )}
+        >
           {footer}
         </div>
       ) : null}
