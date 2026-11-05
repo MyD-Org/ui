@@ -209,8 +209,8 @@ describe('Hero', () => {
   it('con footer lo dibuja al pie; sin footer no hay pie', () => {
     const { container, rerender } = render(<Hero title="t" imageSrc="/h.jpg" footer={<p>Hasta 8 cuotas</p>} />);
     expect(screen.getByText('Hasta 8 cuotas')).toBeInTheDocument();
-    expect(container.querySelector('section')).toHaveClass('flex-col');
+    expect(container.querySelector('[data-hero-footer]')).toHaveTextContent('Hasta 8 cuotas');
     rerender(<Hero title="t" imageSrc="/h.jpg" />);
-    expect(container.querySelector('section')).not.toHaveClass('flex-col');
+    expect(container.querySelector('[data-hero-footer]')).toBeNull();
   });
 });

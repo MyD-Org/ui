@@ -112,9 +112,10 @@ export function Hero({
     <section
       className={cn(
         // Compacto: alto según el contenido, sólo en mobile.
-        // Con pie: columna (texto centrado arriba, pie al fondo).
+        // Con pie, en mobile: columna (texto arriba, pie al fondo). Desde md el pie va superpuesto
+        // abajo a la izquierda y el alto del hero no cambia (una foto con `contain` no deja bandas).
         'relative isolate flex overflow-hidden rounded-[28px] shadow-2',
-        conPie ? 'flex-col' : 'items-center',
+        conPie ? 'max-md:flex-col md:items-center' : 'items-center',
         compact ? 'md:min-h-[clamp(480px,72vh,680px)]' : 'min-h-[clamp(480px,72vh,680px)]',
         className,
       )}
@@ -141,14 +142,15 @@ export function Hero({
       <div
         data-hero-content=""
         className={cn(
-          conPie && 'flex-1',
+          conPie && 'max-md:flex-1',
           compact
             ? 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch max-md:px-[clamp(24px,5vw,72px)] max-md:py-[clamp(24px,3.2vw,44px)] md:p-[clamp(28px,5vw,72px)]'
             : 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch p-[clamp(28px,5vw,72px)]',
           "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:-right-24 before:-z-10 before:content-['']",
           'before:bg-[linear-gradient(to_right,rgba(247,242,234,0.9)_0%,rgba(247,242,234,0.78)_70%,transparent_100%)]',
-          // Con pie, menos aire abajo: el pie ya separa el texto del borde.
-          conPie && 'pb-5 md:pb-6',
+          // Con pie: en mobile menos aire abajo (el pie ya separa el texto del borde); desde md, lugar
+          // para el pie superpuesto y menos aire arriba para compensar.
+          conPie && 'pb-5 md:pb-[clamp(104px,9vw,128px)] md:pt-[clamp(28px,3.5vw,52px)]',
         )}
       >
         {eyebrow ? (
@@ -255,7 +257,8 @@ export function Hero({
         <div
           data-hero-footer=""
           className={cn(
-            'relative px-3 pb-3 empty:hidden sm:px-[clamp(16px,2.2vw,32px)] sm:pb-[clamp(16px,2.2vw,32px)] md:max-w-[min(720px,100%)] md:self-start',
+            'relative px-3 pb-3 empty:hidden sm:px-[clamp(16px,2.2vw,32px)] sm:pb-[clamp(16px,2.2vw,32px)]',
+            'md:absolute md:bottom-[clamp(16px,2.2vw,32px)] md:left-[clamp(16px,2.2vw,32px)] md:max-w-[min(720px,calc(100%-64px))] md:p-0',
             // Mobile: el velo de la columna de texto sigue por debajo del pie; si no, la foto queda
             // partida en dos (lavada arriba, cruda abajo) justo donde empieza la barra.
             "max-md:before:pointer-events-none max-md:before:absolute max-md:before:inset-y-0 max-md:before:left-0 max-md:before:-right-24 max-md:before:-z-10 max-md:before:content-['']",
