@@ -189,13 +189,20 @@ describe('Hero', () => {
     expect(usp).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('compacto: sin alto mínimo y con menos aire', () => {
+  it('compacto: sin alto mínimo y con menos aire sólo en mobile', () => {
     const { container, rerender } = render(<Hero title="Hola" lead="Bajada" />);
     const seccion = () => container.querySelector('section')!;
-    expect(seccion().className).toContain('min-h-[clamp(480px,72vh,680px)]');
+    const clases = () => seccion().className.split(' ');
+    expect(clases()).toContain('min-h-[clamp(480px,72vh,680px)]');
     rerender(<Hero title="Hola" lead="Bajada" size="compact" />);
-    expect(seccion().className).not.toContain('min-h-');
-    expect(screen.getByRole('heading', { level: 1 }).className).toContain('text-[clamp(30px,3.4vw,50px)]');
-    expect(screen.getByText('Bajada').closest('p')!.className).toContain('mt-3');
+    // En mobile no hay alto mínimo; desde md vuelve el del default.
+    expect(clases()).not.toContain('min-h-[clamp(480px,72vh,680px)]');
+    expect(clases()).toContain('md:min-h-[clamp(480px,72vh,680px)]');
+    const h1 = screen.getByRole('heading', { level: 1 }).className;
+    expect(h1).toContain('text-[clamp(30px,3.4vw,50px)]');
+    expect(h1).toContain('md:text-[clamp(38px,4.6vw,64px)]');
+    const p = screen.getByText('Bajada').closest('p')!.className;
+    expect(p).toContain('mt-3');
+    expect(p).toContain('md:mt-5');
   });
 });

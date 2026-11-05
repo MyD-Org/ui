@@ -67,8 +67,9 @@ export interface HeroProps extends HTMLAttributes<HTMLElement> {
    */
   renderLink?: RenderLink;
   /**
-   * `compact`: sin alto mínimo y con menos aire, para que el hero y lo que va
-   * debajo (ej. avisos de promociones) entren en la primera pantalla.
+   * `compact`: en mobile, sin alto mínimo y con menos aire, para que el hero y
+   * lo que va debajo (ej. avisos de promociones) entren en la primera pantalla.
+   * Desde `md` es igual al default.
    * Default `default`.
    */
   size?: HeroSize;
@@ -102,9 +103,9 @@ export function Hero({
   return (
     <section
       className={cn(
-        // Compacto: alto según el contenido.
+        // Compacto: alto según el contenido, sólo en mobile.
         'relative isolate flex items-center overflow-hidden rounded-[28px] shadow-2',
-        compact ? null : 'min-h-[clamp(480px,72vh,680px)]',
+        compact ? 'md:min-h-[clamp(480px,72vh,680px)]' : 'min-h-[clamp(480px,72vh,680px)]',
         className,
       )}
       {...props}
@@ -130,7 +131,7 @@ export function Hero({
       <div
         className={cn(
           compact
-            ? 'relative flex max-w-[640px] flex-col items-start justify-center self-stretch px-[clamp(24px,5vw,72px)] py-[clamp(24px,3.2vw,44px)]'
+            ? 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch max-md:px-[clamp(24px,5vw,72px)] max-md:py-[clamp(24px,3.2vw,44px)] md:p-[clamp(28px,5vw,72px)]'
             : 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch p-[clamp(28px,5vw,72px)]',
           "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:-right-24 before:-z-10 before:content-['']",
           'before:bg-[linear-gradient(to_right,rgba(247,242,234,0.9)_0%,rgba(247,242,234,0.78)_70%,transparent_100%)]',
@@ -139,7 +140,7 @@ export function Hero({
         {eyebrow ? (
           <span
             className={cn(
-              compact ? 'mb-3' : 'mb-5',
+              compact ? 'mb-3 md:mb-5' : 'mb-5',
               "inline-flex items-center gap-2.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent-strong before:h-[1.5px] before:w-[26px] before:bg-accent-strong before:content-['']",
               visibleOnClass(eyebrowVisibleOn),
             )}
@@ -150,7 +151,9 @@ export function Hero({
         {title || titleMobile || accent ? (
           <h1
             className={cn(
-              compact ? 'text-[clamp(30px,3.4vw,50px)] leading-[1.05]' : 'text-[clamp(38px,4.6vw,64px)] leading-[1.06]',
+              compact
+                ? 'text-[clamp(30px,3.4vw,50px)] leading-[1.05] md:text-[clamp(38px,4.6vw,64px)] md:leading-[1.06]'
+                : 'text-[clamp(38px,4.6vw,64px)] leading-[1.06]',
               'font-display font-medium tracking-tight text-text',
               visibleOnClass(titleVisibleOn),
             )}
@@ -168,7 +171,7 @@ export function Hero({
           <p
             className={cn(
               compact
-                ? 'mt-3 max-w-[46ch] text-[clamp(14px,1.2vw,16.5px)] leading-[1.55]'
+                ? 'mt-3 max-w-[46ch] text-[clamp(14px,1.2vw,16.5px)] leading-[1.55] md:mt-5 md:max-w-[42ch] md:text-[clamp(15px,1.35vw,17.5px)] md:leading-[1.65]'
                 : 'mt-5 max-w-[42ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.65]',
               'text-muted',
               visibleOnClass(leadVisibleOn),
@@ -178,7 +181,7 @@ export function Hero({
           </p>
         ) : null}
         {ctas && ctas.length > 0 ? (
-          <div className={cn(compact ? 'mt-5' : 'mt-8', 'flex flex-wrap gap-3.5')}>
+          <div className={cn(compact ? 'mt-5 md:mt-8' : 'mt-8', 'flex flex-wrap gap-3.5')}>
             {ctas.map((cta, i) => (
               <Fragment key={cta.href + cta.label}>
                 {renderLink({
@@ -203,7 +206,9 @@ export function Hero({
         {usps && usps.length > 0 ? (
           <div
             className={cn(
-              compact ? 'mt-5 gap-x-6 gap-y-2 [&>*]:whitespace-nowrap' : 'mt-9 gap-8',
+              compact
+                ? 'mt-5 max-md:gap-x-6 max-md:gap-y-2 max-md:[&>*]:whitespace-nowrap md:mt-9 md:gap-8'
+                : 'mt-9 gap-8',
               'flex flex-wrap text-[13px] font-bold text-muted [&_svg]:h-[17px] [&_svg]:w-[17px] [&_svg]:text-accent',
             )}
           >

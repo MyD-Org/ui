@@ -56,6 +56,9 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard`, `SectionNav`, `SiteHeader`, `SiteFooter`, `PromoBanner`, `CtaBanner`, `Hero` (ctas) y `RoomTiles`. Acepta atributos `data-*` opcionales (ej. `data-size` del tile). (`SideNav` conserva su firma posicional vieja.)
 - **`renderImage`** (`src/lib/renderImage.tsx`): escape hatch gemelo para imágenes: `{ src, alt, className?, sizes, fit: 'cover' | 'logo', priority?, data-*? }` → nodo, para enchufar `next/image` sin reconstruir clases. El componente decide `sizes` según su layout (se pisa con `imageSizes`) y el nodo va en el mismo lugar del árbol que el `<img>` (sin envolverlo). `defaultRenderImage` = `<img loading={priority ? 'eager' : 'lazy'} decoding="async">`, sin `fetchPriority` (cambia de nombre entre React 18 y 19). Lo usan `Hero`, `PromoBanner`, `RoomTiles` y `Marquee`.
 
+### Changelog 0.61.0 (fix, sin cambios de API)
+- **`Hero` `size="compact"` sólo en mobile**: desde `md` el hero vuelve a ser igual al default (alto mínimo, título y aire de siempre). En desktop el compacto se veía mal.
+
 ### Changelog 0.60.0
 - **`Hero` `size="compact"`** (opcional, default `default`): sin alto mínimo, menos aire y título más chico, para que el hero y lo que va debajo (promos de pago) entren en la primera pantalla. Nuevo tipo `HeroSize`.
 - **`PromoTag` más compacta**: en desktop número y textos en una franja (número a la izquierda, título y texto apilados); en mobile "Hasta" va al lado del número. Misma API.
