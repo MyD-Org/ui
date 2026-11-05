@@ -73,6 +73,12 @@ export interface HeroProps extends HTMLAttributes<HTMLElement> {
    * Default `default`.
    */
   size?: HeroSize;
+  /**
+   * Pie del hero, abajo a la izquierda y del ancho de la columna de texto, para
+   * que no tape la foto (ej. un `PromoBar` con las promociones de pago). Puede
+   * llegar por streaming: si lo que se pasa no dibuja nada, el pie no ocupa lugar.
+   */
+  footer?: ReactNode;
 }
 
 export type HeroSize = 'default' | 'compact';
@@ -96,15 +102,19 @@ export function Hero({
   imageSizes = '100vw',
   renderLink = defaultRenderLink,
   size = 'default',
+  footer,
   className,
   ...props
 }: HeroProps) {
   const compact = size === 'compact';
+  const conPie = footer != null;
   return (
     <section
       className={cn(
         // Compacto: alto según el contenido, sólo en mobile.
-        'relative isolate flex items-center overflow-hidden rounded-[28px] shadow-2',
+        // Con pie: columna (texto centrado arriba, pie al fondo).
+        'relative isolate flex overflow-hidden rounded-[28px] shadow-2',
+        conPie ? 'flex-col' : 'items-center',
         compact ? 'md:min-h-[clamp(480px,72vh,680px)]' : 'min-h-[clamp(480px,72vh,680px)]',
         className,
       )}
@@ -130,11 +140,14 @@ export function Hero({
           pantalla. */}
       <div
         className={cn(
+          conPie && 'flex-1',
           compact
             ? 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch max-md:px-[clamp(24px,5vw,72px)] max-md:py-[clamp(24px,3.2vw,44px)] md:p-[clamp(28px,5vw,72px)]'
             : 'relative flex max-w-[600px] flex-col items-start justify-center self-stretch p-[clamp(28px,5vw,72px)]',
           "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:-right-24 before:-z-10 before:content-['']",
           'before:bg-[linear-gradient(to_right,rgba(247,242,234,0.9)_0%,rgba(247,242,234,0.78)_70%,transparent_100%)]',
+          // Con pie, menos aire abajo: el pie ya separa el texto del borde.
+          conPie && 'pb-5 md:pb-6',
         )}
       >
         {eyebrow ? (
@@ -236,6 +249,12 @@ export function Hero({
           </div>
         ) : null}
       </div>
+      {conPie ? (
+        // Vacío (ej. un hueco que no trajo nada) ⇒ `empty:hidden`, no deja aire.
+        <div className="relative px-3 pb-3 empty:hidden sm:px-[clamp(16px,2.2vw,32px)] sm:pb-[clamp(16px,2.2vw,32px)] md:max-w-[min(720px,100%)] md:self-start">
+          {footer}
+        </div>
+      ) : null}
     </section>
   );
 }

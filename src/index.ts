@@ -94,6 +94,7 @@ export { RoomTiles, type RoomTilesProps, type RoomTile, type RoomTileOverlay } f
 export { Carousel, type CarouselProps } from './components/Carousel.js';
 export { PromoBanner, type PromoBannerProps } from './components/PromoBanner.js';
 export { PromoTag, type PromoTagProps } from './components/PromoTag.js';
+export { PromoBar, type PromoBarProps, type PromoBarItem } from './components/PromoBar.js';
 export { CtaBanner, type CtaBannerProps } from './components/CtaBanner.js';
 export { SiteHeader, type SiteHeaderProps, type SiteNavItem } from './components/SiteHeader.js';
 export { SiteFooter, type SiteFooterProps, type SiteFooterColumn, type SiteFooterLink } from './components/SiteFooter.js';
