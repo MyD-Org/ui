@@ -56,6 +56,10 @@ No se construye el renderer acá — es iniciativa aparte. Pero la API se diseñ
 - **`renderLink`** (`src/lib/renderLink.tsx`): escape hatch con objeto de props `{ href, className, children, aria-label?, aria-current? }` para que el consumidor enchufe su `<Link>` sin reconstruir clases. Lo usan `Breadcrumb`, `Pagination`, `ProductCard.href`, `Button.href`, `StatCard`, `SectionNav`, `SiteHeader`, `SiteFooter`, `PromoBanner`, `CtaBanner`, `Hero` (ctas) y `RoomTiles`. Acepta atributos `data-*` opcionales (ej. `data-size` del tile). (`SideNav` conserva su firma posicional vieja.)
 - **`renderImage`** (`src/lib/renderImage.tsx`): escape hatch gemelo para imágenes: `{ src, alt, className?, sizes, fit: 'cover' | 'logo', priority?, data-*? }` → nodo, para enchufar `next/image` sin reconstruir clases. El componente decide `sizes` según su layout (se pisa con `imageSizes`) y el nodo va en el mismo lugar del árbol que el `<img>` (sin envolverlo). `defaultRenderImage` = `<img loading={priority ? 'eager' : 'lazy'} decoding="async">`, sin `fetchPriority` (cambia de nombre entre React 18 y 19). Lo usan `Hero`, `PromoBanner`, `RoomTiles` y `Marquee`.
 
+### Changelog 0.62.0 (aditivo: el default no cambia)
+- **`Hero` `footer`** (opcional): pie abajo a la izquierda (marcado con `data-hero-footer`; la columna de texto, con `data-hero-content`, para que el consumidor no dependa del orden de los hijos), del ancho de la columna de texto, para que no tape la foto. En mobile el pie va debajo del texto; desde `md` va superpuesto y el alto del hero no cambia; si el nodo no dibuja nada (un hueco por streaming vacío) no ocupa lugar (`empty:hidden`).
+- **`PromoBar`** (componente nuevo): barra translúcida de promociones para ir sobre una foto. `items: PromoBarItem[]` con `value`, `eyebrow`, `decorativeValue`, `title`, `text` (los de `PromoTag`). En fila desde `sm`, apilada en mobile. Pensada para el `footer` del `Hero`.
+
 ### Changelog 0.61.0 (fix, sin cambios de API)
 - **`Hero` `size="compact"` sólo en mobile**: desde `md` el hero vuelve a ser igual al default (alto mínimo, título y aire de siempre). En desktop el compacto se veía mal.
 

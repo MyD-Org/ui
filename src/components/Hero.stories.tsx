@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Hero } from './Hero';
+import { PromoBar } from './PromoBar';
 import type { RenderImage } from '../lib/renderImage';
 
 /**
@@ -40,4 +41,19 @@ export const Default: Story = {};
 export const ConRenderImage: Story = {
   name: 'Con renderImage (next/image)',
   args: { renderImage: imagenDeFramework },
+};
+
+/** Promos de pago al pie: del ancho de la columna de texto, no tapan la foto. */
+export const ConPromosAlPie: Story = {
+  args: {
+    usps: undefined,
+    footer: (
+      <PromoBar
+        items={[
+          { eyebrow: 'Hasta', value: '8', title: 'cuotas sin interés', text: 'Con tarjeta de crédito. Desde $ 30.000.' },
+          { value: '%', decorativeValue: true, title: 'Grandes descuentos', text: 'Pagando con transferencia.' },
+        ]}
+      />
+    ),
+  },
 };
