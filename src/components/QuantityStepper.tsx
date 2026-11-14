@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority';
 import { cn } from '../lib/cn.js';
 
 export type QuantityStepperSize = 'sm' | 'md' | 'lg';
-export type QuantityStepperTone = 'outline' | 'soft';
+export type QuantityStepperTone = 'outline' | 'soft' | 'solid';
 
 export interface QuantityStepperProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange' | 'value' | 'defaultValue' | 'size'> {
@@ -37,6 +37,8 @@ const raiz = cva('inline-flex items-center', {
     tone: {
       outline: 'rounded-sm border border-border-strong',
       soft: 'rounded-sm bg-accent-soft text-accent',
+      /** Píldora del color primario, para ir encima de una foto (ProductCard `market`, 0.63.0). */
+      solid: 'rounded-full bg-primary text-on-primary shadow-1',
     },
     fullWidth: { true: 'flex w-full', false: '' },
   },
@@ -83,12 +85,17 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
     const [draft, setDraft] = useState<string | null>(null);
     const displayed = draft ?? String(value);
     const soft = tone === 'soft';
+    const solid = tone === 'solid';
     const quita = removeLabel != null && value > min && value - step <= min;
 
     const boton = cn(
       'flex shrink-0 items-center justify-center text-lg transition-colors disabled:pointer-events-none',
       alto[size].boton,
-      soft ? 'rounded-sm text-accent hover:bg-accent/10 disabled:opacity-40' : 'text-muted hover:bg-elevated',
+      solid
+        ? 'rounded-full text-on-primary hover:bg-on-primary/10 disabled:opacity-40'
+        : soft
+          ? 'rounded-sm text-accent hover:bg-accent/10 disabled:opacity-40'
+          : 'text-muted hover:bg-elevated',
     );
 
     return (
@@ -98,7 +105,7 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
           aria-label={quita ? removeLabel : decrementLabel}
           disabled={disabled || value <= min}
           onClick={() => onValueChange(clamp(value - step))}
-          className={cn(boton, !soft && 'rounded-l-sm')}
+          className={cn(boton, !soft && !solid && 'rounded-l-sm')}
         >
           {quita ? <TachoIcon /> : '−'}
         </button>
@@ -117,7 +124,11 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
           className={cn(
             'bg-transparent text-center pointer-coarse:text-base outline-none',
             alto[size].input,
-            soft ? 'font-semibold text-text' : 'border-x border-border-strong font-medium text-text',
+            solid
+              ? 'w-7 font-bold text-on-primary'
+              : soft
+                ? 'font-semibold text-text'
+                : 'border-x border-border-strong font-medium text-text',
             fullWidth && 'min-w-0 flex-1',
           )}
           {...props}
@@ -127,7 +138,7 @@ export const QuantityStepper = forwardRef<HTMLInputElement, QuantityStepperProps
           aria-label={incrementLabel}
           disabled={disabled || value >= max}
           onClick={() => onValueChange(clamp(value + step))}
-          className={cn(boton, !soft && 'rounded-r-sm')}
+          className={cn(boton, !soft && !solid && 'rounded-r-sm')}
         >
           +
         </button>

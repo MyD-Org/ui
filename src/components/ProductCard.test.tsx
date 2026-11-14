@@ -382,3 +382,35 @@ describe('variant soft (0.37.0)', () => {
     expect(container.querySelector('[data-precio]')).toBeNull();
   });
 });
+
+describe('variant market (0.63.0)', () => {
+  it('pone la acción sobre la foto y no debajo del precio', () => {
+    const { container } = render(
+      <ProductCard variant="market" name="Reflector LED" price={7892.1} image={<img alt="" />} action={<button type="button">Agregar</button>} />,
+    );
+    const accion = container.querySelector('[data-accion-foto]');
+    expect(accion?.textContent).toBe('Agregar');
+    expect(accion?.parentElement?.className).toContain('aspect-square');
+  });
+
+  it('muestra el caption pegado al precio con el tono accent', () => {
+    const { container } = render(
+      <ProductCard variant="market" name="Reflector LED" price={6393} priceTone="accent" priceCaption="con transferencia" installments="$ 7.892,10 con otros medios" />,
+    );
+    expect(container.querySelector('[data-precio]')?.parentElement?.className).toContain('text-accent');
+    expect(screen.getByText('con transferencia').className).toContain('text-accent');
+    expect(screen.getByText('$ 7.892,10 con otros medios')).toBeInTheDocument();
+  });
+
+  it('agrega la marca al final del nombre y no muestra el código', () => {
+    render(<ProductCard variant="market" name="Panel plafón 24W" brand="Macroled" code="PC24" price={100} />);
+    expect(screen.getByRole('heading').textContent).toBe('Panel plafón 24W · Macroled');
+    expect(screen.queryByText(/PC24/)).not.toBeInTheDocument();
+  });
+
+  it('en layout list se dibuja como soft', () => {
+    const { container } = render(<ProductCard variant="market" layout="list" name="X" price={100} />);
+    expect(container.firstElementChild?.getAttribute('data-variant')).toBeNull();
+    expect(container.firstElementChild?.getAttribute('data-layout')).toBe('list');
+  });
+});

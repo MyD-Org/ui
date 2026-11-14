@@ -292,3 +292,16 @@ export const SoftLista: Story = {
     </div>
   ),
 };
+
+/** `variant="market"` (0.63.0): la foto manda, la acción va sobre la foto y el precio primero. */
+export const Market: Story = {
+  render: () => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6, maxWidth: 380, background: '#eef0f2', padding: 8 }}>
+      <ProductCard variant="market" href="#" brand="King" name="Reflector LED 30W frío 6500K" price={6393} priceTone="accent" priceCaption="con transferencia"
+        installments="$ 7.892,10 con otros medios" stock="low" stockLabel="Quedan 4" image={fotoSoft}
+        action={<Button size="icon" shape="round" aria-label="Agregar al carrito">+</Button>} />
+      <ProductCard variant="market" href="#" brand="Macroled" name="Panel plafón cuadrado 24W frío" price={27517.72} showStock={false} image={fotoSoft}
+        installments="6 cuotas sin interés de $ 4.586,29" action={<Button size="icon" shape="round" aria-label="Agregar al carrito">+</Button>} />
+    </div>
+  ),
+};
