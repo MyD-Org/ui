@@ -88,3 +88,11 @@ describe('size, tone, fullWidth y removeLabel (0.37.0)', () => {
     expect(screen.getByRole('button', { name: 'Disminuir cantidad' })).toBeEnabled();
   });
 });
+
+describe('tone solid (0.63.0)', () => {
+  it('dibuja una píldora del color primario', () => {
+    const { container } = render(<QuantityStepper aria-label="Cantidad" value={2} onValueChange={() => {}} tone="solid" size="sm" />);
+    expect(container.firstElementChild?.className).toContain('bg-primary');
+    expect(container.firstElementChild?.className).toContain('rounded-full');
+  });
+});

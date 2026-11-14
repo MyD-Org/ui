@@ -19,6 +19,12 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
       // Hover suave: en una grilla de 24 la card no "se levanta" (shadow-2 es la elevación de
       // un popover); se refuerza el filo y aparece una sombra mínima.
       soft: 'cursor-pointer overflow-hidden rounded-[18px] bg-surface ring-1 ring-border/40 hover:shadow-1 hover:ring-border',
+      /**
+       * Estilo marketplace (0.63.0): la foto manda. Foto cuadrada a sangre, la acción encima de
+       * la foto (abajo a la derecha), el precio primero y el nombre chico. En `list` se dibuja
+       * como `soft`.
+       */
+      market: 'cursor-pointer overflow-hidden rounded-xl bg-surface ring-1 ring-border/30 hover:shadow-1 hover:ring-border',
     },
     layout: {
       grid: 'flex-col',
@@ -60,7 +66,7 @@ const imageWrapSoft = cva('relative flex items-center justify-center overflow-hi
 
 const priceText = cva('text-text', {
   variants: {
-    variant: { default: '', editorial: '', soft: '' },
+    variant: { default: '', editorial: '', soft: '', market: '' },
     priceSize: { md: '', sm: '' },
   },
   compoundVariants: [
@@ -72,6 +78,15 @@ const priceText = cva('text-text', {
     { variant: 'soft', priceSize: 'sm', className: 'font-display text-sm font-medium tracking-tight sm:text-base' },
   ],
   defaultVariants: { variant: 'default', priceSize: 'md' },
+});
+
+/** Precio de `market`: el más fuerte de la card. `accent` lo tiñe con el acento de la marca. */
+const priceMarket = cva('font-display font-bold tracking-tight', {
+  variants: {
+    priceSize: { md: 'text-[19px] sm:text-xl', sm: 'text-base' },
+    priceTone: { default: 'text-text', accent: 'text-accent' },
+  },
+  defaultVariants: { priceSize: 'md', priceTone: 'default' },
 });
 
 const stockIndicator = cva('inline-flex items-center gap-1.5 text-xs font-medium', {
@@ -107,6 +122,7 @@ export type ProductStock = 'in' | 'low' | 'out';
 export type ProductCardVariant = NonNullable<VariantProps<typeof card>['variant']>;
 export type ProductCardLayout = NonNullable<VariantProps<typeof card>['layout']>;
 export type ProductCardActionPlacement = 'inline' | 'below';
+export type ProductCardPriceTone = 'default' | 'accent';
 
 export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof card> {
   image?: ReactNode;
@@ -158,6 +174,13 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   priceNote?: ReactNode;
   /** Linea de financiacion bajo el precio (ej. "Hasta 3 cuotas de $5.840,69"). */
   installments?: ReactNode;
+  /**
+   * Sólo `variant="market"`: aclaración corta pegada debajo del precio, del mismo color
+   * (ej. "con transferencia" cuando el precio principal es el de un medio de pago).
+   */
+  priceCaption?: ReactNode;
+  /** Sólo `variant="market"`: color del precio. Default 'default'. */
+  priceTone?: ProductCardPriceTone;
   /**
    * Enlace de la ficha. El nombre pasa a ser un `<a>` "estirado" que cubre toda la card
    * (patrón stretched link): un solo link por card y el slot `action` queda fuera del anchor.
@@ -222,6 +245,8 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       actionPlacement = 'inline',
       priceNote,
       installments,
+      priceCaption,
+      priceTone = 'default',
       href,
       renderLink = defaultRenderLink,
       cornerAction,
@@ -246,7 +271,18 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       });
     };
     const fmt = (n: number) => formatter(n).format(n);
-    if (variant === 'soft') {
+    if (variant === 'market' && resolvedLayout === 'grid') {
+      return (
+        <MarketCard
+          ref={ref}
+          galeria={galeria}
+          className={className}
+          {...{ images, image, imagesLabels, badge, brand, name, stock, stockLabel, showStock, price, priceSize, priceTone, priceCaption, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
+          {...props}
+        />
+      );
+    }
+    if (variant === 'soft' || variant === 'market') {
       return (
         <SoftCard
           ref={ref}
@@ -448,6 +484,79 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
   },
 );
 SoftCard.displayName = 'ProductCard';
+
+type MarketCardProps = Omit<
+  ProductCardProps,
+  'variant' | 'layout' | 'actionPlacement' | 'currency' | 'locale' | 'code' | 'codeLabel'
+> & {
+  galeria: boolean;
+  stock: ProductStock;
+  showStock: boolean;
+  priceTone: ProductCardPriceTone;
+  renderLink: RenderLink;
+  fmt: (n: number) => string;
+  formatter: (n: number) => Intl.NumberFormat;
+};
+
+/**
+ * `variant="market"` en grilla (0.63.0), como los marketplaces: la foto cuadrada a sangre ocupa
+ * la mayor parte de la card. La acción (un "+" o un contador compacto) va SOBRE la foto, abajo a
+ * la derecha, y no ocupa una fila. Debajo: precio (con `priceCaption` pegado), `installments`
+ * (precios secundarios, cuotas), nombre en dos líneas con la marca al final y, si corresponde,
+ * el stock. Sin código: en la grilla es ruido. El nombre y el precio van en ese orden visual
+ * (precio primero), pero el `<h3>` con el enlace sigue siendo el nombre.
+ */
+const MarketCard = forwardRef<HTMLDivElement, MarketCardProps>(
+  (
+    {
+      galeria, images, image, imagesLabels, badge, brand, name, stock, stockLabel, showStock, price, priceSize,
+      priceTone, priceCaption, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction,
+      fmt, formatter, className, ...props
+    },
+    ref,
+  ) => (
+    <div ref={ref} data-layout="grid" data-variant="market" className={cn(card({ variant: 'market', layout: 'grid' }), className)} {...props}>
+      <div className={cn('relative flex aspect-square items-center justify-center overflow-hidden border-b border-border/40 bg-surface p-2', galeria && 'p-0')}>
+        {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+        {galeria ? <Galeria fotos={images!} href={href} renderLink={renderLink} labels={imagesLabels} /> : (images?.[0] ?? image)}
+        {cornerAction && <div className="absolute right-1.5 top-1.5 z-10">{cornerAction}</div>}
+        {action && (
+          <div data-accion-foto="" className="absolute bottom-2 right-2 z-10">
+            {action}
+          </div>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col px-2.5 pb-3 pt-2 sm:px-3">
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <PrecioPartido n={price} fmt={formatter(price)} className={priceMarket({ priceSize, priceTone })} />
+          {oldPrice != null && <span className="text-xs text-muted line-through">{fmt(oldPrice)}</span>}
+          {discount && (
+            <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">{discount}</span>
+          )}
+        </div>
+        {priceCaption && (
+          <div className={cn('-mt-0.5 text-xs font-semibold', priceTone === 'accent' ? 'text-accent' : 'text-text')}>
+            {priceCaption}
+          </div>
+        )}
+        {priceNote && <div className="text-[11px] leading-snug text-muted">{priceNote}</div>}
+        {installments && <div className="mt-0.5 text-xs leading-snug text-muted">{installments}</div>}
+
+        <h3 className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-text sm:text-sm">
+          {href ? renderLink({ href, className: nameLink, children: name }) : name}
+          {brand && <span className="text-muted"> · {brand}</span>}
+        </h3>
+        {showStock && (
+          <span className={cn('mt-1 text-xs font-semibold', stock === 'out' ? 'text-danger' : stock === 'low' ? 'text-warning' : 'text-success')}>
+            {stockLabel ?? stockLabels[stock]}
+          </span>
+        )}
+      </div>
+    </div>
+  ),
+);
+MarketCard.displayName = 'ProductCard';
 
 /**
  * Galería de la card. Scroll nativo con `scroll-snap` (como `Carousel`): el arrastre usa la
