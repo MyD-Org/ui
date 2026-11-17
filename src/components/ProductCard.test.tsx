@@ -393,12 +393,14 @@ describe('variant market (0.63.0)', () => {
     expect(accion?.parentElement?.className).toContain('aspect-square');
   });
 
-  it('muestra el caption pegado al precio con el tono accent', () => {
+  it('muestra el caption al lado del precio, en la misma fila, con el tono accent', () => {
     const { container } = render(
       <ProductCard variant="market" name="Reflector LED" price={6393} priceTone="accent" priceCaption="con transferencia" installments="$ 7.892,10 con otros medios" />,
     );
     expect(container.querySelector('[data-precio]')?.parentElement?.className).toContain('text-accent');
     expect(screen.getByText('con transferencia').className).toContain('text-accent');
+    // Misma fila que el precio, no una línea aparte debajo.
+    expect(screen.getByText('con transferencia').parentElement).toBe(container.querySelector('[data-precio]')?.parentElement?.parentElement);
     expect(screen.getByText('$ 7.892,10 con otros medios')).toBeInTheDocument();
   });
 
