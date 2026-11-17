@@ -175,7 +175,7 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   /** Linea de financiacion bajo el precio (ej. "Hasta 3 cuotas de $5.840,69"). */
   installments?: ReactNode;
   /**
-   * Sólo `variant="market"`: aclaración corta pegada debajo del precio, del mismo color
+   * Sólo `variant="market"`: aclaración corta al lado del precio, en la misma línea y del mismo color
    * (ej. "con transferencia" cuando el precio principal es el de un medio de pago).
    */
   priceCaption?: ReactNode;
@@ -501,7 +501,7 @@ type MarketCardProps = Omit<
 /**
  * `variant="market"` en grilla (0.63.0), como los marketplaces: la foto cuadrada a sangre ocupa
  * la mayor parte de la card. La acción (un "+" o un contador compacto) va SOBRE la foto, abajo a
- * la derecha, y no ocupa una fila. Debajo: precio (con `priceCaption` pegado), `installments`
+ * la derecha, y no ocupa una fila. Debajo: precio (con `priceCaption` al lado, 0.64.0), `installments`
  * (precios secundarios, cuotas), nombre en dos líneas con la marca al final y, si corresponde,
  * el stock. Sin código: en la grilla es ruido. El nombre y el precio van en ese orden visual
  * (precio primero), pero el `<h3>` con el enlace sigue siendo el nombre.
@@ -530,16 +530,16 @@ const MarketCard = forwardRef<HTMLDivElement, MarketCardProps>(
       <div className="flex min-w-0 flex-1 flex-col px-2.5 pb-3 pt-2 sm:px-3">
         <div className="flex flex-wrap items-baseline gap-x-2">
           <PrecioPartido n={price} fmt={formatter(price)} className={priceMarket({ priceSize, priceTone })} />
+          {priceCaption && (
+            <span className={cn('text-xs font-semibold', priceTone === 'accent' ? 'text-accent' : 'text-text')}>
+              {priceCaption}
+            </span>
+          )}
           {oldPrice != null && <span className="text-xs text-muted line-through">{fmt(oldPrice)}</span>}
           {discount && (
             <span className="rounded-sm bg-danger-soft px-1.5 py-0.5 text-xs font-semibold text-danger">{discount}</span>
           )}
         </div>
-        {priceCaption && (
-          <div className={cn('-mt-0.5 text-xs font-semibold', priceTone === 'accent' ? 'text-accent' : 'text-text')}>
-            {priceCaption}
-          </div>
-        )}
         {priceNote && <div className="text-[11px] leading-snug text-muted">{priceNote}</div>}
         {installments && <div className="mt-0.5 text-xs leading-snug text-muted">{installments}</div>}
 
