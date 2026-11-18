@@ -166,3 +166,14 @@ describe('SideNav — grupos', () => {
     expect(nav.querySelectorAll('[data-slot="group-divider"]').length).toBe(2);
   });
 });
+
+describe('SideNav — alto', () => {
+  it('la nav scrollea sola y el footer no se achica: con muchos ítems no corta el usuario', () => {
+    render(<SideNav items={items} user={{ name: 'Dalila' }} />);
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(nav.className).toContain('min-h-0');
+    expect(nav.className).toContain('overflow-y-auto');
+    const footer = screen.getByText('Dalila').closest('.border-t');
+    expect(footer?.className).toContain('shrink-0');
+  });
+});

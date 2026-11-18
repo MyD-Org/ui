@@ -326,7 +326,7 @@ export function SideNav({
         {(logo || collapsible) && (
           <div
             className={cn(
-              'flex items-start gap-2 border-b border-border justify-between px-4 py-4',
+              'shrink-0 flex items-start gap-2 border-b border-border justify-between px-4 py-4',
               isRail && !mobileOpen && 'sm:justify-center sm:px-2',
             )}
           >
@@ -357,10 +357,12 @@ export function SideNav({
           </div>
         )}
 
-        {/* Nav. Al tocar un ítem en mobile, cerramos el drawer. */}
+        {/* Nav. Al tocar un ítem en mobile, cerramos el drawer. Scrollea sola (min-h-0 +
+            overflow-y-auto) cuando los ítems no entran en el alto: sin eso desbordaba el aside y
+            el contenedor h-dvh overflow-hidden cortaba el footer (avatar, disponibilidad). */}
         <nav
           className={cn(
-            'flex-1 py-3 flex flex-col gap-0.5',
+            'flex-1 min-h-0 overflow-y-auto py-3 flex flex-col gap-0.5',
             isRail && !mobileOpen ? 'sm:px-2 px-3' : 'px-3',
           )}
           aria-label="Navegación principal"
@@ -395,7 +397,7 @@ export function SideNav({
         {(user || footerSlot || collapsible) && (
           <div
             className={cn(
-              'py-3 border-t border-border flex flex-col gap-1',
+              'shrink-0 py-3 border-t border-border flex flex-col gap-1',
               isRail && !mobileOpen ? 'sm:px-2 px-3' : 'px-3',
             )}
           >
