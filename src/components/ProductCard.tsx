@@ -30,9 +30,31 @@ const card = cva('group relative flex overflow-hidden transition-shadow duration
       grid: 'flex-col',
       list: 'flex-row items-stretch',
     },
+    /**
+     * Resalta la card (0.66.0), p. ej. un producto en oferta: borde grueso con el acento de la
+     * marca de cada piel. `none` (default) no cambia nada.
+     */
+    highlight: {
+      none: '',
+      accent: '',
+    },
   },
-  defaultVariants: { variant: 'default', layout: 'grid' },
+  compoundVariants: [
+    { variant: 'default', highlight: 'accent', className: 'border-2 border-accent' },
+    { variant: 'editorial', highlight: 'accent', className: 'border-2 border-accent' },
+    { variant: 'soft', highlight: 'accent', className: 'ring-2 ring-accent hover:ring-accent' },
+    { variant: 'market', highlight: 'accent', className: 'ring-2 ring-accent hover:ring-accent' },
+  ],
+  defaultVariants: { variant: 'default', layout: 'grid', highlight: 'none' },
 });
+
+/**
+ * Lugar del `badge` sobre la foto (0.66.0). `inset` (default): separado del borde. `corner`:
+ * pegado a la esquina superior izquierda, para un badge tipo pestaña (p. ej. «OFERTA») que
+ * redondea su propia esquina inferior derecha.
+ */
+const badgeWrap = (placement: ProductCardBadgePlacement, galeria: boolean) =>
+  cn('absolute', placement === 'corner' ? 'left-0 top-0' : 'left-2 top-2', galeria && 'z-[2]');
 
 // `bg-surface` (no `bg-elevated`): `elevated` es un rol que cada piel tiñe libremente
 // (en el theme azul del Shop es celeste) y detrás de fotos con fondo blanco/transparente
@@ -123,6 +145,8 @@ export type ProductCardVariant = NonNullable<VariantProps<typeof card>['variant'
 export type ProductCardLayout = NonNullable<VariantProps<typeof card>['layout']>;
 export type ProductCardActionPlacement = 'inline' | 'below';
 export type ProductCardPriceTone = 'default' | 'accent';
+export type ProductCardHighlight = 'none' | 'accent';
+export type ProductCardBadgePlacement = 'inset' | 'corner';
 
 export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof card> {
   image?: ReactNode;
@@ -137,6 +161,10 @@ export interface ProductCardProps extends HTMLAttributes<HTMLDivElement>, Varian
   /** Textos de la galería para lectores de pantalla. */
   imagesLabels?: { prev: string; next: string };
   badge?: ReactNode;
+  /** Dónde va el `badge` sobre la foto. Default 'inset'; 'corner' lo pega a la esquina (0.66.0). */
+  badgePlacement?: ProductCardBadgePlacement;
+  /** Resalta la card con el acento de la marca (borde grueso). Default 'none' (0.66.0). */
+  highlight?: ProductCardHighlight;
   brand?: string;
   name: string;
   /** Código / SKU: línea "Cód. {code}" bajo el nombre. */
@@ -228,6 +256,8 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       images,
       imagesLabels,
       badge,
+      badgePlacement = 'inset',
+      highlight = 'none',
       brand,
       name,
       code,
@@ -277,7 +307,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           ref={ref}
           galeria={galeria}
           className={className}
-          {...{ images, image, imagesLabels, badge, brand, name, stock, stockLabel, showStock, price, priceSize, priceTone, priceCaption, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
+          {...{ images, image, imagesLabels, badge, badgePlacement, highlight, brand, name, stock, stockLabel, showStock, price, priceSize, priceTone, priceCaption, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
           {...props}
         />
       );
@@ -289,7 +319,7 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
           layout={resolvedLayout}
           galeria={galeria}
           className={className}
-          {...{ images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock, price, priceSize, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
+          {...{ images, image, imagesLabels, badge, badgePlacement, highlight, brand, name, code, codeLabel, stock, stockLabel, showStock, price, priceSize, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter }}
           {...props}
         />
       );
@@ -299,11 +329,11 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       <div
         ref={ref}
         data-layout={resolvedLayout}
-        className={cn(card({ variant, layout: resolvedLayout }), className)}
+        className={cn(card({ variant, layout: resolvedLayout, highlight }), className)}
         {...props}
       >
         <div className={cn(imageWrap({ layout: resolvedLayout }), galeria && 'p-0')}>
-          {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+          {badge && <div className={badgeWrap(badgePlacement, galeria)}>{badge}</div>}
           {galeria ? (
             <Galeria fotos={images} href={href} renderLink={renderLink} labels={imagesLabels} />
           ) : (
@@ -382,6 +412,8 @@ ProductCard.displayName = 'ProductCard';
 type SoftCardProps = Omit<ProductCardProps, 'variant' | 'layout' | 'actionPlacement' | 'currency' | 'locale'> & {
   layout: ProductCardLayout;
   galeria: boolean;
+  badgePlacement: ProductCardBadgePlacement;
+  highlight: ProductCardHighlight;
   codeLabel: string;
   stock: ProductStock;
   showStock: boolean;
@@ -399,7 +431,7 @@ type SoftCardProps = Omit<ProductCardProps, 'variant' | 'layout' | 'actionPlacem
 const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
   (
     {
-      layout, galeria, images, image, imagesLabels, badge, brand, name, code, codeLabel, stock, stockLabel, showStock,
+      layout, galeria, images, image, imagesLabels, badge, badgePlacement, highlight, brand, name, code, codeLabel, stock, stockLabel, showStock,
       price, priceSize, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction, fmt, formatter,
       className, ...props
     },
@@ -434,11 +466,11 @@ const SoftCard = forwardRef<HTMLDivElement, SoftCardProps>(
       <div
         ref={ref}
         data-layout={layout}
-        className={cn(card({ variant: 'soft', layout }), className)}
+        className={cn(card({ variant: 'soft', layout, highlight }), className)}
         {...props}
       >
         <div className={cn(imageWrapSoft({ layout }), galeria && 'p-0')}>
-          {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+          {badge && <div className={badgeWrap(badgePlacement, galeria)}>{badge}</div>}
           {galeria ? (
             <Galeria fotos={images!} href={href} renderLink={renderLink} labels={imagesLabels} />
           ) : (
@@ -490,6 +522,8 @@ type MarketCardProps = Omit<
   'variant' | 'layout' | 'actionPlacement' | 'currency' | 'locale' | 'code' | 'codeLabel'
 > & {
   galeria: boolean;
+  badgePlacement: ProductCardBadgePlacement;
+  highlight: ProductCardHighlight;
   stock: ProductStock;
   showStock: boolean;
   priceTone: ProductCardPriceTone;
@@ -509,15 +543,15 @@ type MarketCardProps = Omit<
 const MarketCard = forwardRef<HTMLDivElement, MarketCardProps>(
   (
     {
-      galeria, images, image, imagesLabels, badge, brand, name, stock, stockLabel, showStock, price, priceSize,
+      galeria, images, image, imagesLabels, badge, badgePlacement, highlight, brand, name, stock, stockLabel, showStock, price, priceSize,
       priceTone, priceCaption, oldPrice, discount, action, priceNote, installments, href, renderLink, cornerAction,
       fmt, formatter, className, ...props
     },
     ref,
   ) => (
-    <div ref={ref} data-layout="grid" data-variant="market" className={cn(card({ variant: 'market', layout: 'grid' }), className)} {...props}>
+    <div ref={ref} data-layout="grid" data-variant="market" className={cn(card({ variant: 'market', layout: 'grid', highlight }), className)} {...props}>
       <div className={cn('relative flex aspect-square items-center justify-center overflow-hidden border-b border-border/40 bg-surface p-2', galeria && 'p-0')}>
-        {badge && <div className={cn('absolute left-2 top-2', galeria && 'z-[2]')}>{badge}</div>}
+        {badge && <div className={badgeWrap(badgePlacement, galeria)}>{badge}</div>}
         {galeria ? <Galeria fotos={images!} href={href} renderLink={renderLink} labels={imagesLabels} /> : (images?.[0] ?? image)}
         {cornerAction && <div className="absolute right-1.5 top-1.5 z-10">{cornerAction}</div>}
         {action && (
