@@ -61,6 +61,8 @@ export {
   type ProductCardLayout,
   type ProductCardActionPlacement,
   type ProductCardPriceTone,
+  type ProductCardHighlight,
+  type ProductCardBadgePlacement,
   type ProductCardSkeletonProps,
 } from './components/ProductCard.js';
 export { FileDropZone, type FileDropZoneProps } from './components/FileDropZone.js';

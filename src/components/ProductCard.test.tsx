@@ -33,6 +33,34 @@ describe('ProductCard', () => {
     expect(soft?.className).not.toContain('text-lg');
   });
 
+  it('highlight="accent" resalta la card con el acento en las cuatro variantes; sin highlight no', () => {
+    const { container, rerender } = render(<ProductCard name="Test" price={100} />);
+    const raiz = () => container.firstChild as HTMLElement;
+    expect(raiz().className).not.toContain('accent');
+    rerender(<ProductCard name="Test" price={100} highlight="accent" />);
+    expect(raiz().className).toContain('border-accent');
+    rerender(<ProductCard name="Test" price={100} variant="editorial" highlight="accent" />);
+    expect(raiz().className).toContain('border-accent');
+    rerender(<ProductCard name="Test" price={100} variant="soft" highlight="accent" />);
+    expect(raiz().className).toContain('ring-accent');
+    rerender(<ProductCard name="Test" price={100} variant="market" highlight="accent" />);
+    expect(raiz().className).toContain('ring-accent');
+    rerender(<ProductCard name="Test" price={100} variant="market" layout="list" highlight="accent" />);
+    expect(raiz().className).toContain('ring-accent');
+  });
+
+  it('badgePlacement="corner" pega el badge a la esquina; el default lo separa del borde', () => {
+    const wrap = () => screen.getByText('OFERTA').parentElement as HTMLElement;
+    const { rerender } = render(<ProductCard name="Test" price={100} badge={<span>OFERTA</span>} />);
+    expect(wrap().className).toContain('left-2');
+    for (const variant of ['default', 'soft', 'market'] as const) {
+      rerender(<ProductCard name="Test" price={100} variant={variant} badge={<span>OFERTA</span>} badgePlacement="corner" />);
+      expect(wrap().className).toContain('left-0');
+      expect(wrap().className).toContain('top-0');
+      expect(wrap().className).not.toContain('left-2');
+    }
+  });
+
   it('renders badge slot', () => {
     render(<ProductCard name="Test" price={100} badge={<span data-testid="badge">OFERTA</span>} />);
     expect(screen.getByTestId('badge')).toBeDefined();
